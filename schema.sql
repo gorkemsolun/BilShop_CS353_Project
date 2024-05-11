@@ -169,12 +169,16 @@ insert into User(userID, name, email, password) values ('0', 'admin', 'admin', '
 insert into Admin(userID) values ( '0' );
 insert into User(userID, name, email, password) values ('10', 'MCK', 'MCK', 'admin');
 insert into Business(userID, balance) values ( '10', 4000 );
-insert into Product(productID, title, price, status) values ('1', 'Murat1', 400, 'notSold'),
-                                                            ('2', 'Murat2', 500, 'notSold'),
-                                                            ('3', 'Murat3', 600, 'notSold');
+insert into Product(productID, title, price, status, category) values ('1', 'Murat1', 400, 'notSold', 'Jewelry'),
+                                                            ('2', 'Murat2', 500, 'notSold', 'Sculpture'),
+                                                            ('3', 'Murat3', 600, 'notSold', 'Furniture'),
+                                                            ('4', 'Murat4', 100, 'notSold', 'Accessories'),
+                                                            ('5', 'Murat5', 300, 'notSold', 'Painting');
 insert into Owns(userID, productID, amount)  values ('10', '1', 5),
                                                     ('10', '2', 5),
-                                                    ('10', '3', 5);
+                                                    ('10', '3', 5),
+                                                    ('10', '4', 5),
+                                                    ('10', '5', 5);
 
 
 
