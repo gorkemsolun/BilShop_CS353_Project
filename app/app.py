@@ -51,11 +51,7 @@ def filter_products():
     # Set default sort order if not provided
     if not sort_order:
         sort_order = 'ASC'
-
-    # Ensure sort order is in uppercase
     sort_order = sort_order.upper()
-
-    # Execute the query with parameters
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if sort_order == 'ASC':
         cursor.execute(
