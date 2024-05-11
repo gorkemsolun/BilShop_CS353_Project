@@ -1,6 +1,8 @@
 import re
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+import sys
+
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 
@@ -26,19 +28,59 @@ def get_next_id():
       return str(1)  # Start from 1 if no records exist
   max_id = max_id['userID']
   return str(int(max_id) + 1)
+@app.route('/search_products', methods=['POST'])
+def search_products():
+    search = request.json.get('search', '')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND title LIKE %s', ('notSold', f'{search}%'))
+    product_table = cursor.fetchall()
+    return jsonify(product_table)
+
+@app.route('/filter')
+def filter_products():
+    category = request.args.get('category')
+    min_price = request.args.get('minPrice')
+    max_price = request.args.get('maxPrice')
+    sort_order = request.args.get('sortOrder')
+    # Set default values if min_price or max_price are not provided
+    if not min_price or float(min_price) < 0:
+        min_price = 0
+    if not max_price or float(max_price) < 0:
+        max_price = sys.maxsize
+
+    # Set default sort order if not provided
+    if not sort_order:
+        sort_order = 'ASC'
+
+    # Ensure sort order is in uppercase
+    sort_order = sort_order.upper()
+
+    # Execute the query with parameters
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if sort_order == 'ASC':
+        cursor.execute(
+        'SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND price >= %s AND price <= %s ORDER BY price ASC',
+        ('notSold', float(min_price), float(max_price), ))
+        product_table = cursor.fetchall()
+    else:
+        cursor.execute(
+            'SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND price >= %s AND price <= %s ORDER BY price DESC',
+            ('notSold', float(min_price), float(max_price),))
+        product_table = cursor.fetchall()
+    return jsonify(product_table)
 
 # to-do admin registration button and admin registration page
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     message = ''
-    # if 'username' in session:
-    #     if session['role'] == 'customer':
-    #         return redirect(url_for('main_page_customer'))
-    #     elif session['role'] == 'business':
-    #         return redirect(url_for('main_page_business'))
-    #     else:
-    #         return redirect(url_for('main_page_admin'))
+    if 'username' in session:
+        if session['role'] == 'customer':
+            return redirect(url_for('main_page_customer'))
+        elif session['role'] == 'business':
+            return redirect(url_for('main_page_business'))
+        else:
+            return redirect(url_for('main_page_admin'))
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']
         password = request.form['password']
@@ -51,30 +93,37 @@ def login():
         if user_w_name is None:
             user = user_w_email
         if user:
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute('SELECT * FROM Customer WHERE userID = % s', (user['userID'],))
-            customer = cursor.fetchone()
-            if customer:
-                session['role'] = 'customer'
-                session['loggedin'] = True
-                session['userid'] = user['userID']
-                session['username'] = user['name']
-                return redirect(url_for('main_page_customer'))
+            cursor.execute('SELECT * FROM Blacklists WHERE userID = % s', (user['userID'],))
+            isBlacklisted = cursor.fetchone()
+            if isBlacklisted:
+                message = "Sorry, you are blacklisted."
             else:
-                cursor.execute('SELECT * FROM Business WHERE userID = % s', (user['userID'],))
-                business = cursor.fetchone()
-                if business:
-                    session['role'] = 'business'
+                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+                cursor.execute('SELECT * FROM Customer WHERE userID = % s', (user['userID'],))
+                customer = cursor.fetchone()
+                if customer:
+                    # userID are same in customer and user
+                    session['role'] = 'customer'
                     session['loggedin'] = True
                     session['userid'] = user['userID']
                     session['username'] = user['name']
-                    return redirect(url_for('main_page_business'))
+                    return redirect(url_for('main_page_customer'))
                 else:
-                    session['role'] = 'admin'
-                    session['loggedin'] = True
-                    session['userid'] = user['userID']
-                    session['username'] = user['name']
-                    return redirect(url_for('main_page_admin'))
+                    # userID are same in business and user
+                    cursor.execute('SELECT * FROM Business WHERE userID = % s', (user['userID'],))
+                    business = cursor.fetchone()
+                    if business:
+                        session['role'] = 'business'
+                        session['loggedin'] = True
+                        session['userid'] = user['userID']
+                        session['username'] = user['name']
+                        return redirect(url_for('main_page_business'))
+                    else:
+                        session['role'] = 'admin'
+                        session['loggedin'] = True
+                        session['userid'] = user['userID']
+                        session['username'] = user['name']
+                        return redirect(url_for('main_page_admin'))
         else:
             message = 'Please enter correct email / username and password !'
     return render_template('login.html', message=message)
@@ -120,14 +169,27 @@ def register():
     return render_template('register.html', message=message)
 
 
-@app.route('/main_page_customer')
+@app.route('/main_page_customer' , methods=['GET', 'POST'])
 def main_page_customer():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s', ('notSold', ))
     product_table = cursor.fetchall()
     product_header = ["title", "price", "coverPicture"]
+    if request.method == 'POST' and 'search' in request.form:
+        search = request.form['search']
+        cursor.execute('SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s AND title LIKE %s', ('notSold', f'{search}%', ))
+        product_table = cursor.fetchall()
+        product_header = ["title", "price", "coverPicture"]
     return render_template('main_page_customer.html', product_table = product_table, product_header = product_header, isInSession = session['loggedin'], username = session['username'])
 
+#to-do notifications page
+@app.route('/notifications')
+def notifications():
+    return render_template('notifications.html')
+#to-do profile page
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
 #to-do main page business product creation
 @app.route('/main_page_business')
 def main_page_business():
