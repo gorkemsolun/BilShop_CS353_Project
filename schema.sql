@@ -1,51 +1,107 @@
-CREATE TABLE customer (
-cid char(5) PRIMARY KEY,
-name varchar(30) UNIQUE, 
-bdate date,
-city varchar(20),
-nationality varchar(20)
+CREATE TABLE User
+(
+    userID              varchar(20)    not null,
+    name                varchar(50)    not null,
+    email               varchar(50)    not null,
+    password            varchar(50)    not null,
+    picture             varchar(100)   default null,
+    phone_number        varchar(100)   default null,
+    country             varchar(100)   default null,
+    city                varchar(100)   default null,
+    state               varchar(100)   default null,
+    zip                 decimal(10, 0) default null,
+    building            varchar(10)    default null,
+    street              varchar(50)    default null,
+    no                  varchar(20)    default null,
+    addressDescription  varchar(50)    default null,
+    primary key(userID),
+    unique(email)
 );
 
-CREATE TABLE account (
-aid char(8) PRIMARY KEY,
-branch varchar(20) NOT NULL,
-balance float NOT NULL,
-openDate date NOT NULL,
-city varchar(20)
+create table Customer
+(
+	userID varchar(20),
+	balance numeric(20, 2),
+	description varchar(50) default null,
+    primary key(userID),
+    foreign key (userID) references User(userID) on delete cascade on update cascade
 );
 
-CREATE TABLE owns (
-cid char(5),
-aid char(8),
-PRIMARY KEY(cid, aid),
-FOREIGN KEY(aid) REFERENCES account(aid),
-FOREIGN KEY(cid) REFERENCES customer(cid)
+create table Business
+(
+	userID varchar(20),
+	rating numeric(10, 0)       default null,
+	yearOfEstablishment date    default null,
+	balance numeric(20, 2),
+	logo varchar(50)            default null,
+	description varchar(50)     default null,
+	companyName varchar(20)     default null,
+    primary key(userID),
+    foreign key (userID) references User(userID) on delete cascade on update cascade
 );
 
+create table Admin
+(
+	userID varchar(20),
+    primary key(userID),
+    foreign key (userID) references User(userID) on delete cascade on update cascade
+);
 
-INSERT INTO customer VALUES ('10001', 'Ayse', '1990-09-08', 'Ankara', 'TC');
-INSERT INTO customer VALUES ('10002', 'Ali', '1985-10-16', 'Ankara', 'TC');
-INSERT INTO customer VALUES ('10003', 'Ahmet', '1997-02-15', 'İzmir', 'TC');
-INSERT INTO customer VALUES ('10004', 'John', '2003-04-26', 'İstanbul', 'UK');
+create table Product
+(
+    productID       varchar(20) not null,
+    title           varchar(20) not null,
+    price           numeric(20, 2) not null,
+    description     varchar(50),
+    status          varchar(20),
+    proportions     varchar(20),
+    mass            numeric(10,2),
+    coverPicture    varchar(50),
+    date            timestamp not null,
+    color           varchar(20),
+    category        varchar(20),
+    primary key(productID)
+);
 
-INSERT INTO account VALUES ('A0000001', 'Kizilay', 40000.00, '2019-11-01', 'Ankara');
-INSERT INTO account VALUES ('A0000002', 'Kadikoy', 228000.00, '2011-01-05', 'Istanbul');
-INSERT INTO account VALUES ('A0000003', 'Cankaya', 432000.00, '2016-05-14', 'Ankara');
-INSERT INTO account VALUES ('A0000004', 'Bilkent', 100500.00, '2023-06-01', 'Ankara');
-INSERT INTO account VALUES ('A0000005', 'Tandogan', 77800.00, '2013-03-20', 'Ankara');
-INSERT INTO account VALUES ('A0000006', 'Konak', 25000.00, '2022-01-22', 'Izmir');
-INSERT INTO account VALUES ('A0000007', 'Bakırkoy', 6000.00, '2017-04-21', 'Istanbul');
+create table ProductPicture
+(
+	productID varchar(20) not null,
+    picture varchar(50),
+    primary key(productID),
+    foreign key (productID) references Product(productID) on delete cascade on update cascade
+);
 
-INSERT INTO owns VALUES ('10001','A0000001');
-INSERT INTO owns VALUES ('10001','A0000002');
-INSERT INTO owns VALUES ('10001','A0000003');
-INSERT INTO owns VALUES ('10001','A0000004');
-INSERT INTO owns VALUES ('10002', 'A0000001');
-INSERT INTO owns VALUES ('10002', 'A0000003');
-INSERT INTO owns VALUES ('10002', 'A0000005');
-INSERT INTO owns VALUES ('10003','A0000006');
-INSERT INTO owns VALUES ('10003', 'A0000007');
-INSERT INTO owns VALUES ('10004', 'A0000006');
+create table Owns
+(
+	userID varchar(20),
+	productID varchar(20),
+	amount numeric(20, 0) not null,
+    primary key(userID, productID),
+    foreign key (productID) references Product(productID) on delete cascade on update cascade,
+    foreign key (userID) references Business(userID) on delete cascade on update cascade
+);
+
+create table Wishes
+(
+	userID varchar(20),
+	productID varchar(20),
+    primary key(userID, productID),
+    foreign key (productID) references Product(productID) on delete cascade on update cascade,
+    foreign key (userID) references Customer(userID) on delete cascade on update cascade
+);
+
+create table PutsOnCart
+(
+	userID varchar(20) not null,
+	productID varchar(20) not null,
+	amount numeric(20, 0) not null,
+	primary key(userID, productID),
+	foreign key (productID) references Product(productID) on delete cascade on update cascade,
+	foreign key (userID) references Customer(userID) on delete cascade on update cascade
+);
+
+insert into User(userID, name, email, password) values (0, 'admin', 'admin', 'admin');
+insert into Admin(userID) values ( 0 );
 
 
 
