@@ -44,30 +44,47 @@
             id="searchButton"
             class="btn btn-outline-light me-2"
             type="submit"
+            title="Search"
           >
             <i class="bi bi-search"></i>
           </button>
           <!-- Shopping Cart -->
           <form action="{{ url_for('shopping_cart') }}" method="get">
-            <button class="btn btn-outline-light me-2" type="submit">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Cart"
+            >
               <i class="bi bi-cart3"></i>
             </button>
           </form>
           <!-- Notifications button -->
           <form action="{{ url_for('notifications') }}" method="get">
-            <button class="btn btn-outline-light me-2" type="submit">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Notification"
+            >
               <i class="bi bi-bell"></i>
             </button>
           </form>
           <!-- Profile button -->
           <form action="{{ url_for('profile') }}" method="get">
-            <button class="btn btn-outline-light me-2" type="submit">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Profile"
+            >
               <i class="bi bi-person"></i>
             </button>
           </form>
           <!-- Logout button -->
           <form action="{{ url_for('logout') }}" method="get">
-            <button class="btn btn-outline-light me-2" type="submit">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Logout"
+            >
               <i class="bi bi-box-arrow-left"></i>
             </button>
           </form>
@@ -144,6 +161,11 @@
                 <div class="product-title">{{ product.title }}</div>
                 <div class="product-price">{{ product.price }}</div>
                 <!-- Add other product details as needed -->
+                <a
+                  href="/product/{{ product.product_ID }}"
+                  class="btn btn-primary"
+                  >View Product</a
+                >
               </div>
             </div>
             {% endfor %}
@@ -152,11 +174,14 @@
       </div>
     </div>
 
+    <!-- TODO: WHY IS THIS SCRIPT HERE? -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-Lj0C4zj98o1DZi9bMMfCf+/JWny3I3pAtVnd+pj9gF8H8eEv2h4W/toCg3IeGZsC"
       crossorigin="anonymous"
     ></script>
+
+    <!-- TODO: WHAT THIS DOES? -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         document

@@ -1,0 +1,42 @@
+body {
+  background-color: #222; /* Dark background */
+  color: #fff; /* White text for better readability */
+  font-family: sans-serif;
+}
+
+.container {
+  margin-top: 20px;
+}
+
+/* TODO use this */
+.product-container {
+  background-color: #333; /* Darker container background */
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* TODO use this */
+.product-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* TODO use this */
+.product-price {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* Adjustments for the navbar icons */
+.navbar-brand {
+  font-size: 40px;
+}
+
+.navbar-nav .nav-link {
+  margin-right: 10px; /* Increased margin for the icons */
+}
+.btn-outline-light {
+  border: 0;
+}

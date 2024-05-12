@@ -13,6 +13,10 @@ from flask import (
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 
+
+# NOTE: session[user_ID] may be wrong, it  can be replaced with session[userid]
+
+
 app = Flask(__name__, static_folder="static")
 
 app.secret_key = "abcdefgh"
@@ -299,34 +303,55 @@ def main_page_customer():
     )
 
 
-# to-do notifications page
+# TODO notifications page
 @app.route("/notifications")
 def notifications():
     return render_template("notifications.html")
 
 
-# to-do shopping-cart page
+# TODO shopping-cart page
 @app.route("/shopping_cart")
 def shopping_cart():
     return render_template("shopping_cart.html")
 
 
-# to-do profile page
+# TODO profile page
 @app.route("/profile")
 def profile():
     return render_template("profile.html")
 
 
-# to-do main page business product creation
+# TODO main page business product creation
 @app.route("/main_page_business")
 def main_page_business():
     return render_template("main_page_business.html")
 
 
-# to-do main page admin reports etc
+# TODO main page admin reports etc
 @app.route("/main_page_admin")
 def main_page_admin():
     return render_template("main_page_admin.html")
+
+
+# TODO product page
+# This page will be used to show the product details and the product picture
+# The product details will be fetched from the database
+# Link to this page will be provided in the main_page_customer.html, link will be /product/<product_ID>
+# The product_ID will be passed to this page as a parameter
+@app.route("/product/<product_ID>")
+def product(product_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the product details from the database using the product_ID
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
+    )
+    product = cursor.fetchone()
+    # Get the product picture from the database using the product_ID
+    cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
+    product_picture = cursor.fetchone()
+    return render_template(
+        "product.html", product=product, product_picture=product_picture
+    )
 
 
 # @app.route('/money_transfer', methods=['GET', 'POST'])
