@@ -2,7 +2,7 @@
 
 Install and open Docker
 
-Move your current operating system's yaml file from yaml/<OS> to the project's folder
+Move your current operating system's yaml file from yaml/\<Operating System\> to the project's folder
 
 Open the terminal in the project's folder
 
