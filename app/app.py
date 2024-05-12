@@ -129,9 +129,9 @@ def login():
         if session["role"] == "customer":
             return redirect(url_for("customer_main_page"))
         elif session["role"] == "business":
-            return redirect(url_for("main_page_business"))
+            return redirect(url_for("business_main_page"))
         else:
-            return redirect(url_for("main_page_admin"))
+            return redirect(url_for("admin_main_page"))
     if (
         request.method == "POST"
         and "username" in request.form
@@ -198,14 +198,14 @@ def login():
                         session["loggedin"] = True
                         session["userid"] = user["user_ID"]
                         session["username"] = user["name"]
-                        return redirect(url_for("main_page_business"))
+                        return redirect(url_for("business_main_page"))
                     # Assign admin session information to local storage
                     else:
                         session["role"] = "admin"
                         session["loggedin"] = True
                         session["userid"] = user["user_ID"]
                         session["username"] = user["name"]
-                        return redirect(url_for("main_page_admin"))
+                        return redirect(url_for("admin_main_page"))
         # user not found
         else:
             message = "Please enter correct email / username and password !"
@@ -299,6 +299,18 @@ def customer_main_page():
     )
 
 
+# TODO main page business product creation
+@app.route("/business_main_page")
+def business_main_page():
+    return render_template("business_main_page.html")
+
+
+# TODO main page admin reports etc
+@app.route("/admin_main_page")
+def admin_main_page():
+    return render_template("admin_main_page.html")
+
+
 # TODO notifications page
 @app.route("/notifications")
 def notifications():
@@ -327,16 +339,36 @@ def customer_profile():
     return render_template("customer_profile.html", customer=customer)
 
 
-# TODO main page business product creation
-@app.route("/main_page_business")
-def main_page_business():
-    return render_template("main_page_business.html")
+# Profile page for the business
+# This page will be used to show the business details
+# The business details will be fetched from the database
+# Link to this page will be provided in the business_main_page.html
+@app.route("/business_profile")
+def business_profile():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the business details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    business = cursor.fetchone()
+    return render_template("business_profile.html", business=business)
 
 
-# TODO main page admin reports etc
-@app.route("/main_page_admin")
-def main_page_admin():
-    return render_template("main_page_admin.html")
+# Profile page for the admin
+# This page will be used to show the admin details
+# The admin details will be fetched from the database
+# Link to this page will be provided in the admin_main_page.html
+@app.route("/admin_profile")
+def admin_profile():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the admin details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Admin WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    admin = cursor.fetchone()
+    return render_template("admin_profile.html", admin=admin)
 
 
 # TODO product page
