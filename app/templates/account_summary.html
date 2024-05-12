@@ -1,98 +1,103 @@
 <form action="{{ url_for('account_summary') }}">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-        <div class="px-5 mx-5">
-            {% if isInSession is defined and isInSession == True %}
-                <h1>Welcome, to your account summary {{username}}! <br /></h1>
-            {% endif %}
-            <h2>Query 1</h2>
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        {% for head in header %}
-                            <th>{{head}}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                {% if query1 is defined and query1 %}
-                    <tbody>
-                        {% for row in query1 %}
-                            <tr>
-                                <td>{{row['aid']}}</td>
-                                <td>{{row['branch']}}</td>
-                                <td>{{row['balance']}}</td>
-                                <td>{{row['openDate']}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                {% endif %}
-            </table>
-        <h2>Query 2</h2>
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        {% for head in header %}
-                            <th>{{head}}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                {% if query2 is defined and query2 %}
-                    <tbody>
-                        {% for row in query2 %}
-                            <tr>
-                                <td>{{row['aid']}}</td>
-                                <td>{{row['branch']}}</td>
-                                <td>{{row['balance']}}</td>
-                                <td>{{row['openDate']}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                {% endif %}
-            </table>
-        <h2>Query 3</h2>
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        {% for head in header2 %}
-                            <th>{{head}}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                {% if query3 is defined and query3 %}
-                    <tbody>
-                        {% for row in query3 %}
-                            <tr>
-                                <td>{{row['aid']}}</td>
-                                <td>{{row['balance']}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                {% endif %}
-            </table>
-        <h2>Query 4</h2>
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        {% for head in header3 %}
-                            <th>{{head}}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                {% if query4 is defined and query4 %}
-                    <tbody>
-                        {% for row in query4 %}
-                            <tr>
-                                <td>{{row['min_balance']}}</td>
-                                <td>{{row['max_balance']}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                {% endif %}
-            </table>
-        </div>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+    crossorigin="anonymous"
+  />
+  <div class="px-5 mx-5">
+    {% if isInSession is defined and isInSession == True %}
+    <h1>Welcome, to your account summary {{username}}! <br /></h1>
+    {% endif %}
+    <h2>Query 1</h2>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          {% for head in header %}
+          <th>{{head}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      {% if query1 is defined and query1 %}
+      <tbody>
+        {% for row in query1 %}
+        <tr>
+          <td>{{row['aid']}}</td>
+          <td>{{row['branch']}}</td>
+          <td>{{row['balance']}}</td>
+          <td>{{row['openDate']}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endif %}
+    </table>
+    <h2>Query 2</h2>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          {% for head in header %}
+          <th>{{head}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      {% if query2 is defined and query2 %}
+      <tbody>
+        {% for row in query2 %}
+        <tr>
+          <td>{{row['aid']}}</td>
+          <td>{{row['branch']}}</td>
+          <td>{{row['balance']}}</td>
+          <td>{{row['openDate']}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endif %}
+    </table>
+    <h2>Query 3</h2>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          {% for head in header2 %}
+          <th>{{head}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      {% if query3 is defined and query3 %}
+      <tbody>
+        {% for row in query3 %}
+        <tr>
+          <td>{{row['aid']}}</td>
+          <td>{{row['balance']}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endif %}
+    </table>
+    <h2>Query 4</h2>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          {% for head in header3 %}
+          <th>{{head}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      {% if query4 is defined and query4 %}
+      <tbody>
+        {% for row in query4 %}
+        <tr>
+          <td>{{row['min_balance']}}</td>
+          <td>{{row['max_balance']}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endif %}
+    </table>
+  </div>
 </form>
 
 <div class="px-5 mx-5">
-    <form action="{{ url_for('main_page') }}" method="get">
-        <button class="btn btn-primary">Return</button>
-    </form>
+  <form action="{{ url_for('main_page') }}" method="get">
+    <button class="btn btn-primary">Return</button>
+  </form>
 </div>

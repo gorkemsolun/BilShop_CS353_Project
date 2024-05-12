@@ -1,52 +1,53 @@
- body {
-      background-color: #222;  /* Dark background */
-      color: #fff;  /* White text for better readability */
-      font-family: sans-serif;
-      display: flex;  /* Enable Flexbox for body */
-      justify-content: center;  /* Center content horizontally */
-      align-items: center;  /* Center content vertically */
-      min-height: 100vh;  /* Set minimum height for viewport */
-      margin: 0; /* Reset margin to prevent default browser styles */
-    }
+body {
+  background-color: #222; /* Dark background */
+  color: #fff; /* White text for better readability */
+  font-family: sans-serif;
+  display: flex; /* Enable Flexbox for body */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-height: 100vh; /* Set minimum height for viewport */
+  margin: 0; /* Reset margin to prevent default browser styles */
+}
 
-    .alert-container {
-      position: fixed; /* Fixed positioning */
-      top: 0; /* Positioned at the top */
-      width: 100%; /* Full width */
-      z-index: 1000; /* Ensure it's above other content */
-    }
+.alert-container {
+  position: fixed; /* Fixed positioning */
+  top: 0; /* Positioned at the top */
+  width: 100%; /* Full width */
+  z-index: 1000; /* Ensure it's above other content */
+}
 
-    .alert {
-      width: 100%;
-      text-align: center;
-      padding: 10px 0;
-    }
+.alert {
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+}
 
-    .login-container {
-      height: 500px;
-      width: 500px;  /* Adjust container width as needed */
-      padding: 105px;
-      border-radius: 10px;  /* Rounded corners */
-      background-color: #333;  /* Slightly darker background for the container */
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  /* Shadow for depth */
-    }
+.login-container {
+  height: 500px;
+  width: 500px; /* Adjust container width as needed */
+  padding: 105px;
+  border-radius: 10px; /* Rounded corners */
+  background-color: #333; /* Slightly darker background for the container */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+}
 
-    .login-form {
-      text-align: center;  /* Center form elements within the container */
-    }
+.login-form {
+  text-align: center; /* Center form elements within the container */
+}
 
-    .form-group {
-      margin-bottom: 20px;
-    }
+.form-group {
+  margin-bottom: 20px;
+}
 
-    .btn-primary, .btn-outline-primary {
-      width: 50%;
-      margin-top: 20px;
-      border-radius: 20px;
-    }
+.btn-primary,
+.btn-outline-primary {
+  width: 50%;
+  margin-top: 20px;
+  border-radius: 20px;
+}
 
-    h2{
-      color: white;
-      font-size: 50px;
-        margin-bottom: 30px;
-    }
+h2 {
+  color: white;
+  font-size: 50px;
+  margin-bottom: 30px;
+}
