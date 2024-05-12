@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{customer.name}}</title>
+    <title>{{admin_product.title}}</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -17,14 +17,14 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='styles/customer_product.css') }}"
+      href="{{ url_for('static', filename='styles/admin_product.css') }}"
     />
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <!-- TODO: href here should be designed so that it is suitable for every user type-->
-        <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
+        <a class="navbar-brand" href="/admin_main_page"><b>BilShop</b></a>
         <div class="d-flex">
           <!-- Shopping Cart -->
           <form action="{{ url_for('shopping_cart') }}" method="get">
@@ -46,12 +46,13 @@
               <i class="bi bi-bell"></i>
             </button>
           </form>
-          <!-- Profile button -->
-          <form action="{{ url_for('customer_profile') }}" method="get">
+          <!-- Business Profile button -->
+          <!-- TODO this should be business profile -->
+          <form action="{{ url_for('admin_profile') }}" method="get">
             <button
               class="btn btn-outline-light me-2"
               type="submit"
-              title="Profile"
+              title="Admin Profile"
             >
               <i class="bi bi-person"></i>
             </button>
@@ -70,6 +71,16 @@
       </div>
     </nav>
 
-    <div>TODO: make profile</div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">TODO: Add admin_product image here</div>
+        <div class="col-md-6">
+          <h1>{{ admin_product.title }}</h1>
+          <p>{{ admin_product.description }}</p>
+          <p>Price: ${{ admin_product.price }}</p>
+          TODO: Add a form to add the admin_product to the shopping cart
+        </div>
+      </div>
+    </div>
   </body>
 </html>

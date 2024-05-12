@@ -8,31 +8,25 @@ body {
   margin-top: 20px;
 }
 
-.business_product-container {
+/* TODO use this */
+.customer_product-container {
   background-color: #333; /* Darker container background */
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
 }
 
-.business_product-title {
+/* TODO use this */
+.customer_product-title {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-.business_product-price {
+/* TODO use this */
+.customer_product-price {
   font-size: 18px;
   margin-bottom: 10px;
-}
-
-/* Adjustments for the filter section */
-.filter-section {
-  background-color: #333;
-  padding: 20px;
-  border-radius: 10px;
-  margin-right: 20px;
-  margin-left: 20px; /* Adjusted margin for the left */
 }
 
 /* Adjustments for the navbar icons */

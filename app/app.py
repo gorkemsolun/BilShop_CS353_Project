@@ -290,7 +290,7 @@ def customer_main_page():
         "SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s", ("not_sold",)
     )
     product_table = cursor.fetchall()
-    # Pass the product table, and user session information to HTML
+    # Pass the customer product table, and user session information to HTML
     return render_template(
         "customer_main_page.html",
         product_table=product_table,
@@ -300,15 +300,39 @@ def customer_main_page():
 
 
 # TODO main page business product creation
+# TODO write description of this function/page
 @app.route("/business_main_page")
 def business_main_page():
-    return render_template("business_main_page.html")
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all products that are not sold using the following query
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s", ("not_sold",)
+    )
+    product_table = cursor.fetchall()
+    return render_template(
+        "business_main_page.html",
+        product_table=product_table,
+        is_in_session=session["loggedin"],
+        username=session["username"],
+    )
 
 
 # TODO main page admin reports etc
+# TODO write description of this function/page
 @app.route("/admin_main_page")
 def admin_main_page():
-    return render_template("admin_main_page.html")
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all products that are not sold using the following query
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s", ("not_sold",)
+    )
+    product_table = cursor.fetchall()
+    return render_template(
+        "admin_main_page.html",
+        product_table=product_table,
+        is_in_session=session["loggedin"],
+        username=session["username"],
+    )
 
 
 # TODO notifications page
@@ -371,24 +395,72 @@ def admin_profile():
     return render_template("admin_profile.html", admin=admin)
 
 
-# TODO product page
-# This page will be used to show the product details and the product picture
-# The product details will be fetched from the database
-# Link to this page will be provided in the customer_main_page.html, link will be /product/<product_ID>
+# TODO customer customer product page
+# This page will be used to show the customer product details and the customer product picture
+# The customer product details will be fetched from the database
+# Link to this page will be provided in the customer_main_page.html, link will be /customer_product/<product_ID>
 # The product_ID will be passed to this page as a parameter
-@app.route("/product/<product_ID>")
-def product(product_ID):
+@app.route("/customer_product/<product_ID>")
+def customer_product(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the product details from the database using the product_ID
+    # Get the customer product details from the database using the product_ID
     cursor.execute(
         "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
     )
-    product = cursor.fetchone()
-    # Get the product picture from the database using the product_ID
+    customer_product = cursor.fetchone()
+    # Get the customer product picture from the database using the product_ID
     cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
     product_picture = cursor.fetchone()
     return render_template(
-        "product.html", product=product, product_picture=product_picture
+        "customer_product.html",
+        customer_product=customer_product,
+        product_picture=product_picture,
+    )
+
+
+# TODO business product page
+# This page will be used to show the business product details and the business product picture
+# The business product details will be fetched from the database
+# Link to this page will be provided in the business_main_page.html, link will be /business_product/<product_ID>
+# The product_ID will be passed to this page as a parameter
+@app.route("/business_product/<product_ID>")
+def business_product(product_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the business product details from the database using the product_ID
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
+    )
+    business_product = cursor.fetchone()
+    # Get the business product picture from the database using the product_ID
+    cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
+    product_picture = cursor.fetchone()
+    return render_template(
+        "business_product.html",
+        business_product=business_product,
+        product_picture=product_picture,
+    )
+
+
+# TODO admin product page
+# This page will be used to show the admin product details and the admin product picture
+# The admin product details will be fetched from the database
+# Link to this page will be provided in the admin_main_page.html, link will be /admin_product/<product_ID>
+# The product_ID will be passed to this page as a parameter
+@app.route("/admin_product/<product_ID>")
+def admin_product(product_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the admin product details from the database using the product_ID
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
+    )
+    admin_product = cursor.fetchone()
+    # Get the admin product picture from the database using the product_ID
+    cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
+    product_picture = cursor.fetchone()
+    return render_template(
+        "admin_product.html",
+        admin_product=admin_product,
+        product_picture=product_picture,
     )
 
 

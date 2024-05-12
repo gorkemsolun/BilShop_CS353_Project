@@ -155,14 +155,18 @@
         <!-- Product listings -->
         <div class="col-md-9" id="productListings">
           <div class="row">
-            {% for product in product_table %}
+            {% for customer_product in product_table %}
             <div class="col-md-4">
-              <div class="product-container">
-                <div class="product-title">{{ product.title }}</div>
-                <div class="product-price">{{ product.price }}</div>
-                <!-- Add other product details as needed -->
+              <div class="customer_product-container">
+                <div class="customer_product-title">
+                  {{ customer_product.title }}
+                </div>
+                <div class="customer_product-price">
+                  {{ customer_product.price }}
+                </div>
+                <!-- Add other customer product details as needed -->
                 <a
-                  href="/product/{{ product.product_ID }}"
+                  href="/customer_product/{{ customer_product.product_ID }}"
                   class="btn btn-primary"
                   >View Product</a
                 >
@@ -212,14 +216,14 @@
         productListingsDiv.innerHTML = ""; // Clear previous listings
         var productRow = document.createElement("div");
         productRow.className = "row"; // Create a row for horizontal layout
-        products.forEach(function (product) {
+        products.forEach(function (customer_product) {
           var productDiv = document.createElement("div");
           productDiv.className = "col-md-4";
           productDiv.innerHTML = `
-          <div class="product-container">
-            <div class="product-title">${product.title}</div>
-            <div class="product-price">${product.price}</div>
-            <!-- Add other product details as needed -->
+          <div class="customer_product-container">
+            <div class="customer_product-title">${customer_product.title}</div>
+            <div class="customer_product-price">${customer_product.price}</div>
+            <!-- Add other customer product details as needed -->
           </div>
         `;
           productRow.appendChild(productDiv);
