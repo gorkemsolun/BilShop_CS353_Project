@@ -13,10 +13,6 @@ from flask import (
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 
-
-# NOTE: session[user_ID] may be wrong, it  can be replaced with session[userid]
-
-
 app = Flask(__name__, static_folder="static")
 
 app.secret_key = "abcdefgh"
@@ -131,7 +127,7 @@ def login():
     # Checking whether the user logged in the system, redirect to the correct page using user roles
     if "username" in session:
         if session["role"] == "customer":
-            return redirect(url_for("main_page_customer"))
+            return redirect(url_for("customer_main_page"))
         elif session["role"] == "business":
             return redirect(url_for("main_page_business"))
         else:
@@ -187,9 +183,9 @@ def login():
                     # user_ID are same in customer and user
                     session["role"] = "customer"
                     session["loggedin"] = True
-                    session["user_ID"] = user["user_ID"]
+                    session["userid"] = user["user_ID"]
                     session["username"] = user["name"]
-                    return redirect(url_for("main_page_customer"))
+                    return redirect(url_for("customer_main_page"))
                 else:
                     # Check whether the user_ID exists in the Business table, noting that user_ID are same in business and user
                     cursor.execute(
@@ -200,14 +196,14 @@ def login():
                     if business:
                         session["role"] = "business"
                         session["loggedin"] = True
-                        session["user_ID"] = user["user_ID"]
+                        session["userid"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("main_page_business"))
                     # Assign admin session information to local storage
                     else:
                         session["role"] = "admin"
                         session["loggedin"] = True
-                        session["user_ID"] = user["user_ID"]
+                        session["userid"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("main_page_admin"))
         # user not found
@@ -286,8 +282,8 @@ def register():
     return render_template("register.html", message=message)
 
 
-@app.route("/main_page_customer", methods=["GET", "POST"])
-def main_page_customer():
+@app.route("/customer_main_page", methods=["GET", "POST"])
+def customer_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products that are not sold using the following query
     cursor.execute(
@@ -296,7 +292,7 @@ def main_page_customer():
     product_table = cursor.fetchall()
     # Pass the product table, and user session information to HTML
     return render_template(
-        "main_page_customer.html",
+        "customer_main_page.html",
         product_table=product_table,
         is_in_session=session["loggedin"],
         username=session["username"],
@@ -315,10 +311,20 @@ def shopping_cart():
     return render_template("shopping_cart.html")
 
 
-# TODO profile page
-@app.route("/profile")
-def profile():
-    return render_template("profile.html")
+# Profile page for the customer
+# This page will be used to show the customer details
+# The customer details will be fetched from the database
+# Link to this page will be provided in the customer_main_page.html
+@app.route("/customer_profile")
+def customer_profile():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the customer details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    customer = cursor.fetchone()
+    return render_template("customer_profile.html", customer=customer)
 
 
 # TODO main page business product creation
@@ -336,7 +342,7 @@ def main_page_admin():
 # TODO product page
 # This page will be used to show the product details and the product picture
 # The product details will be fetched from the database
-# Link to this page will be provided in the main_page_customer.html, link will be /product/<product_ID>
+# Link to this page will be provided in the customer_main_page.html, link will be /product/<product_ID>
 # The product_ID will be passed to this page as a parameter
 @app.route("/product/<product_ID>")
 def product(product_ID):
