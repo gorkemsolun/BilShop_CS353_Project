@@ -4,39 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .table-container {
-        margin-bottom: 40px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-      }
-      th,
-      td {
-        padding: 10px;
-        text-align: left;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-      tr:nth-child(even) {
-        background-color: #f9f9f9;
-      }
-      .heading {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-    </style>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/test_tables.css') }}"
+    />
   </head>
   <body>
     <div class="container">
@@ -47,7 +18,7 @@
         <h1 class="heading">USER</h1>
         <table>
           <tr>
-            <th>userID</th>
+            <th>user_ID</th>
             <th>name</th>
             <th>email</th>
             <th>password</th>
@@ -60,11 +31,11 @@
             <th>building</th>
             <th>street</th>
             <th>no</th>
-            <th>addressDescription</th>
+            <th>address_description</th>
           </tr>
           {% for row in users %}
           <tr>
-            <td>{{ row['userID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
             <td>{{ row['name'] }}</td>
             <td>{{ row['email'] }}</td>
             <td>{{ row['password'] }}</td>
@@ -77,7 +48,7 @@
             <td>{{ row['building'] }}</td>
             <td>{{ row['street'] }}</td>
             <td>{{ row['no'] }}</td>
-            <td>{{ row['addressDescription'] }}</td>
+            <td>{{ row['address_description'] }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -88,13 +59,13 @@
         <h1 class="heading">CUSTOMER</h1>
         <table>
           <tr>
-            <th>userID</th>
+            <th>user_ID</th>
             <th>balance</th>
             <th>description</th>
           </tr>
           {% for row in customers %}
           <tr>
-            <td>{{ row['userID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
             <td>{{ row['balance'] }}</td>
             <td>{{ row['description'] }}</td>
           </tr>
@@ -107,23 +78,23 @@
         <h1 class="heading">BUSINESS</h1>
         <table>
           <tr>
-            <th>userID</th>
+            <th>user_ID</th>
             <th>rating</th>
-            <th>yearOfEstablishment</th>
+            <th>establishment_year</th>
             <th>balance</th>
             <th>logo</th>
             <th>description</th>
-            <th>companyName</th>
+            <th>company_name</th>
           </tr>
           {% for row in businesses %}
           <tr>
-            <td>{{ row['userID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
             <td>{{ row['rating'] }}</td>
-            <td>{{ row['yearOfEstablishment'] }}</td>
+            <td>{{ row['establishment_year'] }}</td>
             <td>{{ row['balance'] }}</td>
             <td>{{ row['logo'] }}</td>
             <td>{{ row['description'] }}</td>
-            <td>{{ row['companyName'] }}</td>
+            <td>{{ row['company_name'] }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -134,11 +105,11 @@
         <h1 class="heading">ADMIN</h1>
         <table>
           <tr>
-            <th>userID</th>
+            <th>user_ID</th>
           </tr>
           {% for row in admins %}
           <tr>
-            <td>{{ row['userID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -149,28 +120,28 @@
         <h1 class="heading">PRODUCT</h1>
         <table>
           <tr>
-            <th>productID</th>
+            <th>product_ID</th>
             <th>title</th>
             <th>price</th>
             <th>description</th>
             <th>status</th>
             <th>proportions</th>
             <th>mass</th>
-            <th>coverPicture</th>
+            <th>cover_picture</th>
             <th>date</th>
             <th>color</th>
             <th>category</th>
           </tr>
           {% for row in products %}
           <tr>
-            <td>{{ row['productID'] }}</td>
+            <td>{{ row['product_ID'] }}</td>
             <td>{{ row['title'] }}</td>
             <td>{{ row['price'] }}</td>
             <td>{{ row['description'] }}</td>
             <td>{{ row['status'] }}</td>
             <td>{{ row['proportions'] }}</td>
             <td>{{ row['mass'] }}</td>
-            <td>{{ row['coverPicture'] }}</td>
+            <td>{{ row['cover_picture'] }}</td>
             <td>{{ row['date'] }}</td>
             <td>{{ row['color'] }}</td>
             <td>{{ row['category'] }}</td>
@@ -179,17 +150,17 @@
         </table>
       </div>
 
-      <!-- ProductPicture Table -->
+      <!-- Product_Picture Table -->
       <div class="table-container">
         <h1 class="heading">PRODUCT PICTURE</h1>
         <table>
           <tr>
-            <th>productID</th>
+            <th>product_ID</th>
             <th>picture</th>
           </tr>
           {% for row in product_pictures %}
           <tr>
-            <td>{{ row['productID'] }}</td>
+            <td>{{ row['product_ID'] }}</td>
             <td>{{ row['picture'] }}</td>
           </tr>
           {% endfor %}
@@ -201,14 +172,14 @@
         <h1 class="heading">OWNS</h1>
         <table>
           <tr>
-            <th>userID</th>
-            <th>productID</th>
+            <th>user_ID</th>
+            <th>product_ID</th>
             <th>amount</th>
           </tr>
           {% for row in owns %}
           <tr>
-            <td>{{ row['userID'] }}</td>
-            <td>{{ row['productID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
+            <td>{{ row['product_ID'] }}</td>
             <td>{{ row['amount'] }}</td>
           </tr>
           {% endfor %}
@@ -220,96 +191,96 @@
         <h1 class="heading">WISHES</h1>
         <table>
           <tr>
-            <th>userID</th>
-            <th>productID</th>
+            <th>user_ID</th>
+            <th>product_ID</th>
           </tr>
           {% for row in wishes %}
           <tr>
-            <td>{{ row['userID'] }}</td>
-            <td>{{ row['productID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
+            <td>{{ row['product_ID'] }}</td>
           </tr>
           {% endfor %}
         </table>
       </div>
 
-      <!-- PutsOnCart Table -->
+      <!-- Puts_On_Cart Table -->
       <div class="table-container">
         <h1 class="heading">PUTS ON CART</h1>
         <table>
           <tr>
-            <th>userID</th>
-            <th>productID</th>
+            <th>user_ID</th>
+            <th>product_ID</th>
             <th>amount</th>
           </tr>
           {% for row in puts_on_cart %}
           <tr>
-            <td>{{ row['userID'] }}</td>
-            <td>{{ row['productID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
+            <td>{{ row['product_ID'] }}</td>
             <td>{{ row['amount'] }}</td>
           </tr>
           {% endfor %}
         </table>
       </div>
 
-      <!-- PurchaseInformation Table -->
+      <!-- Purchase_Information Table -->
       <div class="table-container">
         <h1 class="heading">PURCHASE INFORMATION</h1>
         <table>
           <tr>
-            <th>purchaseID</th>
+            <th>purchase_ID</th>
             <th>status</th>
-            <th>totalPrice</th>
+            <th>total_price</th>
             <th>date</th>
-            <th>userID</th>
+            <th>user_ID</th>
           </tr>
           {% for row in purchase_info %}
           <tr>
-            <td>{{ row['purchaseID'] }}</td>
+            <td>{{ row['purchase_ID'] }}</td>
             <td>{{ row['status'] }}</td>
-            <td>{{ row['totalPrice'] }}</td>
+            <td>{{ row['total_price'] }}</td>
             <td>{{ row['date'] }}</td>
-            <td>{{ row['userID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
           </tr>
           {% endfor %}
         </table>
       </div>
 
-      <!-- ReturnRequestInformation Table -->
+      <!-- Return_Request_Information Table -->
       <div class="table-container">
         <h1 class="heading">RETURN REQUEST INFORMATION</h1>
         <table>
           <tr>
-            <th>returnID</th>
+            <th>return_ID</th>
             <th>date</th>
             <th>reason</th>
             <th>status</th>
-            <th>purchaseID</th>
+            <th>purchase_ID</th>
           </tr>
           {% for row in return_requests %}
           <tr>
-            <td>{{ row['returnID'] }}</td>
+            <td>{{ row['return_ID'] }}</td>
             <td>{{ row['date'] }}</td>
             <td>{{ row['reason'] }}</td>
             <td>{{ row['status'] }}</td>
-            <td>{{ row['purchaseID'] }}</td>
+            <td>{{ row['purchase_ID'] }}</td>
           </tr>
           {% endfor %}
         </table>
       </div>
 
-      <!-- HasReturnRequest Table -->
+      <!-- Has_Return_Request Table -->
       <div class="table-container">
         <h1 class="heading">HAS RETURN REQUEST</h1>
         <table>
           <tr>
-            <th>returnID</th>
-            <th>productID</th>
+            <th>return_ID</th>
+            <th>product_ID</th>
             <th>amount</th>
           </tr>
           {% for row in has_return_request %}
           <tr>
-            <td>{{ row['returnID'] }}</td>
-            <td>{{ row['productID'] }}</td>
+            <td>{{ row['return_ID'] }}</td>
+            <td>{{ row['product_ID'] }}</td>
             <td>{{ row['amount'] }}</td>
           </tr>
           {% endfor %}
@@ -321,27 +292,27 @@
         <h1 class="heading">REPORT</h1>
         <table>
           <tr>
-            <th>reportID</th>
+            <th>report_ID</th>
             <th>date</th>
             <th>description</th>
-            <th>productID</th>
-            <th>reportedUserID</th>
-            <th>purchaseID</th>
-            <th>returnID</th>
+            <th>product_ID</th>
+            <th>reported_user_ID</th>
+            <th>purchase_ID</th>
+            <th>return_ID</th>
             <th>status</th>
-            <th>userID</th>
+            <th>user_ID</th>
           </tr>
           {% for row in reports %}
           <tr>
-            <td>{{ row['reportID'] }}</td>
+            <td>{{ row['report_ID'] }}</td>
             <td>{{ row['date'] }}</td>
             <td>{{ row['description'] }}</td>
-            <td>{{ row['productID'] }}</td>
-            <td>{{ row['reportedUserID'] }}</td>
-            <td>{{ row['purchaseID'] }}</td>
-            <td>{{ row['returnID'] }}</td>
+            <td>{{ row['product_ID'] }}</td>
+            <td>{{ row['reported_user_ID'] }}</td>
+            <td>{{ row['purchase_ID'] }}</td>
+            <td>{{ row['return_ID'] }}</td>
             <td>{{ row['status'] }}</td>
-            <td>{{ row['userID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -352,16 +323,16 @@
         <h1 class="heading">BLACKLISTS</h1>
         <table>
           <tr>
-            <th>userID</th>
-            <th>reportID</th>
-            <th>adminID</th>
+            <th>user_ID</th>
+            <th>report_ID</th>
+            <th>admin_ID</th>
             <th>description</th>
           </tr>
           {% for row in blacklists %}
           <tr>
-            <td>{{ row['userID'] }}</td>
-            <td>{{ row['reportID'] }}</td>
-            <td>{{ row['adminID'] }}</td>
+            <td>{{ row['user_ID'] }}</td>
+            <td>{{ row['report_ID'] }}</td>
+            <td>{{ row['admin_ID'] }}</td>
             <td>{{ row['description'] }}</td>
           </tr>
           {% endfor %}

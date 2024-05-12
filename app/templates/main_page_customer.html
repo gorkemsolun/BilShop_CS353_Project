@@ -96,28 +96,28 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label for="minPrice">Minimum Price:</label>
+                <label for="min_price">Minimum Price:</label>
                 <input
                   type="number"
                   class="form-control"
-                  id="minPrice"
-                  name="minPrice"
+                  id="min_price"
+                  name="min_price"
                   placeholder="Min"
                 />
               </div>
               <div class="mb-3">
-                <label for="maxPrice">Maximum Price:</label>
+                <label for="max_price">Maximum Price:</label>
                 <input
                   type="number"
                   class="form-control"
-                  id="maxPrice"
-                  name="maxPrice"
+                  id="max_price"
+                  name="max_price"
                   placeholder="Max"
                 />
               </div>
               <div class="mb-3">
-                <label for="sortOrder">Sort By Price:</label>
-                <select class="form-select" id="sortOrder" name="sortOrder">
+                <label for="sort_order">Sort By Price:</label>
+                <select class="form-select" id="sort_order" name="sort_order">
                   <option value="asc">Ascending</option>
                   <option value="desc">Descending</option>
                 </select>
@@ -203,12 +203,12 @@
       }
       function applyFilter() {
         var category = document.getElementById("category").value;
-        var minPrice = document.getElementById("minPrice").value;
-        var maxPrice = document.getElementById("maxPrice").value;
-        var sortOrder = document.getElementById("sortOrder").value;
+        var min_price = document.getElementById("min_price").value;
+        var max_price = document.getElementById("max_price").value;
+        var sort_order = document.getElementById("sort_order").value;
 
         // Construct the URL with query parameters
-        var url = `/filter?category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sortOrder=${sortOrder}`;
+        var url = `/filter?category=${category}&min_price=${min_price}&max_price=${max_price}&sort_order=${sort_order}`;
 
         // Send AJAX request to Flask backend
         var xhr = new XMLHttpRequest();
