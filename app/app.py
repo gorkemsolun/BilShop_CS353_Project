@@ -314,7 +314,7 @@ def admin():
     # Fetch data from the Product table
     cursor.execute('SELECT * FROM Product ORDER BY productID')
     products = cursor.fetchall()
-
+    
     # Fetch data from the ProductPicture table
     cursor.execute('SELECT * FROM ProductPicture ORDER BY productID')
     product_pictures = cursor.fetchall()
@@ -331,6 +331,7 @@ def admin():
     cursor.execute('SELECT * FROM PutsOnCart ORDER BY userID, productID')
     puts_on_cart = cursor.fetchall()
 
+    """"
     # Fetch data from the PurchaseInformation table
     cursor.execute('SELECT * FROM PurchaseInformation ORDER BY purchaseID')
     purchase_info = cursor.fetchall()
@@ -349,14 +350,18 @@ def admin():
 
     # Fetch data from the Blacklists table
     cursor.execute('SELECT * FROM Blacklists ORDER BY userID, reportID, adminID')
-    blacklists = cursor.fetchall()
+    blacklists = cursor.fetchall() """
 
     # Pass the fetched data to the render_template function
-    return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
+    """ return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
                            admins=admins, products=products, product_pictures=product_pictures,
                            owns=owns, wishes=wishes, puts_on_cart=puts_on_cart, purchase_info=purchase_info,
                            return_requests=return_requests, has_return_request=has_return_request,
-                           reports=reports, blacklists=blacklists)
+                           reports=reports, blacklists=blacklists) """
+
+    return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
+                           admins=admins, products=products, product_pictures=product_pictures,
+                           owns=owns, wishes=wishes, puts_on_cart=puts_on_cart)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8000))
