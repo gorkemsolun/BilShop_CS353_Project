@@ -1,13 +1,120 @@
-<form action="{{ url_for('shopping_cart') }}" method="post">
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
-    crossorigin="anonymous"
-  />
-</form>
-<form action="{{ url_for('logout') }}" method="get">
-  <div class="px-5 mx-5">
-    <button class="btn btn-primary">Logout</button>
-  </div>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopping Cart</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      integrity="sha512-sv6pgpFvAlzoBv2wJYbHkGY34A4fQsGYapb8O9mJ+9avshYyxHhCHGW3BDWnRlJMg1D+Dq0yAzV8BrVXU3HN0w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Reference Bootstrap Icons library -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/customer_main_page.css') }}"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/shopping_page"><b>BilShop</b></a>
+        <div class="d-flex">
+          <!-- Main Page Button -->
+          <form action="{{ url_for('customer_main_page') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Main Page"
+            >
+              <i class="bi bi-house-door"></i>
+            </button>
+          </form>
+          <!-- Notifications button -->
+          <form action="{{ url_for('notifications') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Notification"
+            >
+              <i class="bi bi-bell"></i>
+            </button>
+          </form>
+          <!-- Customer Profile button -->
+          <form action="{{ url_for('customer_profile') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Customer Profile"
+            >
+              <i class="bi bi-person"></i>
+            </button>
+          </form>
+          <!-- Logout button -->
+          <form action="{{ url_for('logout') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Logout"
+            >
+              <i class="bi bi-box-arrow-left"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-3">
+      <div class="row">
+       
+        <!-- Title -->
+        <div class="col-md-12">
+          <h1 class="shopping-cart-title">Shopping Cart</h1>
+        </div>
+        <!-- Product listings -->
+        <div class="col-md-9" id="productListings">
+          <div class="row">
+            {% if cart %}
+                {% for customer_product in cart %}
+                    <div class="col-md-4">
+                        <div class="customer_product-container">
+                            <div class="customer_product-title">
+                                {{ customer_product.title }}
+                            </div>
+                            <div class="customer_product-price">
+                                {{ customer_product.price }}
+                            </div>
+                            <div class="customer_product-amount">
+                              Amount: {{ customer_product.amount }}
+                            </div>
+                            <!-- Add other customer product details as needed -->
+                            <a href="/customer_product/{{ customer_product.product_ID }}" class="btn btn-primary">View Product</a>
+                            <a href="/remove_from_cart/{{ customer_product.product_ID }}" class="btn btn-danger">Remove From Cart</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-md-12">
+                    <p>Your cart is empty.</p>
+                </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+

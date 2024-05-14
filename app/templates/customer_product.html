@@ -19,6 +19,22 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='styles/customer_product.css') }}"
     />
+    <style>
+      /* Style the button */
+      #addToCartForm input[type="submit"] {
+          background-color: #007bff; /* Blue color for button background */
+          color: white; /* White text color */
+          padding: 8px 16px; /* Padding inside the button */
+          border: none; /* Remove border */
+          border-radius: 4px; /* Rounded corners */
+          cursor: pointer; /* Show pointer cursor on hover */
+      }
+  
+      /* Style the button on hover */
+      #addToCartForm input[type="submit"]:hover {
+          background-color: #0056b3; /* Darker blue color on hover */
+      }
+  </style>
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark">
@@ -82,8 +98,41 @@
           <h1>{{ customer_product.title }}</h1>
           <p>{{ customer_product.description }}</p>
           <p>Price: ${{ customer_product.price }}</p>
-          TODO: Add a form to add the customer_product to the shopping cart
+          <form id="addToCartForm">
+            <label for="amount">Amount:</label>
+            <select id="amount" name="amount">
+                {% for i in range(1, 31) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <input type="submit" value="Add to Cart">
+        </form>
+        <div id="successMessage"></div>
         </div>
+        <script>
+          document.getElementById('addToCartForm').addEventListener('submit', function(event) {
+              event.preventDefault(); // Prevent default form submission
+              var amount = document.getElementById('amount').value;
+              var productId = '{{ customer_product.product_ID }}';
+              var url = '/add_to_cart/' + productId + '/' + amount;
+              fetch(url, { method: 'GET' })
+                  .then(response => {
+                      if (response.ok) {
+                          // Handle success, e.g., show a success message
+                          var successMessage = document.createElement('p');
+                          successMessage.textContent = 'Product added to cart';
+                          document.getElementById('successMessage').appendChild(successMessage);
+                      } else {
+                          // Handle error, e.g., show an error message
+                          console.error('Failed to add product to cart');
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                  });
+          });
+      </script>
       </div>
     </div>
   </body>

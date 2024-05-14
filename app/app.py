@@ -345,8 +345,42 @@ def notifications():
 # TODO shopping-cart page
 @app.route("/shopping_cart")
 def shopping_cart():
-    return render_template("shopping_cart.html")
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all products from shopping cart
+    cursor.execute(
+        "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s", (session['userid'],)
+    )
+    cart = cursor.fetchall()
+   
+    return render_template(
+        "shopping_cart.html",
+        cart = cart
+    )
 
+# Called when a user adds an item to their shopping cart
+@app.route("/add_to_cart/<product_ID>/<amount>")
+def add_to_cart(product_ID, amount):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # If it is not already in the cart then insert, otherwise update the amount
+    cursor.execute(
+        "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)",
+        (session['userid'], product_ID, amount) 
+    )
+    mysql.connection.commit()
+    response = jsonify({'message': 'Success'})
+    response.status_code = 200
+    return response
+
+# Remove an item from the cart
+@app.route("/remove_from_cart/<product_ID>")
+def remove_from_cart(product_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "DELETE FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
+        (product_ID, session['userid'])
+    )
+    mysql.connection.commit()
+    return redirect(url_for('shopping_cart'))
 
 # Profile page for the customer
 # This page will be used to show the customer details

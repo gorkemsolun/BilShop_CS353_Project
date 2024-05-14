@@ -29,6 +29,12 @@ body {
   margin-bottom: 10px;
 }
 
+.customer_product-amount {
+  font-size: 16px;
+  color: #888; /* Use a color that fits your design */
+  margin-bottom: 10px;
+}
+
 /* Adjustments for the navbar icons */
 .navbar-brand {
   font-size: 40px;
@@ -39,4 +45,11 @@ body {
 }
 .btn-outline-light {
   border: 0;
+}
+
+.shopping-cart-title {
+  font-family: 'YourFontName', sans-serif; /* Replace 'YourFontName' with the actual font name */
+  font-size: 24px; /* Adjust the font size as needed */
+  margin-bottom: 20px; /* Add space below the title */
+  /* Add other styling if needed */
 }
