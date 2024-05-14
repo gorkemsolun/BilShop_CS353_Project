@@ -1,5 +1,6 @@
 import os
 import sys
+import base64
 
 from flask import (
     Flask,
@@ -411,10 +412,15 @@ def customer_product(product_ID):
     # Get the customer product picture from the database using the product_ID
     cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
     product_picture = cursor.fetchone()
+    encoded_image = None
+    if product_picture is not None:
+        image_data = product_picture['picture']
+        encoded_image = base64.b64encode(image_data).decode('utf-8');
+    # TODO figure something out if there is no picture
     return render_template(
         "customer_product.html",
         customer_product=customer_product,
-        product_picture=product_picture,
+        product_picture=encoded_image,
     )
 
 

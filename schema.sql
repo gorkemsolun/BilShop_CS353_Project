@@ -66,7 +66,7 @@ create table
 create table
     Product_Picture (
         product_ID varchar(20) not null,
-        picture varchar(50),
+        picture BLOB,
         primary key (product_ID),
         foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade
     );
