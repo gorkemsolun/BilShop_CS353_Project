@@ -363,10 +363,38 @@ def add_to_cart(product_ID, amount):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # If it is not already in the cart then insert, otherwise update the amount
     cursor.execute(
-        "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)",
-        (session['userid'], product_ID, amount) 
+        "SELECT amount FROM Owns WHERE product_ID = %s",
+        (product_ID,)
     )
-    mysql.connection.commit()
+    stock = cursor.fetchone()
+    cursor.execute(
+        "SELECT amount FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
+        (product_ID, session['userid'])
+    )
+    amountInCart = cursor.fetchone()
+    if amountInCart is None:
+        if int(amount) <= stock['amount']:
+            cursor.execute(
+                "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s)",
+                (session['userid'], product_ID, amount) 
+            )
+            mysql.connection.commit()
+        else:
+            response = jsonify({'message': 'Failure'})
+            response.status_code = 500
+            return response
+    else:
+        if int(amount) + amountInCart['amount'] <= stock['amount']:
+            cursor.execute(
+                "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)",
+                (session['userid'], product_ID, amount) 
+            )
+            mysql.connection.commit()
+        else:
+            response = jsonify({'message': 'Failure'})
+            response.status_code = 500
+            return response
+    
     response = jsonify({'message': 'Success'})
     response.status_code = 200
     return response
