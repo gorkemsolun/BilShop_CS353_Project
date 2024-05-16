@@ -50,7 +50,7 @@
       </form>
     </div>
     <h1 class="text-center mb-4">Business Product Creation</h1>
-    <form action="{{ url_for('business_product_creation') }}" method="post">
+    <form action="{{ url_for('business_product_creation') }}" enctype="multipart/form-data" method="post">
       <div class="row justify-content-center">
         <div class="col-md-10">
           <div class="mb-3">
@@ -79,11 +79,11 @@
           </div>
           <div class="mb-3">
             <label for="coverPicture" class="form-label">Cover Picture:</label>
-            <input type="text" class="form-control" id="cover_picture" name="coverPicture">
+            <input type="file" accept = "image/*" class="form-control" id="cover_picture" name="coverPicture">
           </div>
           <div class="mb-3">
             <label for="pictures" class="form-label">Pictures:</label>
-            <input type="text" class="form-control" id="pictures" name="pictures">
+            <input type="file" accept = "image/*" class="form-control" id="pictures" name="pictures">
           </div>
           <div class="mb-3">
             <label for="date" class="form-label">Date:</label>

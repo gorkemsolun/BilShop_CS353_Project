@@ -421,7 +421,7 @@ def business_product_creation():
             query = "INSERT INTO Product (product_ID, title, price, category, status"
             values = [productID, title, price, category, status]
 
-            optional_fields = ['description', 'cover_picture', 'proportions', 'mass', 'color', 'date']
+            optional_fields = ['description', 'coverPicture', 'proportions', 'mass', 'color', 'date']
             for field in optional_fields:
                 if field == "date" and field in request.form and request.form[field]:
                     query += f", {field}"
@@ -429,14 +429,23 @@ def business_product_creation():
                     values.append(date)
                 elif field in request.form and request.form[field]:
                     query += f", {field}"
-                    values.append(request.form[field])
+                    if field != "coverPicture":
+                        values.append(request.form[field])
+                    else:
+                        cover_picture = request.files['coverPicture']
+                        cover_picture_binary_data = cover_picture.read()
+                        values.append(cover_picture_binary_data)
 
             query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
-
+            # Insert the picture into Product_Picture
+            picture = request.files['pictures']
+            picture_binary_data = picture.read()
             try:
                 cursor.execute(query, values)
                 cursor.execute("INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
                                (session['userID'], productID, int(amount)))
+                cursor.execute("INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
+                               (productID, picture_binary_data))
                 mysql.connection.commit()
                 flash('Product created successfully!', 'success')
             except Exception as e:
@@ -634,10 +643,14 @@ def business_product(product_ID):
     # Get the business product picture from the database using the product_ID
     cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
     product_picture = cursor.fetchone()
+    encoded_image = None
+    if product_picture is not None:
+        image_data = product_picture['picture']
+        encoded_image = base64.b64encode(image_data).decode('utf-8');
     return render_template(
         "business_product.html",
         business_product=business_product,
-        product_picture=product_picture,
+        product_picture=encoded_image,
     )
 
 

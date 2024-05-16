@@ -73,12 +73,15 @@
 
     <div class="container">
       <div class="row">
-        <div class="col-md-6">TODO: Add business_product image here</div>
+        <div class="col-md-6">
+          {% if product_picture is not none %}
+          <img src="data:image/jpeg;base64,{{ product_picture }}" alt="Product Picture">
+        {% endif %}
+      </div>
         <div class="col-md-6">
           <h1>{{ business_product.title }}</h1>
           <p>{{ business_product.description }}</p>
           <p>Price: ${{ business_product.price }}</p>
-          TODO: Add a form to add the business_product to the shopping cart
         </div>
       </div>
     </div>
