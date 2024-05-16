@@ -184,13 +184,24 @@ values
     ('10', 4000);
 
 insert into
+    User (user_ID, name, email, password)
+values
+    ('11', 'MuratBusiness', 'MuratBusiness', 'admin');
+
+insert into
+    Business (user_ID, balance)
+values
+    ('11', 4000);
+
+insert into
     Product (product_ID, title, price, status, category)
 values
     ('1', 'Murat1', 400, 'not_sold', 'Jewelry'),
     ('2', 'Murat2', 500, 'not_sold', 'Sculpture'),
     ('3', 'Murat3', 600, 'not_sold', 'Furniture'),
     ('4', 'Murat4', 100, 'not_sold', 'Accessories'),
-    ('5', 'Murat5', 300, 'not_sold', 'Painting');
+    ('5', 'Murat5', 300, 'not_sold', 'Painting'),
+    ('6', 'Murat5', 300, 'not_sold', 'Painting');
 
 insert into
     Owns (user_ID, product_ID, amount)
@@ -199,4 +210,5 @@ values
     ('10', '2', 5),
     ('10', '3', 5),
     ('10', '4', 5),
-    ('10', '5', 5);
+    ('10', '5', 5),
+    ('11', '6', 10);

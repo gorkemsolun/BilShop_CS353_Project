@@ -97,7 +97,7 @@
         <!-- Filter section -->
         <div class="col-md-3">
           <div class="filter-section">
-            <form id="filterForm">
+            <div id="filterForm">
               <div class="mb-3">
                 <label for="category">Category:</label>
                 <select class="form-select" id="category" name="category">
@@ -148,7 +148,14 @@
                   Apply Filter
                 </button>
               </div>
-            </form>
+               <div class="text-center mb-3"> <!-- Center align content -->
+                    <form action="{{ url_for('business_product_creation') }}" method="get">
+                      <button class="btn btn-outline-light" type="submit">
+                        <i class="bi bi-patch-plus-fill" style="font-size: xx-large"></i>
+                      </button>
+                    </form>
+               </div>
+            </div>
           </div>
         </div>
 
@@ -195,7 +202,7 @@
               'input[name="search"]'
             ).value;
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/search_products", true);
+            xhr.open("POST", "/search_products_business", true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function () {
               if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -224,6 +231,13 @@
             <div class="business_product-title">${business_product.title}</div>
             <div class="business_product-price">${business_product.price}</div>
             <!-- Add other business product details as needed -->
+            <div>
+                <a
+                  href="/business_product/${ business_product.product_ID }"
+                  class="btn btn-primary"
+                  >View Product</a
+                >
+            </div>
           </div>
         `;
           productRow.appendChild(productDiv);
@@ -237,7 +251,7 @@
         var sort_order = document.getElementById("sort_order").value;
 
         // Construct the URL with query parameters
-        var url = `/filter?category=${category}&min_price=${min_price}&max_price=${max_price}&sort_order=${sort_order}`;
+        var url = `/filter_business?category=${category}&min_price=${min_price}&max_price=${max_price}&sort_order=${sort_order}`;
 
         // Send AJAX request to Flask backend
         var xhr = new XMLHttpRequest();

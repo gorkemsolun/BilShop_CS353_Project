@@ -10,9 +10,11 @@ from flask import (
     url_for,
     session,
     jsonify,
+    flash
 )
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
+from datetime import datetime
 
 app = Flask(__name__, static_folder="static")
 
@@ -31,13 +33,22 @@ mysql = MySQL(app)
 def get_next_id():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
-    cursor.execute("SELECT * FROM User ORDER BY user_ID DESC")
+    cursor.execute("SELECT * FROM User ORDER BY CONVERT(user_ID, UNSIGNED INTEGER) DESC")
     max_id = cursor.fetchone()
     if max_id is None:
         return str(1)  # Start from 1 if no records exist
     max_id = max_id["user_ID"]
     return str(int(max_id) + 1)
 
+def get_next_id_product():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Fetch the current maximum ID from the table
+    cursor.execute("SELECT * FROM Product ORDER BY CONVERT(product_ID, UNSIGNED INTEGER) DESC")
+    max_id = cursor.fetchone()
+    if max_id is None:
+        return str(1)  # Start from 1 if no records exist
+    max_id = max_id["product_ID"]
+    return str(int(max_id) + 1)
 
 # The helper function that returns a json file of the given string query
 @app.route("/search_products", methods=["POST"])
@@ -52,6 +63,82 @@ def search_products():
     product_table = cursor.fetchall()
     return jsonify(product_table)
 
+@app.route("/search_products_business", methods=["POST"])
+def search_products_business():
+    search = request.json.get("search", "")
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all the products with starting title as requested search input
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s AND title LIKE %s",
+        (session['userID'], f"{search}%"),
+    )
+    product_table = cursor.fetchall()
+    return jsonify(product_table)
+
+@app.route("/filter_business")
+def filter_products_business():
+    category = request.args.get("category")
+    min_price = request.args.get("min_price")
+    max_price = request.args.get("max_price")
+    sort_order = request.args.get("sort_order")
+    # Set default values if min_price or max_price are not provided
+    if not min_price or float(min_price) < 0:
+        min_price = 0
+    if not max_price or float(max_price) < 0:
+        max_price = sys.maxsize
+
+    # Set default sort order if not provided
+    if not sort_order:
+        sort_order = "ASC"
+    sort_order = sort_order.upper()
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if category == "all":
+        if sort_order == "ASC":
+            cursor.execute(
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE price >= %s AND price <= %s AND user_ID = %s ORDER BY price ASC",
+                (
+                    float(min_price),
+                    float(max_price),
+                    session['userID'],
+                ),
+            )
+            product_table = cursor.fetchall()
+        else:
+            cursor.execute(
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE price >= %s AND price <= %s AND user_ID = %s ORDER BY price DESC",
+                (
+                    float(min_price),
+                    float(max_price),
+                    session['userID'],
+                ),
+            )
+            product_table = cursor.fetchall()
+    else:
+        if sort_order == "ASC":
+            # Get all the products with starting applied filter choice
+            cursor.execute(
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE price >= %s AND price <= %s AND category = %s AND user_ID = %s ORDER BY price ASC",
+                (
+                    float(min_price),
+                    float(max_price),
+                    category,
+                    session['userID'],
+                ),
+            )
+            product_table = cursor.fetchall()
+        else:
+            # Get all the products with starting applied filter choice
+            cursor.execute(
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE price >= %s AND price <= %s AND user_ID = %s ORDER BY price DESC",
+                (
+                    float(min_price),
+                    float(max_price),
+                    category,
+                    session['userID'],
+                ),
+            )
+            product_table = cursor.fetchall()
+    return jsonify(product_table)
 
 # The helper function that returns a json file of the given string query
 @app.route("/filter")
@@ -184,7 +271,7 @@ def login():
                     # user_ID are same in customer and user
                     session["role"] = "customer"
                     session["loggedin"] = True
-                    session["userid"] = user["user_ID"]
+                    session["userID"] = user["user_ID"]
                     session["username"] = user["name"]
                     return redirect(url_for("customer_main_page"))
                 else:
@@ -197,14 +284,14 @@ def login():
                     if business:
                         session["role"] = "business"
                         session["loggedin"] = True
-                        session["userid"] = user["user_ID"]
+                        session["userID"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("business_main_page"))
                     # Assign admin session information to local storage
                     else:
                         session["role"] = "admin"
                         session["loggedin"] = True
-                        session["userid"] = user["user_ID"]
+                        session["userID"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("admin_main_page"))
         # user not found
@@ -307,7 +394,7 @@ def business_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products that are not sold using the following query
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s", ("not_sold",)
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s", (session['userID'],)
     )
     product_table = cursor.fetchall()
     return render_template(
@@ -316,6 +403,51 @@ def business_main_page():
         is_in_session=session["loggedin"],
         username=session["username"],
     )
+
+@app.route('/business_product_creation', methods=['GET', 'POST'])
+def business_product_creation():
+    message = ''
+    if request.method == 'POST':
+        required_fields = ['title', 'price', 'amount', 'category']
+        if all(field in request.form for field in required_fields):
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            title = request.form['title']
+            price = request.form['price']
+            amount = request.form['amount']
+            category = request.form['category']
+            productID = get_next_id_product()
+            status = "not_sold"
+
+            query = "INSERT INTO Product (product_ID, title, price, category, status"
+            values = [productID, title, price, category, status]
+
+            optional_fields = ['description', 'cover_picture', 'proportions', 'mass', 'color', 'date']
+            for field in optional_fields:
+                if field == "date" and field in request.form and request.form[field]:
+                    query += f", {field}"
+                    date = datetime.strptime(request.form[field], '%Y-%m-%dT%H:%M')
+                    values.append(date)
+                elif field in request.form and request.form[field]:
+                    query += f", {field}"
+                    values.append(request.form[field])
+
+            query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
+
+            try:
+                cursor.execute(query, values)
+                cursor.execute("INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
+                               (session['userID'], productID, int(amount)))
+                mysql.connection.commit()
+                flash('Product created successfully!', 'success')
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'danger')
+                mysql.connection.rollback()
+            cursor.close()
+        else:
+            message = 'Please fill the required fields'
+            flash(message, 'warning')
+
+    return render_template('business_product_creation.html', message=message)
 
 
 # TODO main page admin reports etc
@@ -348,7 +480,7 @@ def shopping_cart():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products from shopping cart
     cursor.execute(
-        "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s", (session['userid'],)
+        "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s", (session['userID'],)
     )
     cart = cursor.fetchall()
    
@@ -369,14 +501,14 @@ def add_to_cart(product_ID, amount):
     stock = cursor.fetchone()
     cursor.execute(
         "SELECT amount FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session['userid'])
+        (product_ID, session['userID'])
     )
     amountInCart = cursor.fetchone()
     if amountInCart is None:
         if int(amount) <= stock['amount']:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                (session['userid'], product_ID, amount) 
+                (session['userID'], product_ID, amount) 
             )
             mysql.connection.commit()
         else:
@@ -387,7 +519,7 @@ def add_to_cart(product_ID, amount):
         if int(amount) + amountInCart['amount'] <= stock['amount']:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)",
-                (session['userid'], product_ID, amount) 
+                (session['userID'], product_ID, amount) 
             )
             mysql.connection.commit()
         else:
@@ -405,7 +537,7 @@ def remove_from_cart(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         "DELETE FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session['userid'])
+        (product_ID, session['userID'])
     )
     mysql.connection.commit()
     return redirect(url_for('shopping_cart'))
@@ -420,7 +552,7 @@ def customer_profile():
     # Get the customer details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["userid"],),
+        (session["userID"],),
     )
     customer = cursor.fetchone()
     return render_template("customer_profile.html", customer=customer)
@@ -436,7 +568,7 @@ def business_profile():
     # Get the business details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["userid"],),
+        (session["userID"],),
     )
     business = cursor.fetchone()
     return render_template("business_profile.html", business=business)
@@ -452,7 +584,7 @@ def admin_profile():
     # Get the admin details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Admin WHERE user_ID = %s",
-        (session["userid"],),
+        (session["userID"],),
     )
     admin = cursor.fetchone()
     return render_template("admin_profile.html", admin=admin)
