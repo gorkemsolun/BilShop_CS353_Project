@@ -138,13 +138,25 @@
                   Apply Filter
                 </button>
               </div>
-               <div class="text-center mb-3"> <!-- Center align content -->
-                    <form action="{{ url_for('business_product_creation') }}" method="get">
-                      <button class="btn btn-outline-light" type="submit">
-                        <i class="bi bi-patch-plus-fill" style="font-size: xx-large"></i>
-                      </button>
-                    </form>
-               </div>
+              <div class="text-center mb-3">
+                <!-- Center align content -->
+                <form
+                  action="{{ url_for('business_product_creation') }}"
+                  method="get"
+                >
+                  <button
+                    class="btn btn-outline-light"
+                    type="submit"
+                    title="Submit"
+                  >
+                    <!-- TODO Move styles to css -->
+                    <i
+                      class="bi bi-patch-plus-fill"
+                      style="font-size: xx-large"
+                    ></i>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -223,7 +235,7 @@
             <!-- Add other business product details as needed -->
             <div>
                 <a
-                  href="/business_product/${ business_product.product_ID }"
+                  href="/business_product/${business_product.product_ID}"
                   class="btn btn-primary"
                   >View Product</a
                 >
