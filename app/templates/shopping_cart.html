@@ -105,6 +105,12 @@
                         </div>
                     </div>
                 {% endfor %}
+                <!-- Checkout button -->
+                <div class="col-md-12 text-center mt-3">
+                 
+                  <button id = "checkoutButton" type="submit" class="btn btn-success">Checkout</button>
+                 
+              </div>
             {% else %}
                 <div class="col-md-12">
                     <p>Your cart is empty.</p>
@@ -114,6 +120,24 @@
         </div>
       </div>
     </div>
+    <script>
+      document.getElementById('checkoutButton').addEventListener('click', function(event) {
+        event.preventDefault();
+        var cart = '{{cart | tojson}}';    
+        fetch('/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(cart)
+        }).then((response) => {
+          return response.text();
+        }).then((html) => {
+            document.body.innerHTML = html
+        });
+      });
+    </script>
+
   </body>
 </html>
 

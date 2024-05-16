@@ -1,6 +1,7 @@
 import os
 import sys
 import base64
+import json
 
 from flask import (
     Flask,
@@ -550,6 +551,21 @@ def remove_from_cart(product_ID):
     )
     mysql.connection.commit()
     return redirect(url_for('shopping_cart'))
+
+# Checkout, add the items up and provide the "confirm purchase" order
+@app.route("/checkout", methods=['GET', 'POST'])
+def checkout():
+    # an item in cart has the following fields: product_ID, title, price, amount
+    total_price = 0
+    list = request.get_json()
+    cartlist = json.loads(list)
+    for item in cartlist:
+        total_price += float(item['price']) * int(item['amount'])
+    return render_template(
+        "checkout.html", 
+        cart = cartlist,
+        total_price = total_price
+        )
 
 # Profile page for the customer
 # This page will be used to show the customer details
