@@ -1,7 +1,6 @@
-/* customer_profile.css */
 body {
-  background-color: #222; /* Dark background */
-  color: #fff; /* White text for better readability */
+  background-color: #222; // Dark
+  color: #fff; // White
   font-family: sans-serif;
 }
 
@@ -11,24 +10,24 @@ body {
 
 .customer_product-amount {
   font-size: 16px;
-  color: #888; /* Use a color that fits your design */
+  color: #888; // Gray
   margin-bottom: 10px;
 }
 
-/* Adjustments for the navbar icons */
 .navbar-brand {
   font-size: 40px;
 }
 
 .navbar-nav .nav-link {
-  margin-right: 10px; /* Increased margin for the icons */
+  margin-right: 10px;
 }
+
 .btn-outline-light {
   border: 0;
 }
 
 .shopping-cart-title {
-  font-family: "YourFontName", sans-serif; /* Replace 'YourFontName' with the actual font name */
-  font-size: 24px; /* Adjust the font size as needed */
-  margin-bottom: 20px; /* Add space below the title */
+  font-family: sans-serif;
+  font-size: 24px;
+  margin-bottom: 20px;
 }

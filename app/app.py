@@ -30,7 +30,7 @@ mysql = MySQL(app)
 
 
 # Adding people with manual insertions can result in an error,
-# it needs to be checked whether entry has been placed in sql.
+# It needs to be checked whether entry has been placed in sql.
 def get_next_id():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
@@ -78,7 +78,7 @@ def search_products_business():
     # Get all the products with starting title as requested search input
     cursor.execute(
         "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s AND title LIKE %s",
-        (session["userID"], f"{search}%"),
+        (session["userid"], f"{search}%"),
     )
     product_table = cursor.fetchall()
     return jsonify(product_table)
@@ -108,7 +108,7 @@ def filter_products_business():
                 (
                     float(min_price),
                     float(max_price),
-                    session["userID"],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -118,7 +118,7 @@ def filter_products_business():
                 (
                     float(min_price),
                     float(max_price),
-                    session["userID"],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -131,7 +131,7 @@ def filter_products_business():
                     float(min_price),
                     float(max_price),
                     category,
-                    session["userID"],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -143,7 +143,7 @@ def filter_products_business():
                     float(min_price),
                     float(max_price),
                     category,
-                    session["userID"],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -405,7 +405,7 @@ def business_main_page():
     # Get all products that are not sold using the following query
     cursor.execute(
         "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s",
-        (session["userID"],),
+        (session["userid"],),
     )
     product_table = cursor.fetchall()
     return render_template(
@@ -463,7 +463,7 @@ def business_product_creation():
                 cursor.execute(query, values)
                 cursor.execute(
                     "INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                    (session["userID"], productID, int(amount)),
+                    (session["userid"], productID, int(amount)),
                 )
                 cursor.execute(
                     "INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
@@ -513,7 +513,7 @@ def shopping_cart():
     # Get all products from shopping cart
     cursor.execute(
         "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
-        (session["userID"],),
+        (session["userid"],),
     )
     cart = cursor.fetchall()
 
@@ -529,14 +529,14 @@ def add_to_cart(product_ID, amount):
     stock = cursor.fetchone()
     cursor.execute(
         "SELECT amount FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session["userID"]),
+        (product_ID, session["userid"]),
     )
     amountInCart = cursor.fetchone()
     if amountInCart is None:
         if int(amount) <= stock["amount"]:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                (session["userID"], product_ID, amount),
+                (session["userid"], product_ID, amount),
             )
             mysql.connection.commit()
         else:
@@ -547,7 +547,7 @@ def add_to_cart(product_ID, amount):
         if int(amount) + amountInCart["amount"] <= stock["amount"]:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)",
-                (session["userID"], product_ID, amount),
+                (session["userid"], product_ID, amount),
             )
             mysql.connection.commit()
         else:
@@ -566,7 +566,7 @@ def remove_from_cart(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         "DELETE FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session["userID"]),
+        (product_ID, session["userid"]),
     )
     mysql.connection.commit()
     return redirect(url_for("shopping_cart"))
@@ -684,6 +684,85 @@ def business_profile():
     )
     business = cursor.fetchone()
     return render_template("business_profile.html", business=business)
+
+
+# Edit profile page for the business
+# This page will be used to edit the business details
+# The business details will be fetched from the database
+# Link to this page will be provided in the business_profile.html
+@app.route("/business_profile_edit", methods=["GET", "POST"])
+def business_profile_edit():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the business details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    business = cursor.fetchone()
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        password = request.form["password"]
+        phone_number = request.form["phone_number"]
+        country = request.form["country"]
+        city = request.form["city"]
+        state_code = request.form["state_code"]
+        zip_code = request.form["zip_code"]
+        building = request.form["building"]
+        street = request.form["street"]
+        address_description = request.form["address_description"]
+        cursor.execute(
+            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s WHERE user_ID = %s",
+            (
+                name,
+                email,
+                password,
+                phone_number,
+                country,
+                city,
+                state_code,
+                zip_code,
+                building,
+                street,
+                address_description,
+                session["userid"],
+            ),
+        )
+        mysql.connection.commit()
+        return redirect(url_for("business_profile"))
+    return render_template("business_profile_edit.html", business=business)
+
+
+# Delete profile page for the business
+# This page will be used to delete the business details
+# The business details will be fetched from the database
+# Link to this page will be provided in the business_profile.html
+@app.route("/business_profile_delete", methods=["GET", "POST"])
+def business_profile_delete():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the business details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    business = cursor.fetchone()
+
+    #  Delete all products of the business
+    cursor.execute(
+        "DELETE FROM Owns WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    mysql.connection.commit()
+
+    #  Delete the business
+    if request.method == "POST":
+        cursor.execute(
+            "DELETE FROM User WHERE user_ID = %s",
+            (session["userid"],),
+        )
+        mysql.connection.commit()
+        return redirect(url_for("login"))
+    return render_template("business_profile_delete.html", business=business)
 
 
 # Profile page for the admin
