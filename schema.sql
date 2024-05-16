@@ -9,10 +9,9 @@ CREATE TABLE
         country varchar(100) default null,
         city varchar(100) default null,
         state_code varchar(100) default null,
-        zip decimal(10, 0) default null,
+        zip_code decimal(10, 0) default null,
         building varchar(10) default null,
         street varchar(50) default null,
-        apartment_no varchar(20) default null,
         address_description varchar(50) default null,
         primary key (user_ID),
         unique (email)
