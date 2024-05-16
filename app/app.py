@@ -483,6 +483,36 @@ def admin_main_page():
 def notifications():
     return render_template("notifications.html")
 
+@app.route("/balance", methods=['GET', 'POST'])
+def balance():
+    message = ''
+    if request.method == 'POST':
+        amount = request.form["amount"]
+        if amount:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
+                           (amount, session["userID"],))
+            mysql.connection.commit()
+            flash('Balance is updated successfully!', 'success')
+        else:
+            message = 'Please fill the required fields'
+            flash(message, 'warning')
+    return render_template("balance.html", message = message)
+
+@app.route("/balance_business", methods=['GET', 'POST'])
+def balance_business():
+    message = ''
+    if request.method == 'POST':
+        amount = request.form["amount"]
+        if amount:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("UPDATE Business SET balance = balance + %s WHERE user_ID = %s", (amount, session["userID"],))
+            mysql.connection.commit()
+            flash('Balance is updated successfully!', 'success')
+        else:
+            message = 'Please fill the required fields'
+            flash(message, 'warning')
+    return render_template("balance_business.html", message = message)
 
 # TODO shopping-cart page
 @app.route("/shopping_cart")
