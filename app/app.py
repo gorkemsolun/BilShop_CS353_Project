@@ -952,6 +952,8 @@ def logout():
     return redirect(url_for("login"))
 
 
+# =========================== EfeKN =========================== #
+
 @app.route("/tables")
 def admin():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -992,7 +994,6 @@ def admin():
     cursor.execute("SELECT * FROM Puts_On_Cart ORDER BY user_ID, product_ID")
     puts_on_cart = cursor.fetchall()
 
-    """"
     # Fetch data from the Purchase_Information table
     cursor.execute('SELECT * FROM Purchase_Information ORDER BY purchase_ID')
     purchase_info = cursor.fetchall()
@@ -1011,27 +1012,129 @@ def admin():
 
     # Fetch data from the Blacklists table
     cursor.execute('SELECT * FROM Blacklists ORDER BY user_ID, report_ID, admin_ID')
-    blacklists = cursor.fetchall() """
+    blacklists = cursor.fetchall()
 
     # Pass the fetched data to the render_template function
-    """ return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
+    return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
                            admins=admins, products=products, product_pictures=product_pictures,
                            owns=owns, wishes=wishes, puts_on_cart=puts_on_cart, purchase_info=purchase_info,
                            return_requests=return_requests, has_return_request=has_return_request,
-                           reports=reports, blacklists=blacklists) """
+                           reports=reports, blacklists=blacklists)
 
-    return render_template(
-        "test_tables.html",
-        users=users,
-        customers=customers,
-        businesses=businesses,
-        admins=admins,
-        products=products,
-        product_pictures=product_pictures,
-        owns=owns,
-        wishes=wishes,
-        puts_on_cart=puts_on_cart,
+@app.route("/admin_user_report", methods=['GET','POST'])
+def admin_user_report():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'ban':
+            reported_user_ID = request.form.get('reported_user_ID')
+            # TODO : ADJUST QUERY
+            query = "INSERT INTO Blacklist (user_ID) VALUES (%s)"
+            cursor.execute(query, (reported_user_ID,))
+            mysql.connection.commit()
+        elif action == 'dismiss':
+            report_ID = request.form.get('report_ID')
+            # TODO : ADJUST QUERY
+            query = "UPDATE Reports SET status = 'dismissed' WHERE report_ID = %s"
+            cursor.execute(query, (report_ID,))
+            mysql.connection.commit()
+
+    cursor.execute("SELECT * FROM Report ORDER BY report_date")
+    reports = cursor.fetchall()
+
+    return render_template("admin_user_report.html", reports=reports)
+
+@app.route("/admin_system_report", methods=['GET','POST'])
+def admin_system_report():
+    return render_template("admin_system_report.html")
+
+@app.route("/admin_blacklist", methods=['GET','POST'])
+def admin_blacklist():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if request.method == 'POST' and 'user_id' in request.form:
+        user_id = request.form['user_id']
+        # Add code here to remove the user with the specified user_id from the blacklist
+        # For demonstration purposes, let's assume we are just printing the user_id to console
+        
+        # TODO : WRITE REMOVE BLACKLIST AND REPORT QUERY
+
+        # Redirect back to the same page after processing the removal
+        return redirect(url_for('admin_blacklist'))
+
+    search_query = request.args.get('search_query', '')
+
+    if search_query:
+        # Perform a join between Blacklists and User tables with search condition
+        query = """
+        SELECT b.user_ID, u.name, b.report_ID, b.reason_description
+        FROM Blacklists b
+        INNER JOIN User u ON b.user_ID = u.user_ID
+        WHERE b.user_ID LIKE %s OR u.name LIKE %s
+        ORDER BY b.user_ID, b.report_ID, b.admin_ID
+        """
+        cursor.execute(query, ('%' + search_query + '%', '%' + search_query + '%'))
+    else:
+        # Perform a join between Blacklists and User tables without search condition
+        query = """
+        SELECT b.user_ID, u.name, b.report_ID, b.reason_description
+        FROM Blacklists b
+        INNER JOIN User u ON b.user_ID = u.user_ID
+        ORDER BY b.user_ID, b.report_ID, b.admin_ID
+        """
+        cursor.execute(query)
+
+    blacklist = cursor.fetchall()
+
+    return render_template("blacklist.html", blacklist=blacklist, search_query=search_query)
+
+@app.route("/admin_report", methods=['GET','POST'])
+def admin_report():
+    if request.method == 'POST':
+        report_ID = report_ID = get_next_id_report()
+        report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(report_date)
+        report_description = request.form['report_description']
+        product_ID = request.form['product_ID']
+        reported_user_ID = request.form['reported_user_ID'] # TODO this field also should be autofilled like report_ID and report_date
+        purchase_ID = request.form['purchase_ID']
+        return_ID = request.form['return_ID']
+        report_status = request.form['report_status']
+        user_ID = request.form['user_ID']
+        
+        # Insert the new report into the database
+        cursor = mysql.connection.cursor()
+        query = """
+            INSERT INTO Report (report_ID, report_date, report_description, product_ID, reported_user_ID, purchase_ID, return_ID, report_status, user_ID)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (report_ID, report_date, report_description, product_ID, reported_user_ID, purchase_ID, return_ID, report_status, user_ID))
+        mysql.connection.commit()
+        cursor.close()
+        
+        flash('Report created successfully!', 'success')
+        return redirect(url_for('admin_user_report'))
+
+    # Fetch reports for GET request
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM Report ORDER BY report_date")
+    reports = cursor.fetchall()
+    return render_template("admin_user_report.html", reports=reports)
+
+def get_next_id_report():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Fetch the current maximum ID from the table
+    cursor.execute(
+        "SELECT * FROM Report ORDER BY CONVERT(report_ID, UNSIGNED INTEGER) DESC"
     )
+    max_id = cursor.fetchone()
+    if max_id is None:
+        return str(1)  # Start from 1 if no records exist
+    max_id = max_id["report_ID"]
+    return str(int(max_id) + 1)
+
+# =========================== EfeKN =========================== #
 
 
 if __name__ == "__main__":
