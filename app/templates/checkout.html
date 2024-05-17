@@ -98,15 +98,17 @@
                         
                         <div id="currentAddress">
                             <h2>Current Address</h2>
+                            
+                            <ul>
                             {% if address.country is not none %}
-                                <ul>
+                                
                                     {% for key, value in address.items() %}
                                         <li><strong>{{ key.replace('_', ' ').capitalize() }}:</strong> {{ value }}</li>
                                     {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p>No address provided</p>
+                                
+                           
                             {% endif %}
+                            </ul>
                             <button id="changeAddressButton" class="btn btn-warning">Change Address</button>
                         </div>
                         
@@ -137,10 +139,6 @@
                                 <div class="mb-3">
                                     <label for="street" class="form-label">Street</label>
                                     <input type="text" class="form-control" id="street" name="street" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="no" class="form-label">Number</label>
-                                    <input type="text" class="form-control" id="no" name="no" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="address_description" class="form-label">Address Description</label>

@@ -434,7 +434,7 @@ def business_product_creation():
             values = [productID, title, price, category, status]
 
             optional_fields = [
-                "description",
+                "product_description",
                 "coverPicture",
                 "proportions",
                 "mass",
@@ -617,8 +617,8 @@ def checkout():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # We could come up with a view for the address 
     cursor.execute(
-        "SELECT country, city, state_code, zip, building, street, apartment_no, address_description FROM User WHERE user_ID = %s",
-        (session['userID'],)
+        "SELECT country, city, state_code, zip_code, building, street, address_description FROM User WHERE user_ID = %s",
+        (session['userid'],)
     )
     address = cursor.fetchone()
     response = {
@@ -644,8 +644,8 @@ def enteraddress():
     addressJSON = request.get_json()
     #addressJSON = json.loads(address)
     cursor.execute(
-        "UPDATE User SET country = %s, city = %s, state_code = %s, zip = %s, building = %s, street = %s, apartment_no = %s, address_description = %s WHERE user_ID = %s",
-        (addressJSON['country'], addressJSON['city'], addressJSON['state'], addressJSON['zip'], addressJSON['building'], addressJSON['street'], addressJSON['no'], addressJSON['address_description'], session['userID'])
+        "UPDATE User SET country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s WHERE user_ID = %s",
+        (addressJSON['country'], addressJSON['city'], addressJSON['state'], addressJSON['zip'], addressJSON['building'], addressJSON['street'], addressJSON['address_description'], session['userid'])
     )
     mysql.connection.commit()
     response = jsonify({'message': 'Success'})
