@@ -11,7 +11,7 @@ from flask import (
     url_for,
     session,
     jsonify,
-    flash
+    flash,
 )
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
@@ -30,26 +30,32 @@ mysql = MySQL(app)
 
 
 # Adding people with manual insertions can result in an error,
-# it needs to be checked whether entry has been placed in sql.
+# It needs to be checked whether entry has been placed in sql.
 def get_next_id():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
-    cursor.execute("SELECT * FROM User ORDER BY CONVERT(user_ID, UNSIGNED INTEGER) DESC")
+    cursor.execute(
+        "SELECT * FROM User ORDER BY CONVERT(user_ID, UNSIGNED INTEGER) DESC"
+    )
     max_id = cursor.fetchone()
     if max_id is None:
         return str(1)  # Start from 1 if no records exist
     max_id = max_id["user_ID"]
     return str(int(max_id) + 1)
 
+
 def get_next_id_product():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
-    cursor.execute("SELECT * FROM Product ORDER BY CONVERT(product_ID, UNSIGNED INTEGER) DESC")
+    cursor.execute(
+        "SELECT * FROM Product ORDER BY CONVERT(product_ID, UNSIGNED INTEGER) DESC"
+    )
     max_id = cursor.fetchone()
     if max_id is None:
         return str(1)  # Start from 1 if no records exist
     max_id = max_id["product_ID"]
     return str(int(max_id) + 1)
+
 
 # The helper function that returns a json file of the given string query
 @app.route("/search_products", methods=["POST"])
@@ -64,6 +70,7 @@ def search_products():
     product_table = cursor.fetchall()
     return jsonify(product_table)
 
+
 @app.route("/search_products_business", methods=["POST"])
 def search_products_business():
     search = request.json.get("search", "")
@@ -71,10 +78,11 @@ def search_products_business():
     # Get all the products with starting title as requested search input
     cursor.execute(
         "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s AND title LIKE %s",
-        (session['userID'], f"{search}%"),
+        (session["userid"], f"{search}%"),
     )
     product_table = cursor.fetchall()
     return jsonify(product_table)
+
 
 @app.route("/filter_business")
 def filter_products_business():
@@ -100,7 +108,7 @@ def filter_products_business():
                 (
                     float(min_price),
                     float(max_price),
-                    session['userID'],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -110,7 +118,7 @@ def filter_products_business():
                 (
                     float(min_price),
                     float(max_price),
-                    session['userID'],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -123,7 +131,7 @@ def filter_products_business():
                     float(min_price),
                     float(max_price),
                     category,
-                    session['userID'],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -135,11 +143,12 @@ def filter_products_business():
                     float(min_price),
                     float(max_price),
                     category,
-                    session['userID'],
+                    session["userid"],
                 ),
             )
             product_table = cursor.fetchall()
     return jsonify(product_table)
+
 
 # The helper function that returns a json file of the given string query
 @app.route("/filter")
@@ -272,7 +281,7 @@ def login():
                     # user_ID are same in customer and user
                     session["role"] = "customer"
                     session["loggedin"] = True
-                    session["userID"] = user["user_ID"]
+                    session["userid"] = user["user_ID"]
                     session["username"] = user["name"]
                     return redirect(url_for("customer_main_page"))
                 else:
@@ -285,14 +294,14 @@ def login():
                     if business:
                         session["role"] = "business"
                         session["loggedin"] = True
-                        session["userID"] = user["user_ID"]
+                        session["userid"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("business_main_page"))
                     # Assign admin session information to local storage
                     else:
                         session["role"] = "admin"
                         session["loggedin"] = True
-                        session["userID"] = user["user_ID"]
+                        session["userid"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("admin_main_page"))
         # user not found
@@ -395,7 +404,8 @@ def business_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products that are not sold using the following query
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s", (session['userID'],)
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s",
+        (session["userid"],),
     )
     product_table = cursor.fetchall()
     return render_template(
@@ -405,59 +415,71 @@ def business_main_page():
         username=session["username"],
     )
 
-@app.route('/business_product_creation', methods=['GET', 'POST'])
+
+@app.route("/business_product_creation", methods=["GET", "POST"])
 def business_product_creation():
-    message = ''
-    if request.method == 'POST':
-        required_fields = ['title', 'price', 'amount', 'category']
+    message = ""
+    if request.method == "POST":
+        required_fields = ["title", "price", "amount", "category"]
         if all(field in request.form for field in required_fields):
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            title = request.form['title']
-            price = request.form['price']
-            amount = request.form['amount']
-            category = request.form['category']
+            title = request.form["title"]
+            price = request.form["price"]
+            amount = request.form["amount"]
+            category = request.form["category"]
             productID = get_next_id_product()
             status = "not_sold"
 
             query = "INSERT INTO Product (product_ID, title, price, category, product_status"
             values = [productID, title, price, category, status]
 
-            optional_fields = ['description', 'coverPicture', 'proportions', 'mass', 'color', 'date']
+            optional_fields = [
+                "description",
+                "coverPicture",
+                "proportions",
+                "mass",
+                "color",
+                "date",
+            ]
             for field in optional_fields:
                 if field == "date" and field in request.form and request.form[field]:
                     query += f", {field}"
-                    date = datetime.strptime(request.form[field], '%Y-%m-%dT%H:%M')
+                    date = datetime.strptime(request.form[field], "%Y-%m-%dT%H:%M")
                     values.append(date)
                 elif field in request.form and request.form[field]:
                     query += f", {field}"
                     if field != "coverPicture":
                         values.append(request.form[field])
                     else:
-                        cover_picture = request.files['coverPicture']
+                        cover_picture = request.files["coverPicture"]
                         cover_picture_binary_data = cover_picture.read()
                         values.append(cover_picture_binary_data)
 
             query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
             # Insert the picture into Product_Picture
-            picture = request.files['pictures']
+            picture = request.files["pictures"]
             picture_binary_data = picture.read()
             try:
                 cursor.execute(query, values)
-                cursor.execute("INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                               (session['userID'], productID, int(amount)))
-                cursor.execute("INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
-                               (productID, picture_binary_data))
+                cursor.execute(
+                    "INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
+                    (session["userid"], productID, int(amount)),
+                )
+                cursor.execute(
+                    "INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
+                    (productID, picture_binary_data),
+                )
                 mysql.connection.commit()
-                flash('Product created successfully!', 'success')
+                flash("Product created successfully!", "success")
             except Exception as e:
-                flash(f'Error: {str(e)}', 'danger')
+                flash(f"Error: {str(e)}", "danger")
                 mysql.connection.rollback()
             cursor.close()
         else:
-            message = 'Please fill the required fields'
-            flash(message, 'warning')
+            message = "Please fill the required fields"
+            flash(message, "warning")
 
-    return render_template('business_product_creation.html', message=message)
+    return render_template("business_product_creation.html", message=message)
 
 
 # TODO main page admin reports etc
@@ -483,6 +505,36 @@ def admin_main_page():
 def notifications():
     return render_template("notifications.html")
 
+@app.route("/balance", methods=['GET', 'POST'])
+def balance():
+    message = ''
+    if request.method == 'POST':
+        amount = request.form["amount"]
+        if amount:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
+                           (amount, session["userID"],))
+            mysql.connection.commit()
+            flash('Balance is updated successfully!', 'success')
+        else:
+            message = 'Please fill the required fields'
+            flash(message, 'warning')
+    return render_template("balance.html", message = message)
+
+@app.route("/balance_business", methods=['GET', 'POST'])
+def balance_business():
+    message = ''
+    if request.method == 'POST':
+        amount = request.form["amount"]
+        if amount:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("UPDATE Business SET balance = balance + %s WHERE user_ID = %s", (amount, session["userID"],))
+            mysql.connection.commit()
+            flash('Balance is updated successfully!', 'success')
+        else:
+            message = 'Please fill the required fields'
+            flash(message, 'warning')
+    return render_template("balance_business.html", message = message)
 
 # TODO shopping-cart page
 @app.route("/shopping_cart")
@@ -490,56 +542,53 @@ def shopping_cart():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products from shopping cart
     cursor.execute(
-        "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s", (session['userID'],)
+        "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
+        (session["userid"],),
     )
     cart = cursor.fetchall()
-   
-    return render_template(
-        "shopping_cart.html",
-        cart = cart
-    )
+
+    return render_template("shopping_cart.html", cart=cart)
+
 
 # Called when a user adds an item to their shopping cart
 @app.route("/add_to_cart/<product_ID>/<amount>")
 def add_to_cart(product_ID, amount):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # If it is not already in the cart then insert, otherwise update the amount
-    cursor.execute(
-        "SELECT amount FROM Owns WHERE product_ID = %s",
-        (product_ID,)
-    )
+    cursor.execute("SELECT amount FROM Owns WHERE product_ID = %s", (product_ID,))
     stock = cursor.fetchone()
     cursor.execute(
         "SELECT amount FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session['userID'])
+        (product_ID, session["userid"]),
     )
     amountInCart = cursor.fetchone()
     if amountInCart is None:
-        if int(amount) <= stock['amount']:
+        if int(amount) <= stock["amount"]:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                (session['userID'], product_ID, amount) 
+                (session["userid"], product_ID, amount),
             )
             mysql.connection.commit()
         else:
-            response = jsonify({'message': 'Failure'})
+            response = jsonify({"message": "Failure"})
             response.status_code = 500
             return response
     else:
-        if int(amount) + amountInCart['amount'] <= stock['amount']:
+        if int(amount) + amountInCart["amount"] <= stock["amount"]:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)",
-                (session['userID'], product_ID, amount) 
+                (session["userid"], product_ID, amount),
             )
             mysql.connection.commit()
         else:
-            response = jsonify({'message': 'Failure'})
+            response = jsonify({"message": "Failure"})
             response.status_code = 500
             return response
-    
-    response = jsonify({'message': 'Success'})
+
+    response = jsonify({"message": "Success"})
     response.status_code = 200
     return response
+
 
 # Remove an item from the cart
 @app.route("/remove_from_cart/<product_ID>")
@@ -547,13 +596,14 @@ def remove_from_cart(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         "DELETE FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session['userID'])
+        (product_ID, session["userid"]),
     )
     mysql.connection.commit()
-    return redirect(url_for('shopping_cart'))
+    return redirect(url_for("shopping_cart"))
+
 
 # Checkout, add the items up and provide the "confirm purchase" order
-@app.route("/checkout", methods=['GET', 'POST'])
+@app.route("/checkout", methods=["GET", "POST"])
 def checkout():
     # an item in cart has the following fields: product_ID, title, price, amount
     # sum up the total price
@@ -612,10 +662,80 @@ def customer_profile():
     # Get the customer details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["userID"],),
+        (session["userid"],),
     )
     customer = cursor.fetchone()
     return render_template("customer_profile.html", customer=customer)
+
+
+# Edit profile page for the customer
+# This page will be used to edit the customer details
+# The customer details will be fetched from the database
+# Link to this page will be provided in the customer_profile.html
+@app.route("/customer_profile_edit", methods=["GET", "POST"])
+def customer_profile_edit():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the customer details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    customer = cursor.fetchone()
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        password = request.form["password"]
+        phone_number = request.form["phone_number"]
+        country = request.form["country"]
+        city = request.form["city"]
+        state_code = request.form["state_code"]
+        zip_code = request.form["zip_code"]
+        building = request.form["building"]
+        street = request.form["street"]
+        address_description = request.form["address_description"]
+        cursor.execute(
+            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s WHERE user_ID = %s",
+            (
+                name,
+                email,
+                password,
+                phone_number,
+                country,
+                city,
+                state_code,
+                zip_code,
+                building,
+                street,
+                address_description,
+                session["userid"],
+            ),
+        )
+        mysql.connection.commit()
+        return redirect(url_for("customer_profile"))
+    return render_template("customer_profile_edit.html", customer=customer)
+
+
+# Delete profile page for the customer
+# This page will be used to delete the customer details
+# The customer details will be fetched from the database
+# Link to this page will be provided in the customer_profile.html
+@app.route("/customer_profile_delete", methods=["GET", "POST"])
+def customer_profile_delete():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the customer details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    customer = cursor.fetchone()
+    if request.method == "POST":
+        cursor.execute(
+            "DELETE FROM User WHERE user_ID = %s",
+            (session["userid"],),
+        )
+        mysql.connection.commit()
+        return redirect(url_for("login"))
+    return render_template("customer_profile_delete.html", customer=customer)
 
 
 # Profile page for the business
@@ -628,10 +748,89 @@ def business_profile():
     # Get the business details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["userID"],),
+        (session["userid"],),
     )
     business = cursor.fetchone()
     return render_template("business_profile.html", business=business)
+
+
+# Edit profile page for the business
+# This page will be used to edit the business details
+# The business details will be fetched from the database
+# Link to this page will be provided in the business_profile.html
+@app.route("/business_profile_edit", methods=["GET", "POST"])
+def business_profile_edit():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the business details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    business = cursor.fetchone()
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        password = request.form["password"]
+        phone_number = request.form["phone_number"]
+        country = request.form["country"]
+        city = request.form["city"]
+        state_code = request.form["state_code"]
+        zip_code = request.form["zip_code"]
+        building = request.form["building"]
+        street = request.form["street"]
+        address_description = request.form["address_description"]
+        cursor.execute(
+            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s WHERE user_ID = %s",
+            (
+                name,
+                email,
+                password,
+                phone_number,
+                country,
+                city,
+                state_code,
+                zip_code,
+                building,
+                street,
+                address_description,
+                session["userid"],
+            ),
+        )
+        mysql.connection.commit()
+        return redirect(url_for("business_profile"))
+    return render_template("business_profile_edit.html", business=business)
+
+
+# Delete profile page for the business
+# This page will be used to delete the business details
+# The business details will be fetched from the database
+# Link to this page will be provided in the business_profile.html
+@app.route("/business_profile_delete", methods=["GET", "POST"])
+def business_profile_delete():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get the business details from the database using the user_ID
+    cursor.execute(
+        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    business = cursor.fetchone()
+
+    #  Delete all products of the business
+    cursor.execute(
+        "DELETE FROM Owns WHERE user_ID = %s",
+        (session["userid"],),
+    )
+    mysql.connection.commit()
+
+    #  Delete the business
+    if request.method == "POST":
+        cursor.execute(
+            "DELETE FROM User WHERE user_ID = %s",
+            (session["userid"],),
+        )
+        mysql.connection.commit()
+        return redirect(url_for("login"))
+    return render_template("business_profile_delete.html", business=business)
 
 
 # Profile page for the admin
@@ -644,7 +843,7 @@ def admin_profile():
     # Get the admin details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Admin WHERE user_ID = %s",
-        (session["userID"],),
+        (session["userid"],),
     )
     admin = cursor.fetchone()
     return render_template("admin_profile.html", admin=admin)
@@ -668,8 +867,8 @@ def customer_product(product_ID):
     product_picture = cursor.fetchone()
     encoded_image = None
     if product_picture is not None:
-        image_data = product_picture['picture']
-        encoded_image = base64.b64encode(image_data).decode('utf-8');
+        image_data = product_picture["picture"]
+        encoded_image = base64.b64encode(image_data).decode("utf-8")
     # TODO figure something out if there is no picture
     return render_template(
         "customer_product.html",
@@ -696,8 +895,8 @@ def business_product(product_ID):
     product_picture = cursor.fetchone()
     encoded_image = None
     if product_picture is not None:
-        image_data = product_picture['picture']
-        encoded_image = base64.b64encode(image_data).decode('utf-8');
+        image_data = product_picture["picture"]
+        encoded_image = base64.b64encode(image_data).decode("utf-8")
     return render_template(
         "business_product.html",
         business_product=business_product,
@@ -791,6 +990,8 @@ def logout():
     return redirect(url_for("login"))
 
 
+# =========================== EfeKN =========================== #
+
 @app.route("/tables")
 def admin():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -831,7 +1032,6 @@ def admin():
     cursor.execute("SELECT * FROM Puts_On_Cart ORDER BY user_ID, product_ID")
     puts_on_cart = cursor.fetchall()
 
-    """"
     # Fetch data from the Purchase_Information table
     cursor.execute('SELECT * FROM Purchase_Information ORDER BY purchase_ID')
     purchase_info = cursor.fetchall()
@@ -850,27 +1050,129 @@ def admin():
 
     # Fetch data from the Blacklists table
     cursor.execute('SELECT * FROM Blacklists ORDER BY user_ID, report_ID, admin_ID')
-    blacklists = cursor.fetchall() """
+    blacklists = cursor.fetchall()
 
     # Pass the fetched data to the render_template function
-    """ return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
+    return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
                            admins=admins, products=products, product_pictures=product_pictures,
                            owns=owns, wishes=wishes, puts_on_cart=puts_on_cart, purchase_info=purchase_info,
                            return_requests=return_requests, has_return_request=has_return_request,
-                           reports=reports, blacklists=blacklists) """
+                           reports=reports, blacklists=blacklists)
 
-    return render_template(
-        "test_tables.html",
-        users=users,
-        customers=customers,
-        businesses=businesses,
-        admins=admins,
-        products=products,
-        product_pictures=product_pictures,
-        owns=owns,
-        wishes=wishes,
-        puts_on_cart=puts_on_cart,
+@app.route("/admin_user_report", methods=['GET','POST'])
+def admin_user_report():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'ban':
+            reported_user_ID = request.form.get('reported_user_ID')
+            # TODO : ADJUST QUERY
+            query = "INSERT INTO Blacklist (user_ID) VALUES (%s)"
+            cursor.execute(query, (reported_user_ID,))
+            mysql.connection.commit()
+        elif action == 'dismiss':
+            report_ID = request.form.get('report_ID')
+            # TODO : ADJUST QUERY
+            query = "UPDATE Reports SET status = 'dismissed' WHERE report_ID = %s"
+            cursor.execute(query, (report_ID,))
+            mysql.connection.commit()
+
+    cursor.execute("SELECT * FROM Report ORDER BY report_date")
+    reports = cursor.fetchall()
+
+    return render_template("admin_user_report.html", reports=reports)
+
+@app.route("/admin_system_report", methods=['GET','POST'])
+def admin_system_report():
+    return render_template("admin_system_report.html")
+
+@app.route("/admin_blacklist", methods=['GET','POST'])
+def admin_blacklist():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if request.method == 'POST' and 'user_id' in request.form:
+        user_id = request.form['user_id']
+        # Add code here to remove the user with the specified user_id from the blacklist
+        # For demonstration purposes, let's assume we are just printing the user_id to console
+        
+        # TODO : WRITE REMOVE BLACKLIST AND REPORT QUERY
+
+        # Redirect back to the same page after processing the removal
+        return redirect(url_for('admin_blacklist'))
+
+    search_query = request.args.get('search_query', '')
+
+    if search_query:
+        # Perform a join between Blacklists and User tables with search condition
+        query = """
+        SELECT b.user_ID, u.name, b.report_ID, b.reason_description
+        FROM Blacklists b
+        INNER JOIN User u ON b.user_ID = u.user_ID
+        WHERE b.user_ID LIKE %s OR u.name LIKE %s
+        ORDER BY b.user_ID, b.report_ID, b.admin_ID
+        """
+        cursor.execute(query, ('%' + search_query + '%', '%' + search_query + '%'))
+    else:
+        # Perform a join between Blacklists and User tables without search condition
+        query = """
+        SELECT b.user_ID, u.name, b.report_ID, b.reason_description
+        FROM Blacklists b
+        INNER JOIN User u ON b.user_ID = u.user_ID
+        ORDER BY b.user_ID, b.report_ID, b.admin_ID
+        """
+        cursor.execute(query)
+
+    blacklist = cursor.fetchall()
+
+    return render_template("blacklist.html", blacklist=blacklist, search_query=search_query)
+
+@app.route("/admin_report", methods=['GET','POST'])
+def admin_report():
+    if request.method == 'POST':
+        report_ID = report_ID = get_next_id_report()
+        report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(report_date)
+        report_description = request.form['report_description']
+        product_ID = request.form['product_ID']
+        reported_user_ID = request.form['reported_user_ID'] # TODO this field also should be autofilled like report_ID and report_date
+        purchase_ID = request.form['purchase_ID']
+        return_ID = request.form['return_ID']
+        report_status = request.form['report_status']
+        user_ID = request.form['user_ID']
+        
+        # Insert the new report into the database
+        cursor = mysql.connection.cursor()
+        query = """
+            INSERT INTO Report (report_ID, report_date, report_description, product_ID, reported_user_ID, purchase_ID, return_ID, report_status, user_ID)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (report_ID, report_date, report_description, product_ID, reported_user_ID, purchase_ID, return_ID, report_status, user_ID))
+        mysql.connection.commit()
+        cursor.close()
+        
+        flash('Report created successfully!', 'success')
+        return redirect(url_for('admin_user_report'))
+
+    # Fetch reports for GET request
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM Report ORDER BY report_date")
+    reports = cursor.fetchall()
+    return render_template("admin_user_report.html", reports=reports)
+
+def get_next_id_report():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Fetch the current maximum ID from the table
+    cursor.execute(
+        "SELECT * FROM Report ORDER BY CONVERT(report_ID, UNSIGNED INTEGER) DESC"
     )
+    max_id = cursor.fetchone()
+    if max_id is None:
+        return str(1)  # Start from 1 if no records exist
+    max_id = max_id["report_ID"]
+    return str(int(max_id) + 1)
+
+# =========================== EfeKN =========================== #
 
 
 if __name__ == "__main__":

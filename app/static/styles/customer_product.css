@@ -48,8 +48,7 @@ body {
 }
 
 .shopping-cart-title {
-  font-family: 'YourFontName', sans-serif; /* Replace 'YourFontName' with the actual font name */
+  font-family: "YourFontName", sans-serif; /* Replace 'YourFontName' with the actual font name */
   font-size: 24px; /* Adjust the font size as needed */
   margin-bottom: 20px; /* Add space below the title */
-  /* Add other styling if needed */
 }

@@ -23,7 +23,7 @@ body {
 }
 
 .register-container {
-  height: 500px;
+  height: 550px;
   padding: 40px;
   width: 500px; /* Adjust container width as needed */
   border-radius: 10px; /* Rounded corners */
@@ -47,11 +47,11 @@ body {
   margin-bottom: 20px;
 }
 
-.btn-outline-primary,
-.btn-primary {
+.btn-outline-light {
+  backdrop-filter: opacity(70);
   width: 50%;
-  margin-top: 10px;
-  border-radius: 20px; /* Rounded corners for both buttons */
+  margin-top: 20px;
+  border-radius: 20px;
 }
 
 h2 {
@@ -59,7 +59,8 @@ h2 {
   font-size: 50px;
 }
 
-.btn-primary.active,
-.btn-primary:active {
-  border-radius: 20px; /* Ensure active state keeps rounded corners */
+a {
+  color: white;
 }
+
+
