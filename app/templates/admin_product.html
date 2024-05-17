@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,7 +23,6 @@
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
-        <!-- TODO: href here should be designed so that it is suitable for every user type-->
         <a class="navbar-brand" href="/admin_main_page"><b>BilShop</b></a>
         <div class="d-flex">
           <!-- Shopping Cart -->
@@ -46,8 +45,7 @@
               <i class="bi bi-bell"></i>
             </button>
           </form>
-          <!-- Business Profile button -->
-          <!-- TODO this should be business profile -->
+          <!-- Admin Profile button -->
           <form action="{{ url_for('admin_profile') }}" method="get">
             <button
               class="btn btn-outline-light me-2"

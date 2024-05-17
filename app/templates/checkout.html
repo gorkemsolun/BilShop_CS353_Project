@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Checkout</title>
@@ -10,65 +10,66 @@
       integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
       crossorigin="anonymous"
     />
-</head>
-<body>
+  </head>
+  <body>
     <div class="container mt-3">
-        <div class="row">
-            <!-- Title -->
-            <div class="col-md-12">
-                <h1 class="checkout-title">Checkout</h1>
-            </div>
-            <!-- Product listings -->
-            <div class="col-md-9" id="productListings">
-                <div class="row">
-                    {% if cart %}
-                        {% for customer_product in cart %}
-                            <div class="col-md-4">
-                                <div class="customer_product-container">
-                                    <div class="customer_product-title">
-                                        {{ customer_product.title }}
-                                    </div>
-                                    <div class="customer_product-price">
-                                        {{ customer_product.price }}
-                                    </div>
-                                    <div class="customer_product-amount">
-                                      Amount: {{ customer_product.amount }}
-                                    </div>
-                                    <!-- Add other customer product details as needed -->
-                                    <a href="/customer_product/{{ customer_product.product_ID }}" class="btn btn-primary">View Product</a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                        <!-- Total Price -->
-                        <div class="col-md-12 mt-3">
-                            <h2>Total Price: ${{ total_price }}</h2>
-                        </div>
-                        <!-- Continue to Payment button -->
-                        <div class="col-md-12 text-center mt-3">
-                            <form action="/continue_to_payment" method="post">
-                                <button type="submit" class="btn btn-success">Continue to Payment</button>
-                            </form>
-                        </div>
-                        <!-- Shopping Cart -->
-                        <div class="col-md-12 text-center mt-3">
-                          <form action="{{ url_for('shopping_cart') }}" method="get">
-                            <button
-                            class="btn btn-danger"
-                            type="submit"
-                            title="Cart"
-                            >
-                            Back to Cart
-                            </button>
-                        </form>  
-                        </div>
-                    {% else %}
-                        <div class="col-md-12">
-                            <p>Your cart is empty.</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+      <div class="row">
+        <!-- Title -->
+        <div class="col-md-12">
+          <h1 class="checkout-title">Checkout</h1>
         </div>
+        <!-- Product listings -->
+        <div class="col-md-9" id="productListings">
+          <div class="row">
+            {% if cart %} {% for customer_product in cart %}
+            <div class="col-md-4">
+              <div class="customer_product-container">
+                <div class="customer_product-title">
+                  {{ customer_product.title }}
+                </div>
+                <div class="customer_product-price">
+                  {{ customer_product.price }}
+                </div>
+                <div class="customer_product-amount">
+                  Amount: {{ customer_product.amount }}
+                </div>
+                <!-- Add other customer product details as needed -->
+                <a
+                  href="/customer_product/{{ customer_product.product_ID }}"
+                  class="btn btn-primary"
+                  >View Product</a
+                >
+              </div>
+            </div>
+            {% endfor %}
+            <!-- Total Price -->
+            <div class="col-md-12 mt-3">
+              <h2>Total Price: ${{ total_price }}</h2>
+            </div>
+            <!-- Continue to Payment button -->
+            <div class="col-md-12 text-center mt-3">
+              <form action="/continue_to_payment" method="post">
+                <button type="submit" class="btn btn-success">
+                  Continue to Payment
+                </button>
+              </form>
+            </div>
+            <!-- Shopping Cart -->
+            <div class="col-md-12 text-center mt-3">
+              <form action="{{ url_for('shopping_cart') }}" method="get">
+                <button class="btn btn-danger" type="submit" title="Cart">
+                  Back to Cart
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <div class="col-md-12">
+              <p>Your cart is empty.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

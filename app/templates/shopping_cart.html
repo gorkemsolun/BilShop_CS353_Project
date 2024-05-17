@@ -27,6 +27,7 @@
       href="{{ url_for('static', filename='styles/customer_main_page.css') }}"
     />
   </head>
+
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
@@ -78,7 +79,6 @@
 
     <div class="container mt-3">
       <div class="row">
-       
         <!-- Title -->
         <div class="col-md-12">
           <h1 class="shopping-cart-title">Shopping Cart</h1>
@@ -86,59 +86,72 @@
         <!-- Product listings -->
         <div class="col-md-9" id="productListings">
           <div class="row">
-            {% if cart %}
-                {% for customer_product in cart %}
-                    <div class="col-md-4">
-                        <div class="customer_product-container">
-                            <div class="customer_product-title">
-                                {{ customer_product.title }}
-                            </div>
-                            <div class="customer_product-price">
-                                {{ customer_product.price }}
-                            </div>
-                            <div class="customer_product-amount">
-                              Amount: {{ customer_product.amount }}
-                            </div>
-                            <!-- Add other customer product details as needed -->
-                            <a href="/customer_product/{{ customer_product.product_ID }}" class="btn btn-primary">View Product</a>
-                            <a href="/remove_from_cart/{{ customer_product.product_ID }}" class="btn btn-danger">Remove From Cart</a>
-                        </div>
-                    </div>
-                {% endfor %}
-                <!-- Checkout button -->
-                <div class="col-md-12 text-center mt-3">
-                 
-                  <button id = "checkoutButton" type="submit" class="btn btn-success">Checkout</button>
-                 
-              </div>
-            {% else %}
-                <div class="col-md-12">
-                    <p>Your cart is empty.</p>
+            {% if cart %} {% for customer_product in cart %}
+            <div class="col-md-4">
+              <div class="customer_product-container">
+                <div class="customer_product-title">
+                  {{ customer_product.title }}
                 </div>
+                <div class="customer_product-price">
+                  {{ customer_product.price }}
+                </div>
+                <div class="customer_product-amount">
+                  Amount: {{ customer_product.amount }}
+                </div>
+                <!-- Add other customer product details as needed -->
+                <a
+                  href="/customer_product/{{ customer_product.product_ID }}"
+                  class="btn btn-primary"
+                  >View Product</a
+                >
+                <a
+                  href="/remove_from_cart/{{ customer_product.product_ID }}"
+                  class="btn btn-danger"
+                  >Remove From Cart</a
+                >
+              </div>
+            </div>
+            {% endfor %}
+            <!-- Checkout button -->
+            <div class="col-md-12 text-center mt-3">
+              <button id="checkoutButton" type="submit" class="btn btn-success">
+                Checkout
+              </button>
+            </div>
+            {% else %}
+            <div class="col-md-12">
+              <p>Your cart is empty.</p>
+            </div>
             {% endif %}
           </div>
         </div>
       </div>
     </div>
-    <script>
-      document.getElementById('checkoutButton').addEventListener('click', function(event) {
-        event.preventDefault();
-        var cart = '{{cart | tojson}}';    
-        fetch('/checkout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(cart)
-        }).then((response) => {
-          return response.text();
-        }).then((html) => {
-            document.body.innerHTML = html
-        });
-      });
-    </script>
 
+    <!-- Script to handle checkout button click -->
+    <script>
+      // Add event listener to checkout button
+      document
+        .getElementById("checkoutButton")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          var cart = "{{cart | tojson}}";
+
+          // Send cart data to server
+          fetch("/checkout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(cart),
+          })
+            .then((response) => {
+              return response.text(); // Convert response to text
+            })
+            .then((html) => {
+              document.body.innerHTML = html; // Replace body with response
+            });
+        });
+    </script>
   </body>
 </html>
-
-

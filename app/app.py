@@ -859,60 +859,6 @@ def admin_product(product_ID):
     )
 
 
-# @app.route('/money_transfer', methods=['GET', 'POST'])
-# def money_transfer():
-#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-#     cursor.execute('SELECT aid FROM owns NATURAL JOIN account WHERE cid= %s', (session['user_ID'],))
-#     accountTable = cursor.fetchall()
-#     cursor.execute('SELECT aid FROM account')
-#     allAccounts = cursor.fetchall()
-#     header = ["Account ID"]
-#     if request.method == 'POST' and 'FromAccount' in request.form and 'ToAccount' in request.form and 'TransferAmount' in request.form:
-#         FromAccount = request.form['FromAccount']
-#         ToAccount = request.form['ToAccount']
-#         TransferAmount = request.form['TransferAmount']
-#         cursor.execute('SELECT balance FROM account WHERE aid = %s', (FromAccount,))
-#         fromBalance = cursor.fetchall()
-#         if FromAccount == ToAccount:
-#             flash('Sending money to the same account is forbidden!', category='danger')
-#         elif fromBalance[0]['balance'] >= float(TransferAmount):
-#             cursor.execute('UPDATE account SET balance = balance - %s WHERE aid=%s', (float(TransferAmount), FromAccount,))
-#             cursor.execute('UPDATE account SET balance = balance + %s WHERE aid=%s', (float(TransferAmount), ToAccount,))
-#             mysql.connection.commit()
-#             flash('Transaction Successful!', category = 'success')
-#         else:
-#             flash("Balance not enough to transfer money", category = 'danger')
-#     return render_template('money_transfer.html', accountTable = accountTable, header = header, allAccounts = allAccounts)
-#
-#
-# @app.route('/close_account/<aid>')
-# def close_account(aid):
-#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-#     try:
-#         cursor.execute('DELETE FROM owns WHERE aid=%s', (aid,))
-#         cursor.execute('DELETE FROM account WHERE aid=%s', (aid,))
-#         mysql.connection.commit()
-#         return redirect(url_for('main_page'))
-#     except Exception as e:
-#         return f"Error deleting account: {str(e)}"  # Informative error message
-#
-# @app.route('/account_summary')
-# def account_summary():
-#     header = ['Account ID',  "Branch", "Balance", "OpenDate"]
-#     header2 = ["Account ID", "Balance"]
-#     header3 = ["min_budget", "max_budget"]
-#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-#     cursor.execute('SELECT aid, branch, balance, openDate FROM account NATURAL JOIN owns WHERE cid= %s ORDER BY openDate ASC', (session['user_ID'],))
-#     query1 = cursor.fetchall()
-#     cursor.execute('SELECT aid, branch, balance, openDate FROM account NATURAL JOIN owns WHERE cid= %s AND balance > 50000 AND openDate>"2015-12-31"', (session['user_ID'],))
-#     query2 = cursor.fetchall()
-#     cursor.execute('SELECT aid, balance FROM account NATURAL JOIN owns NATURAL JOIN customer WHERE cid= %s AND account.city = customer.city', (session['user_ID'],))
-#     query3 = cursor.fetchall()
-#     cursor.execute('SELECT MIN(balance) AS min_balance, MAX(balance) AS max_balance FROM account NATURAL JOIN owns WHERE cid= %s', (session['user_ID'],))
-#     query4 = cursor.fetchall()
-#     return render_template('account_summary.html', query1 = query1, header = header, query2 = query2, query3 = query3, query4 =query4, header2=header2, header3=header3)
-
-
 @app.route("/logout")
 def logout():
     # Pop all the elements that are in local storage, and leave the system

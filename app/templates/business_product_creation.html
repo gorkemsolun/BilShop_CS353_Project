@@ -26,8 +26,8 @@
       href="{{ url_for('static', filename='styles/business_product_creation.css') }}"
     />
   </head>
-  <!-- TODO Move styles to css -->
-  <body style="background-color: #222; color: #fff; font-family: sans-serif">
+
+  <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="/business_main_page"><b>BilShop</b></a>
@@ -65,8 +65,11 @@
         </div>
       </div>
     </nav>
+
     {% with messages = get_flashed_messages(with_categories=true) %} {% for
     category, message in messages %}
+
+    <!-- Alert -->
     <div
       class="alert alert-{{ category }} alert-dismissible fade show"
       role="alert"
@@ -74,20 +77,11 @@
       <span>{{ message }}</span>
     </div>
     {% endfor %} {% endwith %}
-    <!-- TODO Move styles to css -->
-    <div
-      class="container mt-4"
-      style="
-        background-color: #333;
-        padding: 10px;
-        border-radius: 10px;
-        max-width: 700px;
-      "
-    >
-      <!-- TODO Move styles to css -->
-      <div style="display: flex; justify-content: flex-end">
+
+    <div class="container mt-4">
+      <!-- Close -->
+      <div class="close">
         <form action="{{ url_for('business_main_page') }}" method="get">
-          <!-- TODO Move styles to css -->
           <button class="btn btn-outline-light me-2" type="button">X</button>
         </form>
       </div>

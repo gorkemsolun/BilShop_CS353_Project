@@ -1,19 +1,18 @@
 body {
-  background-color: #222; /* Dark background */
-  color: #fff; /* White text for better readability */
+  background-color: #222; // Dark
+  color: #fff;  // White
   font-family: sans-serif;
-  display: flex; /* Enable Flexbox for body */
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
-  min-height: 100vh; /* Set minimum height for viewport */
-  margin: 0; /* Reset margin to prevent default browser styles */
-}
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  min-height: 100vh; 
+  margin: 0; 
 
 .alert-container {
-  position: fixed; /* Fixed positioning */
-  top: 0; /* Positioned at the top */
-  width: 100%; /* Full width */
-  z-index: 1000; /* Ensure it's above other content */
+  position: fixed;
+  top: 0; 
+  width: 100%; 
+  z-index: 1000;
 }
 
 .alert {
@@ -24,15 +23,15 @@ body {
 
 .login-container {
   height: 550px;
-  width: 500px; /* Adjust container width as needed */
+  width: 500px; 
   padding: 105px;
-  border-radius: 10px; /* Rounded corners */
-  background-color: #333; /* Slightly darker background for the container */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+  border-radius: 10px; 
+  background-color: #333; // sliight light dark
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); // depth of the shadow
 }
 
 .login-form {
-  text-align: center; /* Center form elements within the container */
+  text-align: center;
 }
 
 .form-group {
@@ -50,4 +49,8 @@ h2 {
   color: white;
   font-size: 50px;
   margin-bottom: 50px;
+}
+
+.register-link {
+  margin-left: 95%;
 }
