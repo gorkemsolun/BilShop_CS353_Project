@@ -1,16 +1,17 @@
 body {
-  background-color: #222; // Dark
+  background-color: #222; // dark
   color: #fff; // White
   font-family: sans-serif;
 }
 
 .container {
   margin-top: 20px;
+  color: #000; // black
 }
 
 .customer_product-amount {
   font-size: 16px;
-  color: #888; // Gray
+  color: #888;
   margin-bottom: 10px;
 }
 
@@ -21,7 +22,6 @@ body {
 .navbar-nav .nav-link {
   margin-right: 10px;
 }
-
 .btn-outline-light {
   border: 0;
 }

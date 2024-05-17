@@ -8,11 +8,10 @@ CREATE TABLE
         phone_number varchar(100) default null,
         country varchar(100) default null,
         city varchar(100) default null,
-        state varchar(100) default null,
-        zip decimal(10, 0) default null,
+        state_code varchar(100) default null,
+        zip_code decimal(10, 0) default null,
         building varchar(10) default null,
         street varchar(50) default null,
-        no varchar(20) default null,
         address_description varchar(50) default null,
         primary key (user_ID),
         unique (email)
@@ -22,7 +21,7 @@ create table
     Customer (
         user_ID varchar(20),
         balance numeric(20, 2),
-        description varchar(50) default null,
+        customer_description varchar(50) default null,
         primary key (user_ID),
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
     );
@@ -34,7 +33,7 @@ create table
         establishment_year date default null,
         balance numeric(20, 2),
         logo varchar(50) default null,
-        description varchar(50) default null,
+        business_description varchar(50) default null,
         company_name varchar(20) default null,
         primary key (user_ID),
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
@@ -52,12 +51,12 @@ create table
         product_ID varchar(20) not null,
         title varchar(20) not null,
         price numeric(20, 2) not null,
-        description varchar(50),
-        status varchar(20),
+        product_description varchar(50),
+        product_status varchar(20),
         proportions varchar(20),
         mass numeric(10, 2),
         cover_picture varchar(50),
-        date timestamp not null,
+        product_date timestamp not null,
         color varchar(20),
         category varchar(20),
         primary key (product_ID)
@@ -103,9 +102,9 @@ create table
 create table
     Purchase_Information (
         purchase_ID varchar(20) not null,
-        status varchar(20),
+        purchase_status varchar(20),
         total_price numeric(20, 2) not null,
-        date timestamp not null,
+        purchase_date timestamp not null,
         user_ID varchar(20) not null,
         primary key (purchase_ID),
         foreign key (user_ID) references Customer (user_ID) on delete cascade on update cascade
@@ -114,9 +113,9 @@ create table
 create table
     Return_Request_Information (
         return_ID varchar(20) not null,
-        date timestamp not null,
+        return_request_date timestamp not null,
         reason varchar(20) not null,
-        status varchar(20),
+        return_request_status varchar(20),
         purchase_ID varchar(20) not null,
         primary key (return_ID),
         foreign key (purchase_ID) references Purchase_Information (purchase_ID) on delete cascade on update cascade
@@ -135,13 +134,13 @@ create table
 create table
     Report (
         report_ID varchar(20) not null,
-        date timestamp not null,
-        description varchar(50) not null,
+        report_date timestamp not null,
+        report_description varchar(50) not null,
         product_ID varchar(20),
         reported_user_ID varchar(20) not null,
         purchase_ID varchar(20),
         return_ID varchar(20),
-        status varchar(20) not null,
+        report_status varchar(20) not null,
         user_ID varchar(20) not null,
         primary key (report_ID),
         foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade,
@@ -156,7 +155,7 @@ create table
         user_ID varchar(20),
         report_ID varchar(20),
         admin_ID varchar(20),
-        description varchar(50),
+        reason_description varchar(50),
         primary key (user_ID, report_ID, admin_ID),
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade,
         foreign key (admin_ID) references Admin (user_ID) on delete cascade on update cascade,
