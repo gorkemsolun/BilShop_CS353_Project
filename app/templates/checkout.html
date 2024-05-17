@@ -10,8 +10,60 @@
       integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/checkout.css') }}"
+    />
 </head>
 <body>
+ <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
+        <div class="d-flex">
+          <!-- Notifications button -->
+          <form action="{{ url_for('notifications') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Notification"
+            >
+              <i class="bi bi-bell"></i>
+            </button>
+          </form>
+          <!-- Customer Profile button -->
+          <form action="{{ url_for('customer_profile') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Customer Profile"
+            >
+              <i class="bi bi-person"></i>
+            </button>
+          </form>
+            <!-- Balance Button -->
+            <form action="{{ url_for('balance') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="balance"
+            >
+              <i class="bi bi-wallet2"></i>
+            </button>
+                </form>
+          <!-- Logout button -->
+          <form action="{{ url_for('logout') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Logout"
+            >
+              <i class="bi bi-box-arrow-left"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
     <div class="container mt-3">
         <div class="row">
             <!-- Title -->
