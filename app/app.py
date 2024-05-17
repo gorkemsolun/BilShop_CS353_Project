@@ -376,7 +376,7 @@ def customer_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products that are not sold using the following query
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s", ("not_sold",)
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s", ("not_sold",)
     )
     product_table = cursor.fetchall()
     # Pass the customer product table, and user session information to HTML
@@ -419,7 +419,7 @@ def business_product_creation():
             productID = get_next_id_product()
             status = "not_sold"
 
-            query = "INSERT INTO Product (product_ID, title, price, category, status"
+            query = "INSERT INTO Product (product_ID, title, price, category, product_status"
             values = [productID, title, price, category, status]
 
             optional_fields = ['description', 'coverPicture', 'proportions', 'mass', 'color', 'date']
@@ -556,16 +556,51 @@ def remove_from_cart(product_ID):
 @app.route("/checkout", methods=['GET', 'POST'])
 def checkout():
     # an item in cart has the following fields: product_ID, title, price, amount
+    # sum up the total price
     total_price = 0
     list = request.get_json()
     cartlist = json.loads(list)
     for item in cartlist:
         total_price += float(item['price']) * int(item['amount'])
+    
+    # Get existing addresses
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # We could come up with a view for the address 
+    cursor.execute(
+        "SELECT country, city, state_code, zip, building, street, apartment_no, address_description FROM User WHERE user_ID = %s",
+        (session['userID'],)
+    )
+    address = cursor.fetchone()
+    response = {
+        'redirect_url': url_for('render_checkout', cart=json.dumps(cartlist), total_price=total_price, address=json.dumps(address))
+    }
+    return jsonify(response)
+
+@app.route("/render_checkout")
+def render_checkout():
+    cart = json.loads(request.args.get('cart'))
+    total_price = request.args.get('total_price')
+    address = json.loads(request.args.get('address'))
     return render_template(
-        "checkout.html", 
-        cart = cartlist,
-        total_price = total_price
-        )
+        "checkout.html",
+        cart=cart,
+        total_price=total_price,
+        address=address
+    )
+
+@app.route("/enteraddress", methods = ['POST'])
+def enteraddress():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    addressJSON = request.get_json()
+    #addressJSON = json.loads(address)
+    cursor.execute(
+        "UPDATE User SET country = %s, city = %s, state_code = %s, zip = %s, building = %s, street = %s, apartment_no = %s, address_description = %s WHERE user_ID = %s",
+        (addressJSON['country'], addressJSON['city'], addressJSON['state'], addressJSON['zip'], addressJSON['building'], addressJSON['street'], addressJSON['no'], addressJSON['address_description'], session['userID'])
+    )
+    mysql.connection.commit()
+    response = jsonify({'message': 'Success'})
+    response.status_code = 200
+    return response
 
 # Profile page for the customer
 # This page will be used to show the customer details

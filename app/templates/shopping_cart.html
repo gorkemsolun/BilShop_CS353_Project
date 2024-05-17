@@ -130,11 +130,17 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(cart)
-        }).then((response) => {
-          return response.text();
-        }).then((html) => {
-            document.body.innerHTML = html
-        });
+        }).then(response => response.json())
+          .then(data => {
+              if (data.redirect_url) {
+                  window.location.href = data.redirect_url;
+              } else {
+                  console.error('Failed to get redirect URL');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          });
       });
     </script>
 

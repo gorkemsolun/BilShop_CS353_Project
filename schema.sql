@@ -9,7 +9,7 @@ CREATE TABLE
         country varchar(100) default null,
         city varchar(100) default null,
         state_code varchar(100) default null,
-        zip decimal(10, 0) default null,
+        zip varchar(20) default null,
         building varchar(10) default null,
         street varchar(50) default null,
         apartment_no varchar(20) default null,
@@ -194,7 +194,7 @@ values
     ('11', 4000);
 
 insert into
-    Product (product_ID, title, price, status, category)
+    Product (product_ID, title, price, product_status, category)
 values
     ('1', 'Murat1', 400, 'not_sold', 'Jewelry'),
     ('2', 'Murat2', 500, 'not_sold', 'Sculpture'),
