@@ -38,11 +38,15 @@ body {
   margin-bottom: 20px;
 }
 
-.btn-primary,
-.btn-outline-primary {
+.btn-outline-light {
+  backdrop-filter: opacity(70);
   width: 50%;
   margin-top: 20px;
   border-radius: 20px;
+}
+
+a {
+  color: white;
 }
 
 h2 {

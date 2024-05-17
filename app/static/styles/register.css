@@ -23,7 +23,7 @@ body {
 }
 
 .register-container {
-  height: 500px;
+  height: 550px;
   padding: 40px;
   width: 500px;
   border-radius: 10px;
@@ -47,10 +47,10 @@ body {
   margin-bottom: 20px;
 }
 
-.btn-outline-primary,
-.btn-primary {
+.btn-outline-light {
+  backdrop-filter: opacity(70);
   width: 50%;
-  margin-top: 10px;
+  margin-top: 20px;
   border-radius: 20px;
 }
 
@@ -59,10 +59,11 @@ h2 {
   font-size: 50px;
 }
 
-.btn-primary.active,
-.btn-primary:active {
-  border-radius: 20px;
+a {
+  color: white;
 }
+
+
 
 .register-link {
   margin-left: 75%;

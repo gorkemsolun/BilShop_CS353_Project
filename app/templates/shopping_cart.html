@@ -31,16 +31,16 @@
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/shopping_page"><b>BilShop</b></a>
+        <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
         <div class="d-flex">
-          <!-- Main Page Button -->
-          <form action="{{ url_for('customer_main_page') }}" method="get">
+          <!-- Shopping Cart -->
+          <form action="{{ url_for('shopping_cart') }}" method="get">
             <button
               class="btn btn-outline-light me-2"
               type="submit"
-              title="Main Page"
+              title="Cart"
             >
-              <i class="bi bi-house-door"></i>
+              <i class="bi bi-cart3"></i>
             </button>
           </form>
           <!-- Notifications button -->
@@ -61,6 +61,16 @@
               title="Customer Profile"
             >
               <i class="bi bi-person"></i>
+            </button>
+          </form>
+          <!-- Balance Button -->
+          <form action="{{ url_for('balance') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Customer Profile"
+            >
+              <i class="bi bi-wallet2"></i>
             </button>
           </form>
           <!-- Logout button -->
@@ -130,14 +140,13 @@
 
     <!-- Script to handle checkout button click -->
     <script>
-      // Add event listener to checkout button
       document
         .getElementById("checkoutButton")
         .addEventListener("click", function (event) {
-          event.preventDefault();
+          event.preventDefault(); // Prevent the default form submission behavior
           var cart = "{{cart | tojson}}";
 
-          // Send cart data to server
+          // Send a POST request to the server to initiate the checkout process
           fetch("/checkout", {
             method: "POST",
             headers: {
@@ -145,11 +154,16 @@
             },
             body: JSON.stringify(cart),
           })
-            .then((response) => {
-              return response.text(); // Convert response to text
+            .then((response) => response.json()) // Parse the JSON response
+            .then((data) => {
+              if (data.redirect_url) {
+                window.location.href = data.redirect_url; // Redirect to the checkout page
+              } else {
+                console.error("Failed to get redirect URL"); // Log an error if the redirect URL is not received
+              }
             })
-            .then((html) => {
-              document.body.innerHTML = html; // Replace body with response
+            .catch((error) => {
+              console.error("Error:", error); // Log an error if the request fails
             });
         });
     </script>
