@@ -43,7 +43,7 @@ body {
 .navbar-nav .nav-link {
   margin-right: 10px; /* Increased margin for the icons */
 }
-.btn-outline-light {
+.btn-outline-light.me-2{
   border: 0;
 }
 
@@ -52,4 +52,33 @@ body {
   font-size: 24px; /* Adjust the font size as needed */
   margin-bottom: 20px; /* Add space below the title */
   /* Add other styling if needed */
+}
+
+/* Style the button */
+      #addToCartForm input[type="submit"] {
+          background-color: #007bff; /* Blue color for button background */
+          color: white; /* White text color */
+          padding: 8px 16px; /* Padding inside the button */
+          border: none; /* Remove border */
+          border-radius: 4px; /* Rounded corners */
+          cursor: pointer; /* Show pointer cursor on hover */
+      }
+
+      /* Style the button on hover */
+      #addToCartForm input[type="submit"]:hover {
+          background-color: #0056b3; /* Darker blue color on hover */
+      }
+
+.image-container{
+    border-radius: 20px; /* Rounded corners */
+    overflow: hidden; /* Ensure content does not overflow rounded corners */
+    object-fit: cover;
+    height: 250px;
+}
+
+.container.me-2{
+    border-radius: 20px; /* Rounded corners */
+    overflow: hidden; /* Ensure content does not overflow rounded corners */
+    background-color: #333333;
+    padding: 40px;
 }
