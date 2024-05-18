@@ -106,8 +106,11 @@ create table
         total_price numeric(20, 2) not null,
         purchase_date timestamp not null,
         user_ID varchar(20) not null,
+        product_ID varchar(20) not null,
+        amount numeric(20, 0) not null, 
         primary key (purchase_ID),
-        foreign key (user_ID) references Customer (user_ID) on delete cascade on update cascade
+        foreign key (user_ID) references Customer (user_ID) on delete cascade on update cascade,
+        foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade
     );
 
 create table
@@ -641,6 +644,7 @@ VALUES
     ('6', '6', 2),
     ('7', '7', 1);
 
+
 -- Inserting data into Purchase_Information table
 INSERT INTO
     Purchase_Information (
@@ -648,7 +652,9 @@ INSERT INTO
         purchase_status,
         total_price,
         purchase_date,
-        user_ID
+        user_ID,
+        product_ID,
+        amount
     )
 VALUES
     (
@@ -656,51 +662,64 @@ VALUES
         'Completed',
         999.99,
         '2024-05-12 12:00:00',
-        '1'
+        '1',
+        '1',
+        2
     ),
     (
         '2',
         'Completed',
         39.98,
         '2024-05-13 13:00:00',
-        '2'
+        '2',
+        '2',
+        2
     ),
     (
         '3',
         'Completed',
         599.99,
         '2024-05-18 18:00:00',
-        '3'
+        '3',
+        '3',
+        2
     ),
     (
         '4',
         'Completed',
         99.98,
         '2024-05-19 19:00:00',
-        '4'
+        '4',
+        '4',
+        2
     ),
     (
         '5',
         'Completed',
         199.99,
         '2024-05-20 20:00:00',
-        '5'
+        '5',
+        '5',
+        2
     ),
     (
         '6',
         'Completed',
         179.98,
         '2024-05-21 21:00:00',
-        '6'
+        '6',
+        '6',
+        2
     ),
     (
         '7',
         'Completed',
         299.99,
         '2024-05-22 22:00:00',
-        '7'
-    );
-
+        '7',
+        '7',
+        2
+);
 -- Inserting data into Return_Request_Information table
 INSERT INTO
     Return_Request_Information (

@@ -56,6 +56,18 @@ def get_next_id_product():
     max_id = max_id["product_ID"]
     return str(int(max_id) + 1)
 
+def get_next_id_purchase_info():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Fetch the current maximum ID from the table
+    cursor.execute(
+        "SELECT * FROM Purchase_Information ORDER BY CONVERT(purchase_ID, UNSIGNED INTEGER) DESC"
+    )
+    max_id = cursor.fetchone()
+    if max_id is None:
+        return str(1)  # Start from 1 if no records exist
+    max_id = max_id["purchase_ID"]
+    return str(int(max_id) + 1)
+
 
 def get_next_id_comment():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -479,7 +491,7 @@ def business_product_create():
                 "proportions",
                 "mass",
                 "color",
-                "date",
+                "product_date",
             ]
 
             # Check if optional fields are filled
@@ -678,7 +690,7 @@ def checkout():
     # sum up the total price
     total_price = 0
     list = request.get_json()
-    cartlist = json.loads(list)
+    cartlist = list
     for item in cartlist:
         total_price += float(item["price"]) * int(item["amount"])
 
@@ -733,6 +745,121 @@ def enteraddress():
     response = jsonify({"message": "Success"})
     response.status_code = 200
     return response
+
+@app.route("/confirm_purchase", methods = ['POST'])
+def confirm_purchase():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Get the items inside the shopping cart
+    cursor.execute(
+        "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
+        (session["user_ID"],)
+    )
+    cart = cursor.fetchall()
+    
+    # Get the balance of the customer
+    cursor.execute(
+        "SELECT balance FROM Customer WHERE user_ID = %s",
+        (session["user_ID"],)
+    )
+
+    balanceDict = cursor.fetchone()
+    balance = balanceDict['balance']
+
+    # Check the availability of each product in the cart, they might have gone out of stock
+    available = []
+    out_of_stock = []
+    for item in cart:
+        cursor.execute("SELECT amount FROM Owns WHERE product_ID = %s", (item['product_ID'],))
+        amount = cursor.fetchone()
+        item['product_amount'] = amount['amount']
+        if amount['amount'] >= item['amount']:
+            available.append(item)
+        else:
+            out_of_stock.append(item)
+    
+    # Check if the balance of our current user is enough for the items that are available
+    insufficient_balance = False
+    totalprice = 0
+    for item in available:
+        totalprice += item['price']
+    if totalprice > balance:
+        insufficient_balance = True
+    
+    # If the balance is enough, confirm purchase and create a purchase_info
+    if not insufficient_balance:
+        for item in available:
+            total_price = item['price'] * item['amount']
+            cursor.execute(
+                "INSERT INTO Purchase_Information(purchase_ID, purchase_status, total_price, purchase_date, user_ID , product_ID, amount) VALUES(%s, %s,%s,%s,%s,%s,%s)",
+            (
+                get_next_id_purchase_info(),
+                "order created",
+                total_price,
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                session['user_ID'],
+                item['product_ID'],
+                item['amount']
+            )
+            )
+            
+            # Reduce the amount from OWNS
+            newamount = item['product_amount'] - item['amount']
+            cursor.execute(
+                "UPDATE Owns SET amount = %s WHERE product_ID = %s",
+                (
+                    newamount,
+                    item['product_ID']
+                )
+            )
+            mysql.connection.commit()
+
+            # remove the item from the cart
+            cursor.execute(
+                "DELETE FROM Puts_On_Cart WHERE user_ID = %s AND product_ID = %s",
+                (
+                    session['user_ID'],
+                    item['product_ID']
+                )
+            )
+            mysql.connection.commit()
+        
+        #finally update the balance of the customer
+        balance -= totalprice
+        cursor.execute(
+            "UPDATE Customer SET balance = %s WHERE user_ID = %s",
+            (
+                balance,
+                session['user_ID']
+            )
+        )
+        mysql.connection.commit()
+    # this page will show the purchased items and out of stock items if any and if the balance is sufficent
+    # if the balance is insufficient it will show the out of stock items as well as a message saying that the user has insufficient balance
+    # Store the purchase result in the session
+    session['purchase_result'] = {
+        'insufficient_balance': insufficient_balance,
+        'available': available,
+        'out_of_stock': out_of_stock,
+        'balance': balance
+    }
+    
+    return redirect(url_for('purchase_summary'))
+
+@app.route("/purchase_summary")
+def purchase_summary():
+    purchase_result = session.pop('purchase_result', None)
+    if purchase_result is None:
+        return redirect(url_for('customer_main_page'))
+    
+    return render_template(
+        "purchase_screen.html",
+        insufficient_balance=purchase_result['insufficient_balance'],
+        available=purchase_result['available'],
+        out_of_stock=purchase_result['out_of_stock'],
+        balance=purchase_result['balance']
+    )
+    
 
 
 # Profile page for the customer

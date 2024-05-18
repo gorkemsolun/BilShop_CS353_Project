@@ -207,7 +207,7 @@
             <div class="col-md-12 text-center mt-3">
               <form
                 id="paymentForm"
-                action="/continue_to_payment"
+                action="/confirm_purchase"
                 method="post"
               >
                 <button type="submit" class="btn btn-success">
@@ -235,7 +235,7 @@
     <script>
       var addressnamespace = { addressExists: false };
       document.addEventListener("DOMContentLoaded", function () {
-        var address = JSON.parse("{{ address | tojson | safe }}"); // Get the address from the server as a JSON object
+        var address = {{ address | tojson | safe }}; // Get the address from the server as a JSON object
         console.log(address);
         // Check if the address is empty or null
         if (!address.city) {

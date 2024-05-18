@@ -144,8 +144,8 @@
         .getElementById("checkoutButton")
         .addEventListener("click", function (event) {
           event.preventDefault(); // Prevent the default form submission behavior
-          var cart = "{{cart | tojson}}";
-
+          var cart = {{cart | tojson}};
+          console.log("clicked");
           // Send a POST request to the server to initiate the checkout process
           fetch("/checkout", {
             method: "POST",
