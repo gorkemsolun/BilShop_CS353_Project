@@ -141,7 +141,7 @@ create table
         reported_user_ID varchar(20) not null,
         purchase_ID varchar(20),
         return_ID varchar(20),
-        status varchar(20) not null,
+        report_status varchar(20) not null,
         user_ID varchar(20) not null,
         primary key (report_ID),
         foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade,
