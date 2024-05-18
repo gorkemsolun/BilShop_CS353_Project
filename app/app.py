@@ -1302,7 +1302,7 @@ def admin():
 
     # Pass the fetched data to the render_template function
     return render_template(
-        "test_tables.html",
+        "admin_tables.html",
         users=users,
         customers=customers,
         businesses=businesses,
