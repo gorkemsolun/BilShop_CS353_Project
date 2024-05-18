@@ -152,7 +152,7 @@
                             <td>{{ report.return_ID }}</td>
                             <td>{{ report.user_ID }}</td>
                             <td>
-                                <form method="POST" action="/admin_user_report">
+                                <form method="POST" action="/admin_user_report" onsubmit="return confirm('Are you sure you want to ban this user?');">
                                     <input type="hidden" name="action" value="ban">
                                     <input type="hidden" name="reported_user_ID" value="{{ report.reported_user_ID }}">
                                     <input type="hidden" name="report_ID" value="{{ report.report_ID }}">
@@ -164,7 +164,7 @@
                                     <input type="hidden" name="user_ID" value="{{ report.user_ID }}">
                                     <button type="submit" class="btn btn-danger">BAN</button>
                                 </form>
-                                <form method="POST" action="/admin_user_report">
+                                <form method="POST" action="/admin_user_report" onsubmit="return confirm('Are you sure you want to ban this user?');">
                                     <input type="hidden" name="action" value="dismiss">
                                     <input type="hidden" name="report_ID" value="{{ report.report_ID }}">
                                     <input type="hidden" name="report_date" value="{{ report.report_date }}">
@@ -180,52 +180,66 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <h1>Resolved</h1>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Report ID</th>
-                            <th>Report Date</th>
-                            <th>Description</th>
-                            <th>Product ID</th>
-                            <th>Reported User ID</th>
-                            <th>Purchase ID</th>
-                            <th>Return ID</th>
-                            <th>User ID</th>
-                            <th>Resolve</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for report in solved_reports %}
-                        <tr>
-                            <td>{{ report.report_ID }}</td>
-                            <td>{{ report.report_date }}</td>
-                            <td>{{ report.report_description }}</td>
-                            <td>{{ report.product_ID }}</td>
-                            <td>{{ report.reported_user_ID }}</td>
-                            <td>{{ report.purchase_ID }}</td>
-                            <td>{{ report.return_ID }}</td>
-                            <td>{{ report.user_ID }}</td>
-                            <td>
-                                <form method="POST" action="/admin_user_report">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="report_ID" value="{{ report.report_ID }}">
-                                    <input type="hidden" name="report_date" value="{{ report.report_date }}">
-                                    <input type="hidden" name="report_description" value="{{ report.report_description }}">
-                                    <input type="hidden" name="product_ID" value="{{ report.product_ID }}">
-                                    <input type="hidden" name="purchase_ID" value="{{ report.purchase_ID }}">
-                                    <input type="hidden" name="return_ID" value="{{ report.return_ID }}">
-                                    <input type="hidden" name="user_ID" value="{{ report.user_ID }}">
-                                    <button type="submit" class="btn btn-danger">Delete Report</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <button id="toggleButton" onclick="toggleTable()">Display Resolved Reports</button>
+                <div id="reportTable">
+                    <h1>Resolved</h1>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Report ID</th>
+                                <th>Report Date</th>
+                                <th>Description</th>
+                                <th>Product ID</th>
+                                <th>Reported User ID</th>
+                                <th>Purchase ID</th>
+                                <th>Return ID</th>
+                                <th>User ID</th>
+                                <th>Resolve</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in solved_reports %}
+                            <tr>
+                                <td>{{ report.report_ID }}</td>
+                                <td>{{ report.report_date }}</td>
+                                <td>{{ report.report_description }}</td>
+                                <td>{{ report.product_ID }}</td>
+                                <td>{{ report.reported_user_ID }}</td>
+                                <td>{{ report.purchase_ID }}</td>
+                                <td>{{ report.return_ID }}</td>
+                                <td>{{ report.user_ID }}</td>
+                                <td>
+                                    <form method="POST" action="/admin_user_report" onsubmit="return confirm('Are you sure you want to ban this user?');">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="report_ID" value="{{ report.report_ID }}">
+                                        <input type="hidden" name="report_date" value="{{ report.report_date }}">
+                                        <input type="hidden" name="report_description" value="{{ report.report_description }}">
+                                        <input type="hidden" name="product_ID" value="{{ report.product_ID }}">
+                                        <input type="hidden" name="purchase_ID" value="{{ report.purchase_ID }}">
+                                        <input type="hidden" name="return_ID" value="{{ report.return_ID }}">
+                                        <input type="hidden" name="user_ID" value="{{ report.user_ID }}">
+                                        <button type="submit" class="btn btn-danger">Delete Report</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
     
+    <script>
+        function toggleTable() {
+            var table = document.getElementById('reportTable');
+            if (table.style.display === 'none') {
+                table.style.display = 'block';
+            } else {
+                table.style.display = 'none';
+            }
+        }
+    </script>
+
 </body>
 </html>
