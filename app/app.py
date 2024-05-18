@@ -439,8 +439,8 @@ def business_main_page():
 
 
 # This function is used to create a product for the business
-@app.route("/business_product_creation", methods=["GET", "POST"])
-def business_product_creation():
+@app.route("/business_product_create", methods=["GET", "POST"])
+def business_product_create():
     message = ""  # Message to be shown to the user
 
     # If a POST request is made, then the form is filled
@@ -518,7 +518,7 @@ def business_product_creation():
             message = "Please fill the required fields"
             flash(message, "warning")
 
-    return render_template("business_product_creation.html", message=message)
+    return render_template("business_product_create.html", message=message)
 
 
 # TODO main page admin reports etc
