@@ -39,6 +39,10 @@
             display: flex;
         }
 
+        h1 {
+          color: white
+        }
+
         nav ul li {
             margin: 0;
         }
@@ -99,12 +103,24 @@
         }
 
         th, td {
+            color:white;
             padding: 8px;
             text-align: left;
         }
-
-        th {
-            background-color: #f2f2f2;
+        .container {
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .report {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            color: white; /* Set text color to white */
+            background-color: #333; /* Set background color for better contrast */
+        }
+        .report-button {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -119,9 +135,63 @@
             </ul>
         </nav>
     </header>
-    <main>
-        <h1>System Reports</h1>
-        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Qui ipsa, architecto minus delectus dolor a saepe quos quaerat tempora placeat veritatis magnam nam ea quae. Consequuntur cum facilis laborum suscipit.</p>
-    </main>
+    <div class="container mt-4">
+        <div class="row">
+            <h1>System Reports</h1>
+            <div class="container mt-4">
+                <div class="row">
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report1')">Toggle Report 1</button>
+                    <div class="report" id="report1" textcolor="white">
+                        Report 1 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report2')">Toggle Report 2</button>
+                    <div class="report" id="report2">
+                        Report 2 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report3')">Toggle Report 3</button>
+                    <div class="report" id="report3">
+                        Report 3 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report4')">Toggle Report 4</button>
+                    <div class="report" id="report4">
+                        Report 4 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report5')">Toggle Report 5</button>
+                    <div class="report" id="report5">
+                        Report 5 Content
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleReport(reportId) {
+            var report = document.getElementById(reportId);
+            if (report.style.display === 'none') {
+                report.style.display = 'block';
+            } else {
+                report.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var reports = document.querySelectorAll('.report');
+            reports.forEach(function(report) {
+                report.style.display = 'none';
+            });
+        });
+    </script>
+
 </body>
 </html>
