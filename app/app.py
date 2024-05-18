@@ -1003,12 +1003,17 @@ def customer_profile():
 @app.route("/customer_profile_edit", methods=["GET", "POST"])
 def customer_profile_edit():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
     # Get the customer details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
         (session["user_ID"],),
     )
+
+    # Fetch the customer details
     customer = cursor.fetchone()
+
+    # If the form is submitted, update the customer details in the database and show a message
     if request.method == "POST":
         name = request.form["name"]
         email = request.form["email"]
@@ -1021,25 +1026,47 @@ def customer_profile_edit():
         building = request.form["building"]
         street = request.form["street"]
         address_description = request.form["address_description"]
+
+        # If an image is provided, read the binary data of the image
+        if "picture" in request.files:
+            picture = request.files["picture"]
+            picture_binary_data = picture.read()
+        else:
+            picture_binary_data = None
+
+        # Update the customer details in the database
         cursor.execute(
-            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s WHERE user_ID = %s",
+            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
             (
-                name,
-                email,
-                password,
-                phone_number,
-                country,
-                city,
-                state_code,
-                zip_code,
-                building,
-                street,
-                address_description,
-                session["user_ID"],
+            name,
+            email,
+            password,
+            phone_number,
+            country,
+            city,
+            state_code,
+            zip_code,
+            building,
+            street,
+            address_description,
+            picture_binary_data,
+            session["user_ID"],
             ),
         )
-        mysql.connection.commit()
-        return redirect(url_for("customer_profile"))
+        mysql.connection.commit()  # Commit the changes to the database
+
+        # Update the current details of the customer
+        cursor.execute(
+            "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
+            (session["user_ID"],),
+        )
+        customer = cursor.fetchone()
+
+        return render_template(
+            "customer_profile.html",
+            message="Profile updated successfully",
+            customer=customer,
+        )  # Show a message to the user that the profile is updated
     return render_template("customer_profile_edit.html", customer=customer)
 
 
