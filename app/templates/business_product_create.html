@@ -27,6 +27,21 @@
     />
   </head>
 
+  <!-- Message -->
+  {% if message is defined and message %}
+  <div class="alert-container">
+    <div class="alert alert-warning">{{ message }}</div>
+  </div>
+  {% endif %}
+  <script>
+    setTimeout(function () {
+      var alertContainer = document.querySelector(".alert-container");
+      if (alertContainer) {
+        alertContainer.remove();
+      }
+    }, 5000); // 5000 milliseconds = 5 seconds
+  </script>
+
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
@@ -76,6 +91,7 @@
       </div>
     </nav>
 
+    <!-- TODO this do not work -->
     {% with messages = get_flashed_messages(with_categories=true) %} {% for
     category, message in messages %}
 
