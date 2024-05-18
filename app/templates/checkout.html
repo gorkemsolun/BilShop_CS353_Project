@@ -233,90 +233,104 @@
       </div>
     </div>
     <script>
-      var addressnamespace = {addressExists : false};
-      document.addEventListener("DOMContentLoaded", function() {
-          var address = {{ address | tojson }}; // Get the address from the server as a JSON object
-          console.log(address);
-          // Check if the address is empty or null
-          if (!address.city) {
-              document.getElementById('addressform').style.display = 'block';
-              document.getElementById('back').style.display = 'block';
-              document.getElementById('currentAddress').style.display = 'none';
-              addressnamespace.addressExists = false;
-          } else {
-              document.getElementById('addressform').style.display = 'none';
-              document.getElementById('back').style.display = 'none';
-              document.getElementById('currentAddress').style.display = 'block';
-              addressnamespace.addressExists = true;
-          }
+      var addressnamespace = { addressExists: false };
+      document.addEventListener("DOMContentLoaded", function () {
+        var address = JSON.parse("{{ address | tojson | safe }}"); // Get the address from the server as a JSON object
+        console.log(address);
+        // Check if the address is empty or null
+        if (!address.city) {
+          document.getElementById("addressform").style.display = "block";
+          document.getElementById("back").style.display = "block";
+          document.getElementById("currentAddress").style.display = "none";
+          addressnamespace.addressExists = false;
+        } else {
+          document.getElementById("addressform").style.display = "none";
+          document.getElementById("back").style.display = "none";
+          document.getElementById("currentAddress").style.display = "block";
+          addressnamespace.addressExists = true;
+        }
       });
 
       // Update the address value if needed
       function updateAddress(newAddress) {
-          address = newAddress;
+        address = newAddress;
 
-          console.log('Updated address:', address);
-          console.log(typeof address)
-          // Send the updated address back to the server
-          fetch('/enteraddress', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(address)
-          })
-          .then(response => response.json())
-          .then(data => {
-              console.log('Success:', data);
-              document.getElementById('addressform').style.display = 'none';
-              document.getElementById('back').style.display = 'none';
-              document.getElementById('currentAddress').style.display = 'block';
-              addressnamespace.addressExists = true;
+        console.log("Updated address:", address);
+        console.log(typeof address);
+        // Send the updated address back to the server
+        fetch("/enteraddress", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(address),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            document.getElementById("addressform").style.display = "none";
+            document.getElementById("back").style.display = "none";
+            document.getElementById("currentAddress").style.display = "block";
+            addressnamespace.addressExists = true;
 
-              // Update the address display
-              var addressList = document.querySelector('#currentAddress ul');
-              addressList.innerHTML = '';
-              for (var key in address) {
-                  if (address.hasOwnProperty(key)) {
-                      var listItem = document.createElement('li');
-                      listItem.innerHTML = '<strong>' + key.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase()) + ':</strong> ' + address[key];
-                      addressList.appendChild(listItem);
-                  }
+            // Update the address display
+            var addressList = document.querySelector("#currentAddress ul");
+            addressList.innerHTML = "";
+            for (var key in address) {
+              if (address.hasOwnProperty(key)) {
+                var listItem = document.createElement("li");
+                listItem.innerHTML =
+                  "<strong>" +
+                  key
+                    .replace("_", " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase()) +
+                  ":</strong> " +
+                  address[key];
+                addressList.appendChild(listItem);
               }
+            }
           })
           .catch((error) => {
-              console.error('Error:', error);
+            console.error("Error:", error);
           });
       }
 
       // Handle form submission
-      document.getElementById('addressform').addEventListener('submit', function(event) {
+      document
+        .getElementById("addressform")
+        .addEventListener("submit", function (event) {
           event.preventDefault();
           var formData = new FormData(this);
           var addressData = {};
-          formData.forEach((value, key) => addressData[key] = value);
+          formData.forEach((value, key) => (addressData[key] = value));
           updateAddress(addressData);
-      });
+        });
 
       // Show address form when the Change Address button is clicked
-      document.getElementById('changeAddressButton').addEventListener('click', function() {
-          document.getElementById('addressform').style.display = 'block';
-          document.getElementById('back').style.display = 'block';
-          document.getElementById('currentAddress').style.display = 'none';
-      });
+      document
+        .getElementById("changeAddressButton")
+        .addEventListener("click", function () {
+          document.getElementById("addressform").style.display = "block";
+          document.getElementById("back").style.display = "block";
+          document.getElementById("currentAddress").style.display = "none";
+        });
 
       // Handle the payment form submission
-      document.getElementById('paymentForm').addEventListener('submit', function(event) {
+      document
+        .getElementById("paymentForm")
+        .addEventListener("submit", function (event) {
           if (!addressnamespace.addressExists) {
-              event.preventDefault();
-              alert('Please provide an address');
+            event.preventDefault();
+            alert("Please provide an address");
           }
-      });
-      document.getElementById('back').addEventListener('click', function(event) {
-          document.getElementById('addressform').style.display = 'none';
-          document.getElementById('back').style.display = 'none';
-          document.getElementById('currentAddress').style.display = 'block';
-      });
+        });
+      document
+        .getElementById("back")
+        .addEventListener("click", function (event) {
+          document.getElementById("addressform").style.display = "none";
+          document.getElementById("back").style.display = "none";
+          document.getElementById("currentAddress").style.display = "block";
+        });
     </script>
   </body>
 </html>
