@@ -64,7 +64,7 @@ def search_products():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all the products with starting title as requested search input
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND title LIKE %s",
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status = %s AND title LIKE %s",
         ("not_sold", f"{search}%"),
     )
     product_table = cursor.fetchall()
@@ -171,7 +171,7 @@ def filter_products():
     if category == "all":
         if sort_order == "ASC":
             cursor.execute(
-                "SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND price >= %s AND price <= %s ORDER BY price ASC",
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status = %s AND price >= %s AND price <= %s ORDER BY price ASC",
                 (
                     "not_sold",
                     float(min_price),
@@ -181,7 +181,7 @@ def filter_products():
             product_table = cursor.fetchall()
         else:
             cursor.execute(
-                "SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND price >= %s AND price <= %s ORDER BY price DESC",
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status = %s AND price >= %s AND price <= %s ORDER BY price DESC",
                 (
                     "not_sold",
                     float(min_price),
@@ -193,7 +193,7 @@ def filter_products():
         if sort_order == "ASC":
             # Get all the products with starting applied filter choice
             cursor.execute(
-                "SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND price >= %s AND price <= %s AND category = %s ORDER BY price ASC",
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status = %s AND price >= %s AND price <= %s AND category = %s ORDER BY price ASC",
                 (
                     "not_sold",
                     float(min_price),
@@ -205,7 +205,7 @@ def filter_products():
         else:
             # Get all the products with starting applied filter choice
             cursor.execute(
-                "SELECT * FROM Owns NATURAL JOIN Product WHERE status = %s AND price >= %s AND price <= %s ORDER BY price DESC",
+                "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status = %s AND price >= %s AND price <= %s ORDER BY price DESC",
                 (
                     "not_sold",
                     float(min_price),
@@ -528,7 +528,7 @@ def admin_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products that are not sold using the following query
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE status= %s", ("not_sold",)
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s", ("not_sold",)
     )
     product_table = cursor.fetchall()
     return render_template(
