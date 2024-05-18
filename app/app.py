@@ -388,16 +388,24 @@ def register():
 @app.route("/customer_main_page", methods=["GET", "POST"])
 def customer_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get all products that are not sold using the following query
+    # Get the page number from the request parameters
+    page = max(request.args.get("page", default=1, type=int), 1)
+
+    # Set the number of items per page
+    items_per_page = 10
+    # Calculate the offset based on the page number and items per page
+    offset = (page - 1) * items_per_page
+    # Get all products that are not sold using the following query with paging
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s",
-        ("not_sold",),
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s LIMIT %s OFFSET %s",
+        ("not_sold", items_per_page, offset),
     )
     product_table = cursor.fetchall()
-    # Pass the customer product table, and user session information to HTML
+    # Pass the customer product table, page number, and user session information to HTML
     return render_template(
         "customer_main_page.html",
         product_table=product_table,
+        page=page,
         is_in_session=session["loggedin"],
         username=session["username"],
     )
@@ -409,15 +417,22 @@ def customer_main_page():
 @app.route("/business_main_page")
 def business_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get all products that are not sold using the following query
+    # Get the page number from the request parameters
+    page = request.args.get("page", default=1, type=int)
+    # Set the number of items per page
+    items_per_page = 10
+    # Calculate the offset based on the page number and items per page
+    offset = (page - 1) * items_per_page
+    # Modify the query to include paging
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s",
-        (session["userid"],),
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s LIMIT %s OFFSET %s",
+        (session["userid"], items_per_page, offset),
     )
     product_table = cursor.fetchall()
     return render_template(
         "business_main_page.html",
         product_table=product_table,
+        page=page,
         is_in_session=session["loggedin"],
         username=session["username"],
     )
@@ -907,7 +922,6 @@ def admin_profile():
     return render_template("admin_profile.html", admin=admin)
 
 
-# TODO customer customer product page
 # This page will be used to show the customer product details and the customer product picture
 # The customer product details will be fetched from the database
 # Link to this page will be provided in the customer_main_page.html, link will be /customer_product/<product_ID>
@@ -935,7 +949,6 @@ def customer_product(product_ID):
     )
 
 
-# TODO business product page
 # This page will be used to show the business product details and the business product picture
 # The business product details will be fetched from the database
 # Link to this page will be provided in the business_main_page.html, link will be /business_product/<product_ID>
