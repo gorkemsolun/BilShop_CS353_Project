@@ -31,7 +31,7 @@ mysql = MySQL(app)
 
 # Adding people with manual insertions can result in an error,
 # It needs to be checked whether entry has been placed in sql.
-def get_next_id():
+def get_next_ID():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
     cursor.execute(
@@ -39,12 +39,12 @@ def get_next_id():
     )
     max_id = cursor.fetchone()
     if max_id is None:
-        return str(1)  # Start from 1 if no records exist
+        return "1"  # Start from 1 if no records exist
     max_id = max_id["user_ID"]
     return str(int(max_id) + 1)
 
 
-def get_next_id_product():
+def get_next_ID_product():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
     cursor.execute(
@@ -52,7 +52,7 @@ def get_next_id_product():
     )
     max_id = cursor.fetchone()
     if max_id is None:
-        return str(1)  # Start from 1 if no records exist
+        return "1"  # Start from 1 if no records exist
     max_id = max_id["product_ID"]
     return str(int(max_id) + 1)
 
@@ -60,7 +60,7 @@ def get_next_id_product():
 # The helper function that returns a json file of the given string query
 # This function is used to get the next available ID for the Purchase_Information table
 # by getting the maximum ID from the table and incrementing it by 1
-def get_next_id_purchase_info():
+def get_next_ID_purchase_info():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
     cursor.execute(
@@ -68,7 +68,7 @@ def get_next_id_purchase_info():
     )
     max_id = cursor.fetchone()
     if max_id is None:
-        return str(1)  # Start from 1 if no records exist
+        return "1"  # Start from 1 if no records exist
     max_id = max_id["purchase_ID"]
     return str(int(max_id) + 1)
 
@@ -76,7 +76,7 @@ def get_next_id_purchase_info():
 # The helper function that returns a json file of the given string query
 # This function is used to get the next available ID for the Comment table
 # by getting the maximum ID from the table and incrementing it by 1
-def get_next_id_comment():
+def get_next_ID_comment():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
     cursor.execute(
@@ -84,8 +84,24 @@ def get_next_id_comment():
     )
     max_id = cursor.fetchone()
     if max_id is None:
-        return str(1)  # Start from 1 if no records exist
+        return "1"  # Start from 1 if no records exist
     max_id = max_id["comment_ID"]
+    return str(int(max_id) + 1)
+
+
+# The helper function that returns a json file of the given string query
+# This function is used to get the next available ID for the Notification table
+# by getting the maximum ID from the table and incrementing it by 1
+def get_next_ID_notification():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Fetch the current maximum ID from the table
+    cursor.execute(
+        "SELECT * FROM Notification ORDER BY CONVERT(notification_ID, UNSIGNED INTEGER) DESC"
+    )
+    max_id = cursor.fetchone()
+    if max_id is None:
+        return "1"  # Start from 1 if no records exist
+    max_id = max_id["notification_ID"]
     return str(int(max_id) + 1)
 
 
@@ -379,7 +395,7 @@ def register():
             # The chosen role in HTML is requested by request.form.get('role') function
             role = request.form.get("role")
             # Get a new id which is unique
-            new_id = get_next_id()
+            new_id = get_next_ID()
             # Insert the user with a new ID, given password, name and email
             cursor.execute(
                 "INSERT INTO User (password, name, email, user_ID) VALUES (% s, % s, %s, %s)",
@@ -460,6 +476,66 @@ def notification_delete_all():
     return redirect(url_for("notifications"))
 
 
+# Send a notification to the user with the given user_ID
+# If the user_ID is not provided, send the notification to all users
+# notification can only be sent by the admins
+@app.route("/admin_notification_send", methods=["GET", "POST"])
+def admin_notification_send():
+    # If the user is not an admin, redirect to the main page
+    if session["role"] != "admin":
+        if session["role"] == "customer":
+            return redirect(
+                url_for("customer_main_page")
+            )  # Redirect to the customer main page
+        elif session["role"] == "business":
+            return redirect(url_for("business_main_page"))
+        else:
+            return redirect(
+                url_for("login")
+            )  # Redirect to the login page if the user is not logged in
+
+    # Message to be shown to the user
+    message = ""
+    if request.method == "POST":
+        notification_title = request.form["title"]
+        notification_text = request.form["text"]
+        notification_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        notification_image_binary_data = None
+
+        # If an image is provided, read the binary data of the image
+        if "image" in request.files:
+            notification_image = request.files["image"]
+            notification_image_binary_data = notification_image.read()  # Read the image
+
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get all users
+        cursor.execute("SELECT user_ID FROM User")
+        users = cursor.fetchall()
+        for user in users:
+            notification_ID = (
+                get_next_ID_notification()
+            )  # Get the next available notification ID
+
+            cursor.execute(
+                "INSERT INTO Notification (notification_title, notification_text, notification_date, user_ID, notification_image, notification_ID) VALUES (%s, %s, %s, %s, %s, %s)",
+                (
+                    notification_title,
+                    notification_text,
+                    notification_date,
+                    user["user_ID"],
+                    notification_image_binary_data,
+                    notification_ID,
+                ),
+            )
+            mysql.connection.commit()
+
+        message = (
+            "Notification sent successfully!"  # Set the message to be shown to the user
+        )
+
+    return render_template("admin_notification_send.html", message=message)
+
+
 # Customer main page to show the products that are not sold
 # The products will be fetched from the database
 # Customer will have the ability to add products to the cart
@@ -534,11 +610,11 @@ def business_product_create():
             price = request.form["price"]
             amount = request.form["amount"]
             category = request.form["category"]
-            productID = get_next_id_product()
+            product_ID = get_next_ID_product()
             status = "not_sold"
 
             query = "INSERT INTO Product (product_ID, title, price, category, product_status"
-            values = [productID, title, price, category, status]
+            values = [product_ID, title, price, category, status]
 
             optional_fields = [
                 "product_description",
@@ -582,11 +658,11 @@ def business_product_create():
                 cursor.execute(query, values)
                 cursor.execute(
                     "INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                    (session["user_ID"], productID, int(amount)),
+                    (session["user_ID"], product_ID, int(amount)),
                 )
                 cursor.execute(
                     "INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
-                    (productID, picture_binary_data),
+                    (product_ID, picture_binary_data),
                 )
                 mysql.connection.commit()
                 flash("Product created successfully!", "success")
@@ -602,7 +678,6 @@ def business_product_create():
 
 
 # TODO main page admin reports etc
-# TODO write description of this function/page
 @app.route("/admin_main_page")
 def admin_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -844,7 +919,7 @@ def confirm_purchase():
             cursor.execute(
                 "INSERT INTO Purchase_Information(purchase_ID, purchase_status, total_price, purchase_date, user_ID , product_ID, amount) VALUES(%s, %s,%s,%s,%s,%s,%s)",
                 (
-                    get_next_id_purchase_info(),
+                    get_next_ID_purchase_info(),
                     "order created",
                     total_price,
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -1167,7 +1242,7 @@ def add_comment(product_ID):
 
         username = user["name"]
         comment_ID = (
-            get_next_id_comment()
+            get_next_ID_comment()
         )  # Ensure this function generates the next comment ID correctly
         cursor.execute(
             "INSERT INTO Comment (comment_ID, user_ID, product_ID, text) VALUES (%s, %s, %s, %s)",
@@ -1379,37 +1454,51 @@ def admin_user_report():
         purchase_ID = request.form.get("purchase_ID")
         return_ID = request.form.get("return_ID")
         user_ID = request.form.get("user_ID")
-        
+
         cursor = mysql.connection.cursor()
-        
+
         if action == "ban":
             # "UPDATE User SET name = %s WHERE user_ID = %s",
             query = "UPDATE Report SET report_status = 'Resolved' WHERE reported_user_ID = %s"
             cursor.execute(query, (reported_user_ID,))
             query = "INSERT INTO Blacklists (user_ID, report_ID, admin_ID, reason_description) VALUES (%s, %s, %s, %s)"
-            cursor.execute(query, (reported_user_ID, report_ID, session["user_ID"], report_description,))
+            cursor.execute(
+                query,
+                (
+                    reported_user_ID,
+                    report_ID,
+                    session["user_ID"],
+                    report_description,
+                ),
+            )
             mysql.connection.commit()
             return redirect(url_for("admin_user_report"))
-        
+
         elif action == "dismiss":
             query = "UPDATE Report SET report_status = 'Resolved' WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
             return redirect(url_for("admin_user_report"))
-        
+
         elif action == "delete":
             query = "DELETE FROM Report WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
             return redirect(url_for("admin_user_report"))
 
-    cursor.execute("SELECT * FROM Report WHERE report_status='Under Review' ORDER BY report_id")
+    cursor.execute(
+        "SELECT * FROM Report WHERE report_status='Under Review' ORDER BY report_id"
+    )
     reports = cursor.fetchall()
 
-    cursor.execute("SELECT * FROM Report WHERE report_status='Resolved' ORDER BY report_id")
+    cursor.execute(
+        "SELECT * FROM Report WHERE report_status='Resolved' ORDER BY report_id"
+    )
     solved_reports = cursor.fetchall()
 
-    return render_template("admin_user_report.html", reports=reports, solved_reports=solved_reports)
+    return render_template(
+        "admin_user_report.html", reports=reports, solved_reports=solved_reports
+    )
 
 
 # TODO: Explain and fix the function
@@ -1463,7 +1552,7 @@ def admin_blacklist():
 @app.route("/admin_report", methods=["GET", "POST"])
 def admin_report():
     if request.method == "POST":
-        report_ID = report_ID = get_next_id_report()
+        report_ID = report_ID = get_next_ID_report()
         report_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(report_date)
         report_description = request.form["report_description"]
@@ -1510,7 +1599,7 @@ def admin_report():
 
 
 # TODO: Explain and fix the function
-def get_next_id_report():
+def get_next_ID_report():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
     cursor.execute(
@@ -1518,7 +1607,7 @@ def get_next_id_report():
     )
     max_id = cursor.fetchone()
     if max_id is None:
-        return str(1)  # Start from 1 if no records exist
+        return "1"  # Start from 1 if no records exist
     max_id = max_id["report_ID"]
     return str(int(max_id) + 1)
 
