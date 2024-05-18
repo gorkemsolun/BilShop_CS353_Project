@@ -380,12 +380,18 @@ def register():
     return render_template("register.html", message=message)
 
 
+# Customer main page to show the products that are not sold
+# The products will be fetched from the database
+# Customer will have the ability to add products to the cart
+# Customer will have the ability to search for products
+# Customer will have the ability to filter products
 @app.route("/customer_main_page", methods=["GET", "POST"])
 def customer_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products that are not sold using the following query
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s", ("not_sold",)
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s",
+        ("not_sold",),
     )
     product_table = cursor.fetchall()
     # Pass the customer product table, and user session information to HTML
@@ -397,8 +403,9 @@ def customer_main_page():
     )
 
 
-# TODO main page business product creation
-# TODO write description of this function/page
+# Business main page to show the products that are not sold by the business
+# The business products will be fetched from the database
+# Business will have the ability to create and edit a product
 @app.route("/business_main_page")
 def business_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -416,11 +423,16 @@ def business_main_page():
     )
 
 
+# This function is used to create a product for the business
 @app.route("/business_product_creation", methods=["GET", "POST"])
 def business_product_creation():
-    message = ""
+    message = ""  # Message to be shown to the user
+
+    # If a POST request is made, then the form is filled
     if request.method == "POST":
         required_fields = ["title", "price", "amount", "category"]
+
+        # Check if all required fields are filled
         if all(field in request.form for field in required_fields):
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             title = request.form["title"]
@@ -441,24 +453,36 @@ def business_product_creation():
                 "color",
                 "date",
             ]
+
+            # Check if optional fields are filled
             for field in optional_fields:
+                # If the field is date, convert it to datetime object and add it to the query
                 if field == "date" and field in request.form and request.form[field]:
                     query += f", {field}"
                     date = datetime.strptime(request.form[field], "%Y-%m-%dT%H:%M")
                     values.append(date)
+                # If the field is filled, add it to the query
                 elif field in request.form and request.form[field]:
                     query += f", {field}"
+
+                    # If the field is not coverPicture, add it to the query as a string
                     if field != "coverPicture":
                         values.append(request.form[field])
+
+                    # If the field is coverPicture, add it to the query as binary data
                     else:
                         cover_picture = request.files["coverPicture"]
                         cover_picture_binary_data = cover_picture.read()
                         values.append(cover_picture_binary_data)
 
+            # Add the values to the query
             query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
+
             # Insert the picture into Product_Picture
             picture = request.files["pictures"]
             picture_binary_data = picture.read()
+
+            # Try to insert the product into the database
             try:
                 cursor.execute(query, values)
                 cursor.execute(
@@ -505,36 +529,52 @@ def admin_main_page():
 def notifications():
     return render_template("notifications.html")
 
-@app.route("/balance", methods=['GET', 'POST'])
-def balance():
-    message = ''
-    if request.method == 'POST':
-        amount = request.form["amount"]
-        if amount:
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute("UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
-                           (amount, session["userID"],))
-            mysql.connection.commit()
-            flash('Balance is updated successfully!', 'success')
-        else:
-            message = 'Please fill the required fields'
-            flash(message, 'warning')
-    return render_template("balance.html", message = message)
 
-@app.route("/balance_business", methods=['GET', 'POST'])
-def balance_business():
-    message = ''
-    if request.method == 'POST':
+# TODO Explain and fix the function
+@app.route("/balance", methods=["GET", "POST"])
+def balance():
+    message = ""
+    if request.method == "POST":
         amount = request.form["amount"]
         if amount:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute("UPDATE Business SET balance = balance + %s WHERE user_ID = %s", (amount, session["userID"],))
+            cursor.execute(
+                "UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
+                (
+                    amount,
+                    session["userID"],
+                ),
+            )
             mysql.connection.commit()
-            flash('Balance is updated successfully!', 'success')
+            flash("Balance is updated successfully!", "success")
         else:
-            message = 'Please fill the required fields'
-            flash(message, 'warning')
-    return render_template("balance_business.html", message = message)
+            message = "Please fill the required fields"
+            flash(message, "warning")
+    return render_template("balance.html", message=message)
+
+
+# TODO Explain and fix the function
+@app.route("/balance_business", methods=["GET", "POST"])
+def balance_business():
+    message = ""
+    if request.method == "POST":
+        amount = request.form["amount"]
+        if amount:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute(
+                "UPDATE Business SET balance = balance + %s WHERE user_ID = %s",
+                (
+                    amount,
+                    session["userID"],
+                ),
+            )
+            mysql.connection.commit()
+            flash("Balance is updated successfully!", "success")
+        else:
+            message = "Please fill the required fields"
+            flash(message, "warning")
+    return render_template("balance_business.html", message=message)
+
 
 # TODO shopping-cart page
 @app.route("/shopping_cart")
@@ -611,46 +651,60 @@ def checkout():
     list = request.get_json()
     cartlist = json.loads(list)
     for item in cartlist:
-        total_price += float(item['price']) * int(item['amount'])
-    
+        total_price += float(item["price"]) * int(item["amount"])
+
     # Get existing addresses
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # We could come up with a view for the address 
+    # We could come up with a view for the address
     cursor.execute(
         "SELECT country, city, state_code, zip_code, building, street, address_description FROM User WHERE user_ID = %s",
-        (session['userid'],)
+        (session["userid"],),
     )
     address = cursor.fetchone()
     response = {
-        'redirect_url': url_for('render_checkout', cart=json.dumps(cartlist), total_price=total_price, address=json.dumps(address))
+        "redirect_url": url_for(
+            "render_checkout",
+            cart=json.dumps(cartlist),
+            total_price=total_price,
+            address=json.dumps(address),
+        )
     }
     return jsonify(response)
 
+
 @app.route("/render_checkout")
 def render_checkout():
-    cart = json.loads(request.args.get('cart'))
-    total_price = request.args.get('total_price')
-    address = json.loads(request.args.get('address'))
+    cart = json.loads(request.args.get("cart"))
+    total_price = request.args.get("total_price")
+    address = json.loads(request.args.get("address"))
     return render_template(
-        "checkout.html",
-        cart=cart,
-        total_price=total_price,
-        address=address
+        "checkout.html", cart=cart, total_price=total_price, address=address
     )
 
-@app.route("/enteraddress", methods = ['POST'])
+
+@app.route("/enteraddress", methods=["POST"])
 def enteraddress():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     addressJSON = request.get_json()
-    #addressJSON = json.loads(address)
+    # addressJSON = json.loads(address)
     cursor.execute(
         "UPDATE User SET country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s WHERE user_ID = %s",
-        (addressJSON['country'], addressJSON['city'], addressJSON['state'], addressJSON['zip'], addressJSON['building'], addressJSON['street'], addressJSON['address_description'], session['userid'])
+        (
+            addressJSON["country"],
+            addressJSON["city"],
+            addressJSON["state"],
+            addressJSON["zip"],
+            addressJSON["building"],
+            addressJSON["street"],
+            addressJSON["address_description"],
+            session["userid"],
+        ),
     )
     mysql.connection.commit()
-    response = jsonify({'message': 'Success'})
+    response = jsonify({"message": "Success"})
     response.status_code = 200
     return response
+
 
 # Profile page for the customer
 # This page will be used to show the customer details
@@ -734,6 +788,10 @@ def customer_profile_delete():
             (session["userid"],),
         )
         mysql.connection.commit()
+
+        # Redirect to the login page by clearing the session
+        session.clear()
+
         return redirect(url_for("login"))
     return render_template("customer_profile_delete.html", customer=customer)
 
@@ -936,8 +994,7 @@ def logout():
     return redirect(url_for("login"))
 
 
-# =========================== EfeKN =========================== #
-
+# TODO: Explain and fix the function
 @app.route("/tables")
 def admin():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -979,46 +1036,60 @@ def admin():
     puts_on_cart = cursor.fetchall()
 
     # Fetch data from the Purchase_Information table
-    cursor.execute('SELECT * FROM Purchase_Information ORDER BY purchase_ID')
+    cursor.execute("SELECT * FROM Purchase_Information ORDER BY purchase_ID")
     purchase_info = cursor.fetchall()
 
     # Fetch data from the Return_Request_Information table
-    cursor.execute('SELECT * FROM Return_Request_Information ORDER BY return_ID')
+    cursor.execute("SELECT * FROM Return_Request_Information ORDER BY return_ID")
     return_requests = cursor.fetchall()
 
     # Fetch data from the Has_Return_Request table
-    cursor.execute('SELECT * FROM Has_Return_Request ORDER BY return_ID, product_ID')
+    cursor.execute("SELECT * FROM Has_Return_Request ORDER BY return_ID, product_ID")
     has_return_request = cursor.fetchall()
 
     # Fetch data from the Report table
-    cursor.execute('SELECT * FROM Report ORDER BY report_ID')
+    cursor.execute("SELECT * FROM Report ORDER BY report_ID")
     reports = cursor.fetchall()
 
     # Fetch data from the Blacklists table
-    cursor.execute('SELECT * FROM Blacklists ORDER BY user_ID, report_ID, admin_ID')
+    cursor.execute("SELECT * FROM Blacklists ORDER BY user_ID, report_ID, admin_ID")
     blacklists = cursor.fetchall()
 
     # Pass the fetched data to the render_template function
-    return render_template('test_tables.html', users=users, customers=customers, businesses=businesses,
-                           admins=admins, products=products, product_pictures=product_pictures,
-                           owns=owns, wishes=wishes, puts_on_cart=puts_on_cart, purchase_info=purchase_info,
-                           return_requests=return_requests, has_return_request=has_return_request,
-                           reports=reports, blacklists=blacklists)
+    return render_template(
+        "test_tables.html",
+        users=users,
+        customers=customers,
+        businesses=businesses,
+        admins=admins,
+        products=products,
+        product_pictures=product_pictures,
+        owns=owns,
+        wishes=wishes,
+        puts_on_cart=puts_on_cart,
+        purchase_info=purchase_info,
+        return_requests=return_requests,
+        has_return_request=has_return_request,
+        reports=reports,
+        blacklists=blacklists,
+    )
 
-@app.route("/admin_user_report", methods=['GET','POST'])
+
+# TODO: Explain and fix the function
+@app.route("/admin_user_report", methods=["GET", "POST"])
 def admin_user_report():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    if request.method == 'POST':
-        action = request.form.get('action')
-        if action == 'ban':
-            reported_user_ID = request.form.get('reported_user_ID')
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "ban":
+            reported_user_ID = request.form.get("reported_user_ID")
             # TODO : ADJUST QUERY
             query = "INSERT INTO Blacklist (user_ID) VALUES (%s)"
             cursor.execute(query, (reported_user_ID,))
             mysql.connection.commit()
-        elif action == 'dismiss':
-            report_ID = request.form.get('report_ID')
+        elif action == "dismiss":
+            report_ID = request.form.get("report_ID")
             # TODO : ADJUST QUERY
             query = "UPDATE Reports SET status = 'dismissed' WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
@@ -1029,25 +1100,29 @@ def admin_user_report():
 
     return render_template("admin_user_report.html", reports=reports)
 
-@app.route("/admin_system_report", methods=['GET','POST'])
+
+# TODO: Explain and fix the function
+@app.route("/admin_system_report", methods=["GET", "POST"])
 def admin_system_report():
     return render_template("admin_system_report.html")
 
-@app.route("/admin_blacklist", methods=['GET','POST'])
+
+# TODO: Explain and fix the function
+@app.route("/admin_blacklist", methods=["GET", "POST"])
 def admin_blacklist():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    if request.method == 'POST' and 'user_id' in request.form:
-        user_id = request.form['user_id']
+    if request.method == "POST" and "user_id" in request.form:
+        user_id = request.form["user_id"]
         # Add code here to remove the user with the specified user_id from the blacklist
         # For demonstration purposes, let's assume we are just printing the user_id to console
-        
+
         # TODO : WRITE REMOVE BLACKLIST AND REPORT QUERY
 
         # Redirect back to the same page after processing the removal
-        return redirect(url_for('admin_blacklist'))
+        return redirect(url_for("admin_blacklist"))
 
-    search_query = request.args.get('search_query', '')
+    search_query = request.args.get("search_query", "")
 
     if search_query:
         # Perform a join between Blacklists and User tables with search condition
@@ -1058,7 +1133,7 @@ def admin_blacklist():
         WHERE b.user_ID LIKE %s OR u.name LIKE %s
         ORDER BY b.user_ID, b.report_ID, b.admin_ID
         """
-        cursor.execute(query, ('%' + search_query + '%', '%' + search_query + '%'))
+        cursor.execute(query, ("%" + search_query + "%", "%" + search_query + "%"))
     else:
         # Perform a join between Blacklists and User tables without search condition
         query = """
@@ -1071,34 +1146,53 @@ def admin_blacklist():
 
     blacklist = cursor.fetchall()
 
-    return render_template("blacklist.html", blacklist=blacklist, search_query=search_query)
+    return render_template(
+        "blacklist.html", blacklist=blacklist, search_query=search_query
+    )
 
-@app.route("/admin_report", methods=['GET','POST'])
+
+# TODO: Explain and fix the function
+@app.route("/admin_report", methods=["GET", "POST"])
 def admin_report():
-    if request.method == 'POST':
+    if request.method == "POST":
         report_ID = report_ID = get_next_id_report()
-        report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        report_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(report_date)
-        report_description = request.form['report_description']
-        product_ID = request.form['product_ID']
-        reported_user_ID = request.form['reported_user_ID'] # TODO this field also should be autofilled like report_ID and report_date
-        purchase_ID = request.form['purchase_ID']
-        return_ID = request.form['return_ID']
-        report_status = request.form['report_status']
-        user_ID = request.form['user_ID']
-        
+        report_description = request.form["report_description"]
+        product_ID = request.form["product_ID"]
+        reported_user_ID = request.form[
+            "reported_user_ID"
+        ]  # TODO this field also should be autofilled like report_ID and report_date
+        purchase_ID = request.form["purchase_ID"]
+        return_ID = request.form["return_ID"]
+        report_status = request.form["report_status"]
+        user_ID = request.form["user_ID"]
+
         # Insert the new report into the database
         cursor = mysql.connection.cursor()
         query = """
             INSERT INTO Report (report_ID, report_date, report_description, product_ID, reported_user_ID, purchase_ID, return_ID, report_status, user_ID)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (report_ID, report_date, report_description, product_ID, reported_user_ID, purchase_ID, return_ID, report_status, user_ID))
+        cursor.execute(
+            query,
+            (
+                report_ID,
+                report_date,
+                report_description,
+                product_ID,
+                reported_user_ID,
+                purchase_ID,
+                return_ID,
+                report_status,
+                user_ID,
+            ),
+        )
         mysql.connection.commit()
         cursor.close()
-        
-        flash('Report created successfully!', 'success')
-        return redirect(url_for('admin_user_report'))
+
+        flash("Report created successfully!", "success")
+        return redirect(url_for("admin_user_report"))
 
     # Fetch reports for GET request
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -1106,6 +1200,8 @@ def admin_report():
     reports = cursor.fetchall()
     return render_template("admin_user_report.html", reports=reports)
 
+
+# TODO: Explain and fix the function
 def get_next_id_report():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
@@ -1118,9 +1214,8 @@ def get_next_id_report():
     max_id = max_id["report_ID"]
     return str(int(max_id) + 1)
 
-# =========================== EfeKN =========================== #
 
-
+# Main function to run the application
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(debug=True, host="0.0.0.0", port=port)

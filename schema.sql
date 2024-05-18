@@ -596,18 +596,6 @@ VALUES
         'Accessories'
     );
 
--- Inserting data into Product_Picture table
-INSERT INTO
-    Product_Picture (product_ID, picture)
-VALUES
-    ('1', LOAD_FILE ('path/to/laptop.jpg')),
-    ('2', LOAD_FILE ('path/to/tshirt.jpg')),
-    ('3', LOAD_FILE ('path/to/smartphone.jpg')),
-    ('4', LOAD_FILE ('path/to/jeans.jpg')),
-    ('5', LOAD_FILE ('path/to/headphones.jpg')),
-    ('6', LOAD_FILE ('path/to/sneakers.jpg')),
-    ('7', LOAD_FILE ('path/to/watch.jpg'));
-
 -- Inserting data into Owns table
 INSERT INTO
     Owns (user_ID, product_ID, amount)

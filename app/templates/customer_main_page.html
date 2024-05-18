@@ -78,8 +78,8 @@
               <i class="bi bi-person"></i>
             </button>
           </form>
-             <!-- Balance Button -->
-            <form action="{{ url_for('balance') }}" method="get">
+          <!-- Balance Button -->
+          <form action="{{ url_for('balance') }}" method="get">
             <button
               class="btn btn-outline-light me-2"
               type="submit"
@@ -87,7 +87,7 @@
             >
               <i class="bi bi-wallet2"></i>
             </button>
-                </form>
+          </form>
           <!-- Logout button -->
           <form action="{{ url_for('logout') }}" method="get">
             <button
@@ -108,7 +108,7 @@
         <div class="col-md-3">
           <div class="filter-section">
             <form id="filterForm">
-              <div class="mb-3">
+              <div class="m-3">
                 <label for="category">Category:</label>
                 <select class="form-select" id="category" name="category">
                   <option value="all">All Categories</option>
@@ -122,7 +122,7 @@
                   <option>Collectibles</option>
                 </select>
               </div>
-              <div class="mb-3">
+              <div class="m-3">
                 <label for="min_price">Minimum Price:</label>
                 <input
                   type="number"
@@ -132,7 +132,7 @@
                   placeholder="Min"
                 />
               </div>
-              <div class="mb-3">
+              <div class="m-3">
                 <label for="max_price">Maximum Price:</label>
                 <input
                   type="number"
@@ -142,7 +142,7 @@
                   placeholder="Max"
                 />
               </div>
-              <div class="mb-3">
+              <div class="m-3">
                 <label for="sort_order">Sort By Price:</label>
                 <select class="form-select" id="sort_order" name="sort_order">
                   <option value="asc">Ascending</option>
