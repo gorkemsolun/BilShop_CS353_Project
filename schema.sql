@@ -195,6 +195,21 @@ INSERT INTO
     )
 VALUES
     (
+        '0',
+        'admin',
+        'admin',
+        'admin',
+        NULL,
+        '123-456-7890',
+        'USA',
+        'New York',
+        'NY',
+        10001,
+        '10',
+        'Broadway',
+        'Near Central Park'
+    ),
+    (
         '1',
         'John Doe',
         'john.doe@example.com',
@@ -497,10 +512,7 @@ VALUES
 INSERT INTO
     Admin (user_ID)
 VALUES
-    ('5'),
-    ('6'),
-    ('7'),
-    ('8');
+    ('0');
 
 -- Inserting data into Product table
 INSERT INTO
@@ -842,19 +854,19 @@ VALUES
     (
         '3',
         '1',
-        '5',
+        '0',
         'Multiple complaints about product quality'
     ),
-    ('4', '2', '6', 'Repeated issues with delivery'),
+    ('4', '2', '0', 'Repeated issues with delivery'),
     (
         '11',
         '3',
-        '7',
+        '0',
         'Multiple complaints about delivery issues'
     ),
     (
         '12',
         '4',
-        '8',
+        '0',
         'Repeated complaints about product quality'
     );
