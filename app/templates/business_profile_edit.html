@@ -23,8 +23,7 @@
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
-        <!-- TODO: href here should be designed so that it is suitable for every user type-->
-        <a class="navbar-brand" href="/business_main_page"><b>BilShop</b></a>
+        <a class="navbar-brand" href="/"><b>BilShop</b></a>
         <div class="d-flex">
           <!-- Shopping Cart -->
           <form action="{{ url_for('shopping_cart') }}" method="get">
@@ -91,6 +90,7 @@
                     id="name"
                     name="name"
                     value="{{business.name}}"
+                    required
                   />
                 </div>
                 <div class="mb-3">
@@ -101,9 +101,19 @@
                     id="email"
                     name="email"
                     value="{{business.email}}"
+                    required
                   />
                 </div>
-
+                <div class="mb-3">
+                  <label for="picture" class="form-label">Picture:</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    class="form-control"
+                    id="picture"
+                    name="picture"
+                  />
+                </div>
                 <div class="mb-3">
                   <label for="password" class="form-label">Password</label>
                   <input
@@ -112,9 +122,10 @@
                     id="password"
                     name="password"
                     value="{{business.password}}"
+                    required
                   />
                 </div>
-                <div>TODO add picture change</div>
+
                 <div class="mb-3">
                   <label for="phone_number" class="form-label"
                     >Phone Number</label
@@ -190,14 +201,14 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label for="address" class="form-label"
+                  <label for="address_description" class="form-label"
                     >Address Description</label
                   >
                   <input
                     type="text"
                     class="form-control"
-                    id="address"
-                    name="address"
+                    id="address_description"
+                    name="address_description"
                     value="{{business.address_description}}"
                   />
                 </div>

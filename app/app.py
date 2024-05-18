@@ -429,6 +429,7 @@ def register():
                 mysql.connection.commit()
             mysql.connection.commit()
             message = "User successfully created!"
+            return render_template("login.html", message=message)
     elif request.method == "POST":
         message = "Please fill all the fields!"
     return render_template("register.html", message=message)
@@ -618,7 +619,7 @@ def business_product_create():
 
             optional_fields = [
                 "product_description",
-                "coverPicture",
+                "cover_picture",
                 "proportions",
                 "mass",
                 "color",
@@ -636,13 +637,13 @@ def business_product_create():
                 elif field in request.form and request.form[field]:
                     query += f", {field}"
 
-                    # If the field is not coverPicture, add it to the query as a string
-                    if field != "coverPicture":
+                    # If the field is not cover_picture, add it to the query as a string
+                    if field != "cover_picture":
                         values.append(request.form[field])
 
-                    # If the field is coverPicture, add it to the query as binary data
+                    # If the field is cover_picture, add it to the query as binary data
                     else:
-                        cover_picture = request.files["coverPicture"]
+                        cover_picture = request.files["cover_picture"]
                         cover_picture_binary_data = cover_picture.read()
                         values.append(cover_picture_binary_data)
 
@@ -1092,12 +1093,15 @@ def business_profile():
 @app.route("/business_profile_edit", methods=["GET", "POST"])
 def business_profile_edit():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
     # Get the business details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
         (session["user_ID"],),
     )
     business = cursor.fetchone()
+
+    # If the form is submitted, update the business details in the database and show a message
     if request.method == "POST":
         name = request.form["name"]
         email = request.form["email"]
@@ -1110,8 +1114,18 @@ def business_profile_edit():
         building = request.form["building"]
         street = request.form["street"]
         address_description = request.form["address_description"]
+
+        picture_binary_data = None
+        # If an image is provided, read the binary data of the image
+        if "picture" in request.files:
+            picture = request.files["picture"]
+            print(picture)
+            picture_binary_data = picture.read()
+            print(picture_binary_data)
+
+        # Update the business details in the database
         cursor.execute(
-            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s WHERE user_ID = %s",
+            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
             (
                 name,
                 email,
@@ -1124,11 +1138,24 @@ def business_profile_edit():
                 building,
                 street,
                 address_description,
+                picture_binary_data,
                 session["user_ID"],
             ),
         )
         mysql.connection.commit()
-        return redirect(url_for("business_profile"))
+
+        # Update the current details of the business
+        cursor.execute(
+            "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+            (session["user_ID"],),
+        )
+        business = cursor.fetchone()
+
+        return render_template(
+            "business_profile.html",
+            message="Profile updated successfully",
+            business=business,
+        )
     return render_template("business_profile_edit.html", business=business)
 
 
@@ -1518,7 +1545,7 @@ def admin_blacklist():
         query = "DELETE FROM Blacklists WHERE user_ID = %s"
         cursor.execute(query, (user_id,))
         mysql.connection.commit()
-        message = ("%s is removed from blacklist" % user_id)
+        message = "%s is removed from blacklist" % user_id
         # return redirect(url_for("admin_blacklist"))
 
     search_query = request.args.get("search_query", "")
@@ -1545,7 +1572,10 @@ def admin_blacklist():
     blacklist = cursor.fetchall()
 
     return render_template(
-        "blacklist.html", blacklist=blacklist, search_query=search_query, message=message
+        "blacklist.html",
+        blacklist=blacklist,
+        search_query=search_query,
+        message=message,
     )
 
 

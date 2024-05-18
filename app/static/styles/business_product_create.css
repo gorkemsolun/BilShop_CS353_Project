@@ -30,7 +30,7 @@ body {
 .form-control,
 .form-select {
   height: 35px;
-  color: #fff; // White
+  color: #000; // Black
   text-align: center;
 }
 

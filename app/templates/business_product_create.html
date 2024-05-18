@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Main Page - Business</title>
+    <title>Product Creation - Business</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -30,7 +30,7 @@
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/business_main_page"><b>BilShop</b></a>
+        <a class="navbar-brand" href="/"><b>BilShop</b></a>
         <div class="d-flex">
           <!-- Notifications button -->
           <form action="{{ url_for('notifications') }}" method="get">
@@ -88,7 +88,7 @@
     </div>
     {% endfor %} {% endwith %}
 
-    <div class="container mt-4">
+    <div class="container mt-4 mb-5">
       <!-- Close -->
       <div class="close">
         <form action="{{ url_for('business_main_page') }}" method="get">
@@ -164,9 +164,6 @@
               />
             </div>
             <div class="mb-3">
-              <label for="coverPicture" class="form-label"
-                >Cover Picture:</label
-              >
               <label for="cover_picture" class="form-label"
                 >Cover Picture:</label
               >
@@ -175,7 +172,7 @@
                 accept="image/*"
                 class="form-control"
                 id="cover_picture"
-                name="coverPicture"
+                name="cover_picture"
               />
             </div>
             <div class="mb-3">

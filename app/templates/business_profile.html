@@ -70,6 +70,13 @@
       </div>
     </nav>
 
+    <!-- Message -->
+    <div class="alert-container">
+      {% if message is defined and message %}
+      <div class="alert alert-warning">{{ message }}</div>
+      {% endif %}
+    </div>
+
     <!-- Profile starts -->
     <div class="container">
       <div class="row">
@@ -77,13 +84,24 @@
           <div class="card">
             <div class="card-body">
               <div class="d-flex flex-column align-items-center text-center">
-                <!-- TODO Add picture business.picture -->
+                <script>
+                  console.log("{{ business.picture }}");
+                </script>
+                {% if business.picture %}
                 <img
-                  src="https://avatars.githubusercontent.com/u/91393504?v=4"
+                  src="data:image/jpeg;base64,{{ business.picture }}"
                   alt="Admin"
                   class="rounded-circle"
                   width="150"
                 />
+                {% else %}
+                <img
+                  src="{{ url_for('static', filename='images/admin.png') }}"
+                  alt="Admin"
+                  class="rounded-circle"
+                  width="150"
+                />
+                {% endif %}
                 <div class="mt-3">
                   <h4>{{business.name}}</h4>
                   <p class="text-secondary mb-1">{{business.email}}</p>

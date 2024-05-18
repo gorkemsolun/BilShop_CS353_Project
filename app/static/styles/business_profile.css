@@ -31,3 +31,16 @@ body {
   font-size: 24px;
   margin-bottom: 20px;
 }
+
+.alert-container {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.alert {
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+}
