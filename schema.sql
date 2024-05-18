@@ -162,6 +162,17 @@ create table
         foreign key (report_ID) references Report (report_ID) on delete cascade on update cascade
     );
 
+create table
+    Comment (
+        comment_ID varchar(20) not null,
+        user_ID varchar(20) not null,
+        product_ID varchar(20) not null,
+        text varchar(50) not null,
+        primary key (comment_ID, user_ID, product_ID),
+        foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade,
+        foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
+    );
+
 -- Inserting data into User table
 INSERT INTO
     User (

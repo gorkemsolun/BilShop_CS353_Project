@@ -57,8 +57,8 @@
               <i class="bi bi-person"></i>
             </button>
           </form>
-             <!-- Balance Button -->
-            <form action="{{ url_for('balance_business') }}" method="get">
+          <!-- Balance Button -->
+          <form action="{{ url_for('balance_business') }}" method="get">
             <button
               class="btn btn-outline-light me-2"
               type="submit"
@@ -66,7 +66,7 @@
             >
               <i class="bi bi-wallet2"></i>
             </button>
-                </form>
+          </form>
           <!-- Logout button -->
           <form action="{{ url_for('logout') }}" method="get">
             <button
@@ -97,6 +97,110 @@
           <p>Price: ${{ business_product.price }}</p>
         </div>
       </div>
+      <div class="comments-section mt-4">
+        <h3><b>Comments</b></h3>
+        <div id="commentsContainer">
+          {% for comment in comments %}
+          <div class="comment">
+            <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+            <button
+              class="btn btn-outline-light btn-reply"
+              data-comment-id="{{ comment.id }}"
+            >
+              <i class="bi bi-reply-fill"></i> Reply
+            </button>
+          </div>
+          <div
+            id="replyContainer{{ comment.id }}"
+            class="reply-container mt-3"
+            style="display: none"
+          >
+            <form id="commentForm{{ comment.id }}" class="commentForm d-flex">
+              <textarea
+                class="form-control me-2 commentContent"
+                name="content"
+                rows="3"
+                placeholder="Reply"
+              ></textarea>
+              <button type="submit" class="btn btn-outline-light me-2">
+                <i class="bi bi-send"></i>
+              </button>
+            </form>
+          </div>
+          {% endfor %} {% for comment in business_comments %}
+          <div class="comment">
+            <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const replyButtons = document.querySelectorAll(".btn-reply");
+        const commentForms = document.querySelectorAll(".commentForm");
+
+        replyButtons.forEach((btn) => {
+          btn.addEventListener("click", handleReplyButtonClick);
+        });
+
+        commentForms.forEach((form) => {
+          form.addEventListener("submit", handleCommentFormSubmit);
+        });
+
+        function handleReplyButtonClick(event) {
+          const commentId = event.currentTarget.dataset.commentId;
+          const replyContainer = document.getElementById(
+            `replyContainer${commentId}`
+          );
+          replyContainer.style.display =
+            replyContainer.style.display === "none" ? "block" : "none";
+        }
+
+        function handleCommentFormSubmit(event) {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const content = form.querySelector(".commentContent").value;
+          const commentId = form.id.replace("commentForm", "");
+          const productId = "{{ business_product.product_ID }}";
+          const url = `/customer_product/${productId}/add_comment`;
+
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: content,
+              parent_comment_id: commentId,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                addNewComment(data.username, content, commentId);
+                form.querySelector(".commentContent").value = "";
+                form.parentNode.style.display = "none";
+              } else {
+                console.error("Error:", data.error);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+
+        function addNewComment(username, content, commentId) {
+          const newComment = document.createElement("div");
+          newComment.classList.add("comment");
+          newComment.innerHTML = `<p><strong>${username}:</strong> ${content}</p>`;
+          const replyContainer = document.getElementById(
+            `replyContainer${commentId}`
+          );
+          replyContainer.parentNode.insertBefore(newComment, replyContainer);
+        }
+      });
+    </script>
   </body>
 </html>

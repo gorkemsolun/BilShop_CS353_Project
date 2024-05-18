@@ -57,6 +57,19 @@ def get_next_id_product():
     return str(int(max_id) + 1)
 
 
+def get_next_id_comment():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Fetch the current maximum ID from the table
+    cursor.execute(
+        "SELECT * FROM Comment ORDER BY CONVERT(comment_ID, UNSIGNED INTEGER) DESC"
+    )
+    max_id = cursor.fetchone()
+    if max_id is None:
+        return str(1)  # Start from 1 if no records exist
+    max_id = max_id["comment_ID"]
+    return str(int(max_id) + 1)
+
+
 # The helper function that returns a json file of the given string query
 @app.route("/search_products", methods=["POST"])
 def search_products():
@@ -528,7 +541,8 @@ def admin_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get all products that are not sold using the following query
     cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s", ("not_sold",)
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s",
+        ("not_sold",),
     )
     product_table = cursor.fetchall()
     return render_template(
@@ -926,7 +940,7 @@ def admin_profile():
 # The customer product details will be fetched from the database
 # Link to this page will be provided in the customer_main_page.html, link will be /customer_product/<product_ID>
 # The product_ID will be passed to this page as a parameter
-@app.route("/customer_product/<product_ID>")
+@app.route("/customer_product/<product_ID>", methods=["GET", "POST"])
 def customer_product(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Get the customer product details from the database using the product_ID
@@ -934,6 +948,7 @@ def customer_product(product_ID):
         "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
     )
     customer_product = cursor.fetchone()
+
     # Get the customer product picture from the database using the product_ID
     cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
     product_picture = cursor.fetchone()
@@ -941,12 +956,74 @@ def customer_product(product_ID):
     if product_picture is not None:
         image_data = product_picture["picture"]
         encoded_image = base64.b64encode(image_data).decode("utf-8")
-    # TODO figure something out if there is no picture
+
+    # Get the comments for the product
+    cursor.execute(
+        "SELECT Comment.*, User.name as username FROM Comment JOIN User ON Comment.user_ID = User.user_ID WHERE product_ID = %s",
+        (product_ID,),
+    )
+    comments = cursor.fetchall()
+
+    # Render the template with the product details and comments
     return render_template(
         "customer_product.html",
         customer_product=customer_product,
         product_picture=encoded_image,
+        comments=comments,
     )
+
+
+@app.route("/customer_product/<product_ID>/add_comment", methods=["POST"])
+def add_comment(product_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    content = request.json.get("content")
+    if not content:
+        return jsonify({"success": False, "error": "Content is required"}), 400
+
+    try:
+        cursor.execute("SELECT name FROM User WHERE user_ID = %s", (session["userID"],))
+        user = cursor.fetchone()
+        if not user:
+            return jsonify({"success": False, "error": "User not found"}), 404
+
+        username = user["name"]
+        comment_ID = (
+            get_next_id_comment()
+        )  # Ensure this function generates the next comment ID correctly
+        cursor.execute(
+            "INSERT INTO Comment (comment_ID, user_ID, product_ID, text) VALUES (%s, %s, %s, %s)",
+            (comment_ID, session["userID"], product_ID, content),
+        )
+        mysql.connection.commit()
+        return jsonify({"success": True, "username": username})
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route(
+    "/customer_product/<product_ID>/delete_comment/<comment_ID>", methods=["DELETE"]
+)
+def delete_comment(product_ID, comment_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # Check if the comment exists and belongs to the current user
+    cursor.execute(
+        "SELECT * FROM Comment WHERE comment_ID = %s AND user_ID = %s",
+        (comment_ID, session["userID"]),
+    )
+    comment = cursor.fetchone()
+
+    if comment:
+        # Delete the comment
+        cursor.execute("DELETE FROM Comment WHERE comment_ID = %s", (comment_ID,))
+        mysql.connection.commit()
+        return jsonify({"success": True}), 200
+    else:
+        return (
+            jsonify({"success": False, "error": "Comment not found or unauthorized"}),
+            404,
+        )
 
 
 # This page will be used to show the business product details and the business product picture
@@ -956,11 +1033,13 @@ def customer_product(product_ID):
 @app.route("/business_product/<product_ID>")
 def business_product(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
     # Get the business product details from the database using the product_ID
     cursor.execute(
         "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
     )
     business_product = cursor.fetchone()
+
     # Get the business product picture from the database using the product_ID
     cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
     product_picture = cursor.fetchone()
@@ -968,10 +1047,29 @@ def business_product(product_ID):
     if product_picture is not None:
         image_data = product_picture["picture"]
         encoded_image = base64.b64encode(image_data).decode("utf-8")
+    if product_picture:
+        image_data = product_picture["picture"]
+        encoded_image = base64.b64encode(image_data).decode("utf-8")
+
+    # Get comments for the product
+    cursor.execute(
+        "SELECT Comment.*, User.name as username FROM Comment JOIN User JOIN Customer ON Comment.user_ID = User.user_ID AND Customer.user_ID = Comment.user_ID  WHERE product_ID = %s",
+        (product_ID,),
+    )
+    comments = cursor.fetchall()
+
+    # Get the business comments
+    cursor.execute(
+        "SELECT Comment.*, User.name as username FROM Comment JOIN User JOIN Business ON Comment.user_ID = User.user_ID AND Business.user_ID = Comment.user_ID  WHERE product_ID = %s",
+        (product_ID,),
+    )
+    business_comments = cursor.fetchall()
     return render_template(
         "business_product.html",
         business_product=business_product,
         product_picture=encoded_image,
+        comments=comments,
+        business_comments=business_comments,
     )
 
 

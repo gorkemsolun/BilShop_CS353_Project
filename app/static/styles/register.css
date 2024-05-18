@@ -63,6 +63,14 @@ a {
   color: white;
 }
 
+.btn-primary, .btn-outline-primary {
+  background-color: #222222;
+  color: white;
+  border-radius: 0;
+  border-color: transparent;
+}
+
+
 
 
 .register-link {

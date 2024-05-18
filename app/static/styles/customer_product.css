@@ -20,7 +20,7 @@ body {
 .navbar-nav .nav-link {
   margin-right: 10px;
 }
-.btn-outline-light {
+.btn-outline-light.me-2 {
   border: 0;
 }
 
@@ -40,5 +40,19 @@ body {
 }
 
 #addToCartForm input[type="submit"]:hover {
-  background-color: #0056b3; // Darker blue
+  background-color: #0056b3; // Dark blue
+}
+
+.image-container {
+  border-radius: 20px;
+  overflow: hidden;
+  object-fit: cover;
+  height: 250px;
+}
+
+.container.me-2 {
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #333333; // Dark gray
+  padding: 40px;
 }

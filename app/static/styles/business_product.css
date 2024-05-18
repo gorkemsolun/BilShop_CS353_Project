@@ -15,6 +15,24 @@ body {
 .navbar-nav .nav-link {
   margin-right: 10px;
 }
-.btn-outline-light {
+.btn-outline-light.me-2{
   border: 0;
+}
+
+.image-container{
+    border-radius: 20px; /* Rounded corners */
+    overflow: hidden; /* Ensure content does not overflow rounded corners */
+    object-fit: cover;
+    height: 250px;
+}
+
+.container.me-2{
+    border-radius: 20px; /* Rounded corners */
+    overflow: hidden; /* Ensure content does not overflow rounded corners */
+    background-color: #333333;
+    padding: 40px;
+}
+
+.reply-container {
+  display: none;
 }
