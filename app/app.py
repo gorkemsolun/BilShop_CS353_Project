@@ -57,6 +57,9 @@ def get_next_id_product():
     return str(int(max_id) + 1)
 
 
+# The helper function that returns a json file of the given string query
+# This function is used to get the next available ID for the Purchase_Information table
+# by getting the maximum ID from the table and incrementing it by 1
 def get_next_id_purchase_info():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
@@ -70,6 +73,9 @@ def get_next_id_purchase_info():
     return str(int(max_id) + 1)
 
 
+# The helper function that returns a json file of the given string query
+# This function is used to get the next available ID for the Comment table
+# by getting the maximum ID from the table and incrementing it by 1
 def get_next_id_comment():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
@@ -97,6 +103,9 @@ def search_products():
     return jsonify(product_table)
 
 
+# The helper function that returns a json file of the given string query
+# This function is used to get the next available ID for the Purchase_Information table
+# by getting the maximum ID from the table and incrementing it by 1
 @app.route("/search_products_business", methods=["POST"])
 def search_products_business():
     search = request.json.get("search", "")
@@ -110,6 +119,8 @@ def search_products_business():
     return jsonify(product_table)
 
 
+# Filter the products based on the given parameters and return the result as a json file
+# Business version of the filter function that filters the products of the business
 @app.route("/filter_business")
 def filter_products_business():
     category = request.args.get("category")
@@ -177,6 +188,7 @@ def filter_products_business():
 
 
 # The helper function that returns a json file of the given string query
+# Filter the products based on the given parameters and return the result as a json file
 @app.route("/filter")
 def filter_products():
     category = request.args.get("category")
@@ -425,6 +437,27 @@ def notifications():
     notifications = cursor.fetchall()
 
     return render_template("notifications.html", notifications=notifications, page=page)
+
+
+# TODO: Make this function work
+# Delete the notification from the database and redirect to the notifications page
+@app.route("/notification_delete/<notification_ID>", methods=["POST", "DELETE"])
+def notification_delete(notification_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "DELETE FROM Notification WHERE notification_ID = %s", (notification_ID,)
+    )
+    mysql.connection.commit()
+    return redirect(url_for("notifications"))
+
+
+# Delete all notifications from the database and redirect to the notifications page
+@app.route("/notification_delete_all", methods=["POST", "DELETE"])
+def notification_delete_all():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("DELETE FROM Notification WHERE user_ID = %s", (session["user_ID"],))
+    mysql.connection.commit()
+    return redirect(url_for("notifications"))
 
 
 # Customer main page to show the products that are not sold

@@ -24,7 +24,7 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='styles/notifications.css') }}"
+      href="{{ url_for('static', filename='styles/notification_delete_all.css') }}"
     />
   </head>
   <body>
@@ -102,96 +102,28 @@
       </div>
     </nav>
 
-    <div class="container mt-3">
+    <!-- Confirm to delete all notifications -->
+    <div class="container">
       <div class="row">
-        <!-- Notification listings -->
-        <div class="col-md-9">
-          <div class="row">
-            {% for notification in notifications %}
-            <!-- A Notification has image, title, text, and date -->
-            <div class="col-md-4">
-              <div
-                class="card mb-4 shadow-sm data"
-                notification-id="{{notification.notification_ID}}"
+        <div class="col-12">
+          <div class="card mt-5">
+            <div class="card-body">
+              <h5 class="card-title text-center">Delete All Notifications</h5>
+              <p class="card-text text-center">
+                Are you sure you want to delete all notifications?
+              </p>
+              <form
+                action="{{ url_for('notification_delete_all') }}"
+                method="post"
               >
-                <img
-                  src="{{ notification.notification_image }}"
-                  class="bd-placeholder-img card-img-top"
-                  width="100%"
-                  height="225"
-                  role="img"
-                  aria-label="Placeholder: Thumbnail"
-                />
-                <div class="card-body">
-                  <h5 class="card-title text-truncate">
-                    {{ notification.notification_title }}
-                  </h5>
-                  <p class="card-text text-truncate">
-                    {{ notification.notification_text }}
-                  </p>
-                  <div
-                    class="d-flex justify-content-between align-items-center"
-                  >
-                    <small class="text-muted text-truncate"
-                      >{{ notification.notification_date }}</small
-                    >
-                    <form
-                      action="{{ url_for('notification_delete', notification_ID=notification.notification_ID) }}"
-                      method="post"
-                    >
-                      <button
-                        class="btn btn-outline-danger"
-                        type="submit"
-                        title="Delete"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </form>
-                  </div>
+                <div class="d-grid gap -2">
+                  <button class="btn btn-danger" type="submit">
+                    Delete All
+                  </button>
                 </div>
-              </div>
+              </form>
             </div>
-            {% endfor %}
           </div>
-        </div>
-
-        <!-- Delete all notifications -->
-        <div>
-          <form action="{{ url_for('notification_delete_all') }}" method="post">
-            <button
-              class="btn btn-outline-danger"
-              type="submit"
-              title="Delete All"
-            >
-              <i class="bi bi-trash"></i> Delete All
-            </button>
-          </form>
-        </div>
-
-        <!-- Pagination -->
-        <div class="col-md-9">
-          <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-              <li class="page-item">
-                <a
-                  class="page-link"
-                  href="/notifications?page={{ page - 1 }}"
-                  aria-label="Previous"
-                >
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
-              <li class="page-item">
-                <a
-                  class="page-link"
-                  href="/notifications?page={{ page + 1 }}"
-                  aria-label="Next"
-                >
-                  <span aria-hidden="true">&raquo;</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
         </div>
       </div>
     </div>
