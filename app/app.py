@@ -1392,18 +1392,14 @@ def admin_blacklist():
 
     if request.method == "POST" and "user_id" in request.form:
         user_id = request.form["user_id"]
-        # Add code here to remove the user with the specified user_id from the blacklist
-        # For demonstration purposes, let's assume we are just printing the user_id to console
-
-        # TODO : WRITE REMOVE BLACKLIST AND REPORT QUERY
-
-        # Redirect back to the same page after processing the removal
+        query = "DELETE FROM Blacklists WHERE user_ID = %s"
+        cursor.execute(query, (user_id,))
+        mysql.connection.commit()
         return redirect(url_for("admin_blacklist"))
 
     search_query = request.args.get("search_query", "")
 
     if search_query:
-        # Perform a join between Blacklists and User tables with search condition
         query = """
         SELECT b.user_ID, u.name, b.report_ID, b.reason_description
         FROM Blacklists b
@@ -1430,6 +1426,7 @@ def admin_blacklist():
 
 
 # TODO: Explain and fix the function
+# I think this is deprecated
 @app.route("/admin_report", methods=["GET", "POST"])
 def admin_report():
     if request.method == "POST":
