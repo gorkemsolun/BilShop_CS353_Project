@@ -17,7 +17,7 @@ CREATE TABLE
         unique (email)
     );
 
-create table
+CREATE TABLE
     Customer (
         user_ID varchar(20),
         balance numeric(20, 2),
@@ -26,7 +26,7 @@ create table
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Business (
         user_ID varchar(20),
         rating numeric(10, 0) default null,
@@ -39,14 +39,14 @@ create table
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Admin (
         user_ID varchar(20),
         primary key (user_ID),
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Product (
         product_ID varchar(20) not null,
         title varchar(20) not null,
@@ -62,7 +62,7 @@ create table
         primary key (product_ID)
     );
 
-create table
+CREATE TABLE
     Product_Picture (
         product_ID varchar(20) not null,
         picture BLOB,
@@ -70,7 +70,7 @@ create table
         foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Owns (
         user_ID varchar(20),
         product_ID varchar(20),
@@ -80,7 +80,7 @@ create table
         foreign key (user_ID) references Business (user_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Wishes (
         user_ID varchar(20),
         product_ID varchar(20),
@@ -89,7 +89,7 @@ create table
         foreign key (user_ID) references Customer (user_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Puts_On_Cart (
         user_ID varchar(20) not null,
         product_ID varchar(20) not null,
@@ -99,7 +99,7 @@ create table
         foreign key (user_ID) references Customer (user_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Purchase_Information (
         purchase_ID varchar(20) not null,
         purchase_status varchar(20),
@@ -107,13 +107,13 @@ create table
         purchase_date timestamp not null,
         user_ID varchar(20) not null,
         product_ID varchar(20) not null,
-        amount numeric(20, 0) not null, 
+        amount numeric(20, 0) not null,
         primary key (purchase_ID),
         foreign key (user_ID) references Customer (user_ID) on delete cascade on update cascade,
         foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Return_Request_Information (
         return_ID varchar(20) not null,
         return_request_date timestamp not null,
@@ -124,7 +124,7 @@ create table
         foreign key (purchase_ID) references Purchase_Information (purchase_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Has_Return_Request (
         return_ID varchar(20) not null,
         product_ID varchar(20) not null,
@@ -134,7 +134,7 @@ create table
         foreign key (return_ID) references Return_Request_Information (return_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Report (
         report_ID varchar(20) not null,
         report_date timestamp not null,
@@ -153,7 +153,7 @@ create table
         foreign key (purchase_ID) references Purchase_Information (purchase_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Blacklists (
         user_ID varchar(20),
         report_ID varchar(20),
@@ -165,7 +165,7 @@ create table
         foreign key (report_ID) references Report (report_ID) on delete cascade on update cascade
     );
 
-create table
+CREATE TABLE
     Comment (
         comment_ID varchar(20) not null,
         user_ID varchar(20) not null,
@@ -173,6 +173,18 @@ create table
         text varchar(50) not null,
         primary key (comment_ID, user_ID, product_ID),
         foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade,
+        foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
+    );
+
+CREATE TABLE
+    Notification (
+        notification_ID varchar(20) not null,
+        notification_image varchar(50) default null,
+        notification_title varchar(50) not null,
+        user_ID varchar(20) not null,
+        notification_text varchar(50) not null,
+        notification_date timestamp not null,
+        primary key (notification_ID),
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
     );
 
@@ -644,7 +656,6 @@ VALUES
     ('6', '6', 2),
     ('7', '7', 1);
 
-
 -- Inserting data into Purchase_Information table
 INSERT INTO
     Purchase_Information (
@@ -719,7 +730,8 @@ VALUES
         '7',
         '7',
         2
-);
+    );
+
 -- Inserting data into Return_Request_Information table
 INSERT INTO
     Return_Request_Information (
@@ -857,4 +869,194 @@ VALUES
         '4',
         '8',
         'Repeated complaints about product quality'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '1',
+        'order_confirmation.png',
+        'Order Confirmation',
+        '1',
+        'Your order #12345 has been confirmed.',
+        '2024-05-10 10:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '2',
+        'shipping.png',
+        'Shipping Update',
+        '1',
+        'Your order #12345 has been shipped.',
+        '2024-05-11 11:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '3',
+        'delivery.png',
+        'Delivery Update',
+        '1',
+        'Your order #12345 has been delivered.',
+        '2024-05-12 12:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '4',
+        'return_request.png',
+        'Return Request',
+        '1',
+        'Your return request for order #12345 has been received.',
+        '2024-05-14 14:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '5',
+        'return_approved.png',
+        'Return Approved',
+        '1',
+        'Your return request for order #12345 has been approved.',
+        '2024-05-15 15:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '6',
+        'refund_processed.png',
+        'Refund Processed',
+        '1',
+        'Your refund for order #12345 has been processed.',
+        '2024-05-16 16:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '7',
+        'new_product.png',
+        'New Product Available',
+        '1',
+        'Check out our new product: High Performance Laptop.',
+        '2024-05-17 17:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '8',
+        'promotion.png',
+        'Special Promotion',
+        '1',
+        'Get 20% off on your next purchase with code SAVE20.',
+        '2024-05-18 18:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '9',
+        'balance_update.png',
+        'Account Balance Updated',
+        '1',
+        'Your account balance has been updated to $150.00.',
+        '2024-05-19 19:00:00'
+    );
+
+INSERT INTO
+    Notification (
+        notification_ID,
+        notification_image,
+        notification_title,
+        user_ID,
+        notification_text,
+        notification_date
+    )
+VALUES
+    (
+        '10',
+        'wishlist.png',
+        'Wishlist Product Available',
+        '1',
+        'A product from your wishlist is now available: High Performance Laptop.',
+        '2024-05-20 20:00:00'
     );
