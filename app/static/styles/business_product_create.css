@@ -16,15 +16,21 @@ body {
 }
 
 .container {
+  color: #fff; // White
   background-color: #333; // Dark
   padding: 10px;
   border-radius: 10px;
   max-width: 700px;
 }
 
+.form-label {
+  color: #fff; // White
+}
+
 .form-control,
 .form-select {
   height: 35px;
+  color: #fff; // White
   text-align: center;
 }
 

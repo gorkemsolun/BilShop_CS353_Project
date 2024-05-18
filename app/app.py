@@ -91,7 +91,7 @@ def search_products_business():
     # Get all the products with starting title as requested search input
     cursor.execute(
         "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s AND title LIKE %s",
-        (session["userid"], f"{search}%"),
+        (session["user_ID"], f"{search}%"),
     )
     product_table = cursor.fetchall()
     return jsonify(product_table)
@@ -121,7 +121,7 @@ def filter_products_business():
                 (
                     float(min_price),
                     float(max_price),
-                    session["userid"],
+                    session["user_ID"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -131,7 +131,7 @@ def filter_products_business():
                 (
                     float(min_price),
                     float(max_price),
-                    session["userid"],
+                    session["user_ID"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -144,7 +144,7 @@ def filter_products_business():
                     float(min_price),
                     float(max_price),
                     category,
-                    session["userid"],
+                    session["user_ID"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -156,7 +156,7 @@ def filter_products_business():
                     float(min_price),
                     float(max_price),
                     category,
-                    session["userid"],
+                    session["user_ID"],
                 ),
             )
             product_table = cursor.fetchall()
@@ -294,7 +294,7 @@ def login():
                     # user_ID are same in customer and user
                     session["role"] = "customer"
                     session["loggedin"] = True
-                    session["userid"] = user["user_ID"]
+                    session["user_ID"] = user["user_ID"]
                     session["username"] = user["name"]
                     return redirect(url_for("customer_main_page"))
                 else:
@@ -307,14 +307,14 @@ def login():
                     if business:
                         session["role"] = "business"
                         session["loggedin"] = True
-                        session["userid"] = user["user_ID"]
+                        session["user_ID"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("business_main_page"))
                     # Assign admin session information to local storage
                     else:
                         session["role"] = "admin"
                         session["loggedin"] = True
-                        session["userid"] = user["user_ID"]
+                        session["user_ID"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("admin_main_page"))
         # user not found
@@ -439,7 +439,7 @@ def business_main_page():
     # Modify the query to include paging
     cursor.execute(
         "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s LIMIT %s OFFSET %s",
-        (session["userid"], items_per_page, offset),
+        (session["user_ID"], items_per_page, offset),
     )
     product_table = cursor.fetchall()
     return render_template(
@@ -515,7 +515,7 @@ def business_product_create():
                 cursor.execute(query, values)
                 cursor.execute(
                     "INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                    (session["userid"], productID, int(amount)),
+                    (session["user_ID"], productID, int(amount)),
                 )
                 cursor.execute(
                     "INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
@@ -571,7 +571,7 @@ def balance():
                 "UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
                 (
                     amount,
-                    session["userID"],
+                    session["user_ID"],
                 ),
             )
             mysql.connection.commit()
@@ -594,7 +594,7 @@ def balance_business():
                 "UPDATE Business SET balance = balance + %s WHERE user_ID = %s",
                 (
                     amount,
-                    session["userID"],
+                    session["user_ID"],
                 ),
             )
             mysql.connection.commit()
@@ -612,7 +612,7 @@ def shopping_cart():
     # Get all products from shopping cart
     cursor.execute(
         "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     cart = cursor.fetchall()
 
@@ -628,14 +628,14 @@ def add_to_cart(product_ID, amount):
     stock = cursor.fetchone()
     cursor.execute(
         "SELECT amount FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session["userid"]),
+        (product_ID, session["user_ID"]),
     )
     amountInCart = cursor.fetchone()
     if amountInCart is None:
         if int(amount) <= stock["amount"]:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                (session["userid"], product_ID, amount),
+                (session["user_ID"], product_ID, amount),
             )
             mysql.connection.commit()
         else:
@@ -646,7 +646,7 @@ def add_to_cart(product_ID, amount):
         if int(amount) + amountInCart["amount"] <= stock["amount"]:
             cursor.execute(
                 "INSERT INTO Puts_On_Cart (user_ID, product_ID, amount) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)",
-                (session["userid"], product_ID, amount),
+                (session["user_ID"], product_ID, amount),
             )
             mysql.connection.commit()
         else:
@@ -665,7 +665,7 @@ def remove_from_cart(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         "DELETE FROM Puts_On_Cart WHERE product_ID = %s AND user_ID = %s",
-        (product_ID, session["userid"]),
+        (product_ID, session["user_ID"]),
     )
     mysql.connection.commit()
     return redirect(url_for("shopping_cart"))
@@ -687,7 +687,7 @@ def checkout():
     # We could come up with a view for the address
     cursor.execute(
         "SELECT country, city, state_code, zip_code, building, street, address_description FROM User WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     address = cursor.fetchone()
     response = {
@@ -726,7 +726,7 @@ def enteraddress():
             addressJSON["building"],
             addressJSON["street"],
             addressJSON["address_description"],
-            session["userid"],
+            session["user_ID"],
         ),
     )
     mysql.connection.commit()
@@ -745,7 +745,7 @@ def customer_profile():
     # Get the customer details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     customer = cursor.fetchone()
     return render_template("customer_profile.html", customer=customer)
@@ -761,7 +761,7 @@ def customer_profile_edit():
     # Get the customer details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     customer = cursor.fetchone()
     if request.method == "POST":
@@ -790,7 +790,7 @@ def customer_profile_edit():
                 building,
                 street,
                 address_description,
-                session["userid"],
+                session["user_ID"],
             ),
         )
         mysql.connection.commit()
@@ -808,13 +808,13 @@ def customer_profile_delete():
     # Get the customer details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     customer = cursor.fetchone()
     if request.method == "POST":
         cursor.execute(
             "DELETE FROM User WHERE user_ID = %s",
-            (session["userid"],),
+            (session["user_ID"],),
         )
         mysql.connection.commit()
 
@@ -835,7 +835,7 @@ def business_profile():
     # Get the business details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     business = cursor.fetchone()
     return render_template("business_profile.html", business=business)
@@ -851,7 +851,7 @@ def business_profile_edit():
     # Get the business details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     business = cursor.fetchone()
     if request.method == "POST":
@@ -880,7 +880,7 @@ def business_profile_edit():
                 building,
                 street,
                 address_description,
-                session["userid"],
+                session["user_ID"],
             ),
         )
         mysql.connection.commit()
@@ -898,14 +898,14 @@ def business_profile_delete():
     # Get the business details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     business = cursor.fetchone()
 
     #  Delete all products of the business
     cursor.execute(
         "DELETE FROM Owns WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     mysql.connection.commit()
 
@@ -913,10 +913,15 @@ def business_profile_delete():
     if request.method == "POST":
         cursor.execute(
             "DELETE FROM User WHERE user_ID = %s",
-            (session["userid"],),
+            (session["user_ID"],),
         )
         mysql.connection.commit()
+        
+        # clear the session
+        session.clear()
+        
         return redirect(url_for("login"))
+
     return render_template("business_profile_delete.html", business=business)
 
 
@@ -930,7 +935,7 @@ def admin_profile():
     # Get the admin details from the database using the user_ID
     cursor.execute(
         "SELECT * FROM User NATURAL JOIN Admin WHERE user_ID = %s",
-        (session["userid"],),
+        (session["user_ID"],),
     )
     admin = cursor.fetchone()
     return render_template("admin_profile.html", admin=admin)
@@ -981,7 +986,9 @@ def add_comment(product_ID):
         return jsonify({"success": False, "error": "Content is required"}), 400
 
     try:
-        cursor.execute("SELECT name FROM User WHERE user_ID = %s", (session["userID"],))
+        cursor.execute(
+            "SELECT name FROM User WHERE user_ID = %s", (session["user_ID"],)
+        )
         user = cursor.fetchone()
         if not user:
             return jsonify({"success": False, "error": "User not found"}), 404
@@ -992,7 +999,7 @@ def add_comment(product_ID):
         )  # Ensure this function generates the next comment ID correctly
         cursor.execute(
             "INSERT INTO Comment (comment_ID, user_ID, product_ID, text) VALUES (%s, %s, %s, %s)",
-            (comment_ID, session["userID"], product_ID, content),
+            (comment_ID, session["user_ID"], product_ID, content),
         )
         mysql.connection.commit()
         return jsonify({"success": True, "username": username})
@@ -1010,7 +1017,7 @@ def delete_comment(product_ID, comment_ID):
     # Check if the comment exists and belongs to the current user
     cursor.execute(
         "SELECT * FROM Comment WHERE comment_ID = %s AND user_ID = %s",
-        (comment_ID, session["userID"]),
+        (comment_ID, session["user_ID"]),
     )
     comment = cursor.fetchone()
 
