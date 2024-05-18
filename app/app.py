@@ -1371,23 +1371,45 @@ def admin_user_report():
 
     if request.method == "POST":
         action = request.form.get("action")
+        report_ID = request.form.get("report_ID")
+        report_date = request.form.get("report_date")
+        report_description = request.form.get("report_description")
+        product_ID = request.form.get("product_ID")
+        reported_user_ID = request.form.get("reported_user_ID")
+        purchase_ID = request.form.get("purchase_ID")
+        return_ID = request.form.get("return_ID")
+        user_ID = request.form.get("user_ID")
+        
+        cursor = mysql.connection.cursor()
+        
         if action == "ban":
-            reported_user_ID = request.form.get("reported_user_ID")
-            # TODO : ADJUST QUERY
-            query = "INSERT INTO Blacklist (user_ID) VALUES (%s)"
+            # "UPDATE User SET name = %s WHERE user_ID = %s",
+            query = "UPDATE Report SET report_status = 'Resolved' WHERE reported_user_ID = %s"
             cursor.execute(query, (reported_user_ID,))
+            query = "INSERT INTO Blacklists (user_ID, report_ID, admin_ID, reason_description) VALUES (%s, %s, %s, %s)"
+            cursor.execute(query, (reported_user_ID, report_ID, session["user_ID"], report_description,))
             mysql.connection.commit()
+            return redirect(url_for("admin_user_report"))
+        
         elif action == "dismiss":
-            report_ID = request.form.get("report_ID")
-            # TODO : ADJUST QUERY
-            query = "UPDATE Reports SET status = 'dismissed' WHERE report_ID = %s"
+            query = "UPDATE Report SET report_status = 'Resolved' WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
+            return redirect(url_for("admin_user_report"))
+        
+        elif action == "delete":
+            query = "DELETE FROM Report WHERE report_ID = %s"
+            cursor.execute(query, (report_ID,))
+            mysql.connection.commit()
+            return redirect(url_for("admin_user_report"))
 
-    cursor.execute("SELECT * FROM Report ORDER BY report_date")
+    cursor.execute("SELECT * FROM Report WHERE report_status='Under Review' ORDER BY report_id")
     reports = cursor.fetchall()
 
-    return render_template("admin_user_report.html", reports=reports)
+    cursor.execute("SELECT * FROM Report WHERE report_status='Resolved' ORDER BY report_id")
+    solved_reports = cursor.fetchall()
+
+    return render_template("admin_user_report.html", reports=reports, solved_reports=solved_reports)
 
 
 # TODO: Explain and fix the function
@@ -1403,18 +1425,14 @@ def admin_blacklist():
 
     if request.method == "POST" and "user_id" in request.form:
         user_id = request.form["user_id"]
-        # Add code here to remove the user with the specified user_id from the blacklist
-        # For demonstration purposes, let's assume we are just printing the user_id to console
-
-        # TODO : WRITE REMOVE BLACKLIST AND REPORT QUERY
-
-        # Redirect back to the same page after processing the removal
+        query = "DELETE FROM Blacklists WHERE user_ID = %s"
+        cursor.execute(query, (user_id,))
+        mysql.connection.commit()
         return redirect(url_for("admin_blacklist"))
 
     search_query = request.args.get("search_query", "")
 
     if search_query:
-        # Perform a join between Blacklists and User tables with search condition
         query = """
         SELECT b.user_ID, u.name, b.report_ID, b.reason_description
         FROM Blacklists b
@@ -1441,6 +1459,7 @@ def admin_blacklist():
 
 
 # TODO: Explain and fix the function
+# I think this is deprecated
 @app.route("/admin_report", methods=["GET", "POST"])
 def admin_report():
     if request.method == "POST":
