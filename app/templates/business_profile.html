@@ -20,6 +20,22 @@
       href="{{ url_for('static', filename='styles/business_profile.css') }}"
     />
   </head>
+
+  <!-- Message -->
+  {% if message is defined and message %}
+  <div class="alert-container">
+    <div class="alert alert-warning">{{ message }}</div>
+  </div>
+  {% endif %}
+  <script>
+    setTimeout(function () {
+      var alertContainer = document.querySelector(".alert-container");
+      if (alertContainer) {
+        alertContainer.remove();
+      }
+    }, 5000); // 5000 milliseconds = 5 seconds
+  </script>
+
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
@@ -69,13 +85,6 @@
         </div>
       </div>
     </nav>
-
-    <!-- Message -->
-    <div class="alert-container">
-      {% if message is defined and message %}
-      <div class="alert alert-warning">{{ message }}</div>
-      {% endif %}
-    </div>
 
     <!-- Profile starts -->
     <div class="container">
