@@ -114,6 +114,11 @@
     </style>
 </head>
 <body>
+    <div class="alert-container">
+        {% if message is defined and message %}
+        <div class="alert alert-warning">{{ message }}</div>
+        {% endif %}
+    </div>
     <header>
         <nav>
             <ul>

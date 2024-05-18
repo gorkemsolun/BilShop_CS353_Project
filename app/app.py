@@ -1422,13 +1422,15 @@ def admin_system_report():
 @app.route("/admin_blacklist", methods=["GET", "POST"])
 def admin_blacklist():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    message = ""
 
     if request.method == "POST" and "user_id" in request.form:
         user_id = request.form["user_id"]
         query = "DELETE FROM Blacklists WHERE user_ID = %s"
         cursor.execute(query, (user_id,))
         mysql.connection.commit()
-        return redirect(url_for("admin_blacklist"))
+        message = ("%s is removed from blacklist" % user_id)
+        # return redirect(url_for("admin_blacklist"))
 
     search_query = request.args.get("search_query", "")
 
@@ -1454,7 +1456,7 @@ def admin_blacklist():
     blacklist = cursor.fetchall()
 
     return render_template(
-        "blacklist.html", blacklist=blacklist, search_query=search_query
+        "blacklist.html", blacklist=blacklist, search_query=search_query, message=message
     )
 
 
