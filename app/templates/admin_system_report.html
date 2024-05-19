@@ -132,6 +132,7 @@
                 <li><a href="/admin_user_report">User Reports</a></li>
                 <li><a href="/tables">Services</a></li>
                 <li><a href="/admin_blacklist">Blacklist</a></li>
+                <li><a href="/logout" id="logoutLink">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -229,17 +230,46 @@
                     </div>
                 </div>
                 <div class="row">
-                    <button class="report-button" onclick="toggleReport('report2')">Toggle Report 2</button>
+                    <button class="report-button" onclick="toggleReport('report2')">Complex Query 1</button>
                     <div class="report" id="report2">
-                        Report 2 Content
+                        <h2>Min-Max Price per Category</h2>
+                        <table id="total-sales-business">
+                            <tr>
+                                <th>Category</th>
+                                <th>Minimum Price</th>
+                                <th>Maximum Price</th>
+                            </tr>
+                            {% for sales in complex_query_1 %}
+                            <tr>
+                                <td>{{ sales.category }}</td>
+                                <td>{{ sales.min_price }}</td>
+                                <td>{{ sales.max_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
                     </div>
                 </div>
                 <div class="row">
-                    <button class="report-button" onclick="toggleReport('report3')">Toggle Report 3</button>
+                    <button class="report-button" onclick="toggleReport('report3')">Complex Query 2</button>
                     <div class="report" id="report3">
-                        Report 3 Content
+                        <h2>User(s) With Maximum Number of Purchases</h2>
+                        <table id="total-sales-business">
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>MAX Purchases</th>
+                            </tr>
+                            {% for sales in complex_query_2 %}
+                            <tr>
+                                <td>{{ sales.user_ID }}</td>
+                                <td>{{ sales.name }}</td>
+                                <td>{{ sales.max_purchases }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
                     </div>
                 </div>
+                <!--
                 <div class="row">
                     <button class="report-button" onclick="toggleReport('report4')">Toggle Report 4</button>
                     <div class="report" id="report4">
@@ -252,6 +282,7 @@
                         Report 5 Content
                     </div>
                 </div>
+                -->
             </div>
         </div>
     </div>
@@ -272,6 +303,24 @@
                 report.style.display = 'none';
             });
         });
+    </script>
+
+    <script>
+        // Function to show confirmation message
+        function confirmLogout(event) {
+        event.preventDefault(); // Prevent the default action (following the link)
+
+        // Display the confirmation message
+        const confirmation = confirm("Are you sure you want to logout?");
+
+        // If user confirms, redirect to the logout URL
+        if (confirmation) {
+            window.location.href = event.target.href; // Redirect to the logout URL
+        }
+        }
+
+        // Attach click event listener to the logout link
+        document.getElementById("logoutLink").addEventListener("click", confirmLogout);
     </script>
 
 </body>

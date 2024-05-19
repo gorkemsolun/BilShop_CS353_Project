@@ -761,12 +761,17 @@ def admin_main_page():
         ("not_sold",),
     )
     product_table = cursor.fetchall()
+
+    """
     return render_template(
         "admin_main_page.html",
         product_table=product_table,
         is_in_session=session["loggedin"],
         username=session["username"],
     )
+    """
+
+    return redirect(url_for("admin_user_report"))
 
 
 # TODO Explain and fix the function
@@ -1909,6 +1914,7 @@ def admin():
 @app.route("/admin_user_report", methods=["GET", "POST"])
 def admin_user_report():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    message = ""
 
     if request.method == "POST":
         action = request.form.get("action")
@@ -1920,8 +1926,6 @@ def admin_user_report():
         purchase_ID = request.form.get("purchase_ID")
         return_ID = request.form.get("return_ID")
         user_ID = request.form.get("user_ID")
-
-        cursor = mysql.connection.cursor()
 
         if action == "ban":
             # "UPDATE User SET name = %s WHERE user_ID = %s",
@@ -1938,19 +1942,19 @@ def admin_user_report():
                 ),
             )
             mysql.connection.commit()
-            return redirect(url_for("admin_user_report"))
+            message="User banned"
 
         elif action == "dismiss":
             query = "UPDATE Report SET report_status = 'Resolved' WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
-            return redirect(url_for("admin_user_report"))
+            message="Report dismissed"
 
         elif action == "delete":
             query = "DELETE FROM Report WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
-            return redirect(url_for("admin_user_report"))
+            message="Report deleted"
 
     cursor.execute(
         "SELECT * FROM Report WHERE report_status='Under Review' ORDER BY report_id"
@@ -1963,7 +1967,7 @@ def admin_user_report():
     solved_reports = cursor.fetchall()
 
     return render_template(
-        "admin_user_report.html", reports=reports, solved_reports=solved_reports
+        "admin_user_report.html", reports=reports, solved_reports=solved_reports, message=message
     )
 
 
@@ -1992,7 +1996,43 @@ def admin_system_report():
     cursor.execute(query)
     active_customers = cursor.fetchall()
 
-    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business)
+    query = """ 
+                SELECT p.category,
+                MIN(p.price) AS min_price, 
+                MAX(p.price) AS max_price, 
+                (SELECT title FROM Product WHERE price = MIN(p.price) AND category = p.category) AS min_price_product,
+                (SELECT title FROM Product WHERE price = MAX(p.price) AND category = p.category) AS max_price_product
+                FROM Product p
+                GROUP BY p.category;
+            """
+    cursor.execute(query)
+    complex_query_1 = cursor.fetchall()
+
+    query = """
+                SELECT U.user_ID, U.name, MAX(num_purchases) AS max_purchases
+                FROM User U
+                JOIN (
+                    SELECT C.user_ID, COUNT(PI.purchase_ID) AS num_purchases
+                    FROM Customer C
+                    JOIN Purchase_Information PI ON C.user_ID = PI.user_ID
+                    GROUP BY C.user_ID
+                ) AS UserPurchases ON U.user_ID = UserPurchases.user_ID
+                GROUP BY U.user_ID, U.name
+                HAVING MAX(num_purchases) = (
+                    SELECT MAX(num_purchases)
+                    FROM (
+                        SELECT COUNT(PI.purchase_ID) AS num_purchases
+                        FROM Customer C
+                        JOIN Purchase_Information PI ON C.user_ID = PI.user_ID
+                        GROUP BY C.user_ID
+                    ) AS max_purchases_table
+                )
+            """
+    
+    cursor.execute(query)
+    complex_query_2 = cursor.fetchall()
+
+    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business, complex_query_1=complex_query_1, complex_query_2=complex_query_2)
 
 
 # TODO: Explain and fix the function

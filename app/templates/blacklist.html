@@ -126,6 +126,7 @@
                 <li><a href="/admin_user_report">User Reports</a></li>
                 <li><a href="/tables">Services</a></li>
                 <li><a href="/admin_blacklist">Blacklist</a></li>
+                <li><a href="/logout" id="logoutLink">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -171,5 +172,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Function to show confirmation message
+        function confirmLogout(event) {
+        event.preventDefault(); // Prevent the default action (following the link)
+
+        // Display the confirmation message
+        const confirmation = confirm("Are you sure you want to logout?");
+
+        // If user confirms, redirect to the logout URL
+        if (confirmation) {
+            window.location.href = event.target.href; // Redirect to the logout URL
+        }
+        }
+
+        // Attach click event listener to the logout link
+        document.getElementById("logoutLink").addEventListener("click", confirmLogout);
+    </script>
 </body>
 </html>
