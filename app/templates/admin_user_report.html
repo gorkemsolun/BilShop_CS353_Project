@@ -20,6 +20,10 @@
       href="{{ url_for('static', filename='styles/admin_product.css') }}"
     />
     <style>
+        #reportTable {
+            display: none;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -119,6 +123,7 @@
     <header>
         <nav>
             <ul>
+                <li><a href="/admin_main_page">Main Page</a></li>
                 <li><a href="/admin_system_report">System Reports</a></li>
                 <li><a href="/admin_user_report">User Reports</a></li>
                 <li><a href="/tables">Services</a></li>
@@ -239,10 +244,10 @@
     <script>
         function toggleTable() {
             var table = document.getElementById('reportTable');
-            if (table.style.display === 'none') {
-                table.style.display = 'block';
-            } else {
+            if (table.style.display === 'block') {
                 table.style.display = 'none';
+            } else {
+                table.style.display = 'block';
             }
         }
     </script>
