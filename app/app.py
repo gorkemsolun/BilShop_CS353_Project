@@ -1985,7 +1985,31 @@ def admin_system_report():
     cursor.execute(query)
     complex_query_1 = cursor.fetchall()
 
-    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business, complex_query_1=complex_query_1)
+    query = """
+                SELECT U.user_ID, U.name, MAX(num_purchases) AS max_purchases
+                FROM User U
+                JOIN (
+                    SELECT C.user_ID, COUNT(PI.purchase_ID) AS num_purchases
+                    FROM Customer C
+                    JOIN Purchase_Information PI ON C.user_ID = PI.user_ID
+                    GROUP BY C.user_ID
+                ) AS UserPurchases ON U.user_ID = UserPurchases.user_ID
+                GROUP BY U.user_ID, U.name
+                HAVING MAX(num_purchases) = (
+                    SELECT MAX(num_purchases)
+                    FROM (
+                        SELECT COUNT(PI.purchase_ID) AS num_purchases
+                        FROM Customer C
+                        JOIN Purchase_Information PI ON C.user_ID = PI.user_ID
+                        GROUP BY C.user_ID
+                    ) AS max_purchases_table
+                )
+            """
+    
+    cursor.execute(query)
+    complex_query_2 = cursor.fetchall()
+
+    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business, complex_query_1=complex_query_1, complex_query_2=complex_query_2)
 
 
 # TODO: Explain and fix the function
