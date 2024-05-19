@@ -1229,10 +1229,11 @@ def business_past_orders():
             purchase["title"] = item["title"]
             purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
-
+    past = True
     return render_template(
-        "business_past_orders.html",
+        "business_orders.html",
         purchaseinfo=purchaseinfo,
+        past = past
     )
 
 
@@ -1258,20 +1259,38 @@ def business_active_orders():
             purchase["title"] = item["title"]
             purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
+    past = False
+    return render_template("business_orders.html", purchaseinfo=purchaseinfo, past = past)
 
-    return render_template("business_active_orders.html", purchaseinfo=purchaseinfo)
 
-
-@app.route("/update_purchase_status/<newstatus>/<product_ID>", methods=["POST"])
-def update_purchase_status(newstatus, product_ID, user_ID):
+@app.route("/update_purchase_status/<product_ID>/<user_ID>/<title>", methods=["POST"])
+def update_purchase_status(product_ID, user_ID, title):
 
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         "UPDATE Purchase_Information SET purchase_status = %s WHERE product_ID = %s AND user_ID = %s",
-        (newstatus, product_ID, user_ID),
+        ('shipped', product_ID, user_ID),
     )
     mysql.connection.commit()
-    # TODO send notification
+    #Notify the user
+    notification_ID = (
+                get_next_ID_notification()
+            )  # Get the next available notification ID
+
+    notification_title = "Update on Your Order"
+    notification_text = "The status of your order for the item \"%s\" has been updated to \"shipped\"." % (title)
+
+    cursor.execute(
+        "INSERT INTO Notification (notification_title, notification_text, notification_date, user_ID, notification_ID) VALUES (%s, %s, %s, %s, %s)",
+        (
+            notification_title,
+            notification_text,
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            session["user_ID"],
+            notification_ID,
+        )
+    )
+    mysql.connection.commit()
     return redirect(url_for("business_active_orders"))
 
 
