@@ -142,9 +142,87 @@
                 <div class="row">
                 </div>
                 <div class="row">
-                    <button class="report-button" onclick="toggleReport('report1')">Toggle Report 1</button>
+                    <button class="report-button" onclick="toggleReport('report1')">Views</button>
                     <div class="report" id="report1" textcolor="white">
-                        Report 1 Content
+                        <h2>Popular Products by Category</h2>
+                        <table id="popular-products-category">
+                            <tr>
+                                <th>Category</th>
+                                <th>Product Name</th>
+                                <th>Purchase Count</th>
+                            </tr>
+                            {% for product in popular_products_category %}
+                            <tr>
+                                <td>{{ product.category }}</td>
+                                <td>{{ product.product_name }}</td>
+                                <td>{{ product.purchase_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+
+                        <h2>Active Customers</h2>
+                        <table id="active-customers">
+                            <tr>
+                                <th>User ID</th>
+                                <th>Customer Name</th>
+                                <th>Total Spent</th>
+                            </tr>
+                            {% for customer in active_customers %}
+                            <tr>
+                                <td>{{ customer.user_ID }}</td>
+                                <td>{{ customer.customer_name }}</td>
+                                <td>{{ customer.total_spent }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+
+                        <h2>Total Sales Products</h2>
+                        <table id="popular-products">
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Total Purchases</th>
+                            </tr>
+                            {% for product in popular_products %}
+                            <tr>
+                                <td>{{ product.product_ID }}</td>
+                                <td>{{ product.product_name }}</td>
+                                <td>{{ product.total_purchased_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+
+                        <h2>Unresolved Return Requests</h2>
+                        <table id="unresolved-return-requests">
+                            <tr>
+                                <th>Return ID</th>
+                                <th>Reason</th>
+                                <th>Return Request Status</th>
+                                <th>Purchase ID</th>
+                            </tr>
+                            {% for request in unresolved_return_requests %}
+                            <tr>
+                                <td>{{ request.return_ID }}</td>
+                                <td>{{ request.reason }}</td>
+                                <td>{{ request.return_request_status }}</td>
+                                <td>{{ request.purchase_ID }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+
+                        <h2>Total Sales by Business</h2>
+                        <table id="total-sales-business">
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Total Sales</th>
+                            </tr>
+                            {% for sales in total_sales_business %}
+                            <tr>
+                                <td>{{ sales.company_name }}</td>
+                                <td>{{ sales.total_sales }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
                     </div>
                 </div>
                 <div class="row">
