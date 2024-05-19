@@ -85,50 +85,61 @@
       <div class="row">
         <div class="col-md-12">
           {% if past %}
-            <a
-            href="/customer_active_orders"
-            class="btn btn-primary"
-            >Active Orders</a>  
-            <h1 class="past-orders-title">Past Orders</h1>
+          <a href="/customer_active_orders" class="btn btn-primary"
+            >Active Orders</a
+          >
+          <h1 class="past-orders-title m-3">Past Orders</h1>
           {% else %}
-            <a
-            href="/customer_past_orders"
-            class="btn btn-primary"
-            >Past Orders</a> 
-            <h1 class="active-orders-title">Active Orders</h1>
+          <a href="/customer_past_orders" class="btn btn-primary"
+            >Past Orders</a
+          >
+          <h1 class="active-orders-title m-3">Active Orders</h1>
           {% endif %}
         </div>
         <div class="col-md-12" id="activeOrders">
           <div class="row">
-            {% if purchaseinfo %}
-            {% for order in purchaseinfo %}
+            {% if purchaseinfo %} {% for order in purchaseinfo %}
             <div class="col-md-4">
-              <div class="order-container">
-                <div class="order-id"><b>Order ID:</b> {{ order.purchase_ID }}</div>
-                <div class="order-title"><b>Product Title:</b> {{ order.title }}</div>
-                <div class="order-status"><b>Status:</b> {{ order.purchase_status }}</div>
-                <div class="order-total-price"><b>Total Price:</b> ${{ order.total_price }}</div>
-                <div class="order-date"><b>Purchase Date:</b> {{ order.purchase_date }}</div>
-                <div class="order-amount"><b>Amount:</b> {{ order.amount }}</div>
+              <div class="order-container m-2">
+                <div class="order-id m-1">
+                  <b>Order ID:</b> {{ order.purchase_ID }}
+                </div>
+                <div class="order-title m-1">
+                  <b>Product Title:</b> {{ order.title }}
+                </div>
+                <div class="order-status m-1">
+                  <b>Status:</b> {{ order.purchase_status }}
+                </div>
+                <div class="order-total-price m-1">
+                  <b>Total Price:</b> ${{ order.total_price }}
+                </div>
+                <div class="order-date m-1">
+                  <b>Purchase Date:</b> {{ order.purchase_date }}
+                </div>
+                <div class="order-amount m-1">
+                  <b>Amount:</b> {{ order.amount }}
+                </div>
                 <a
                   href="/customer_product/{{ order.product_ID }}"
-                  class="btn btn-primary"
+                  class="btn btn-primary m-1"
                   >View Product</a
+                >
+                <a
+                  href="/customer_order_return/{{ order.purchase_ID }}"
+                  class="btn btn-danger m-1"
+                  >Return Order</a
                 >
               </div>
             </div>
-            {% endfor %}
+            {% endfor %} {% else %} {% if past %}
+            <div class="col-md-12">
+              <p>You have no past orders.</p>
+            </div>
             {% else %}
-              {% if past %}
-                <div class="col-md-12">
-                  <p>You have no past orders.</p>
-                </div>
-              {% else %}
-                <div class="col-md-12">
-                  <p>You have no active orders.</p>
-                </div>
-              {% endif %}
-            {% endif %}
+            <div class="col-md-12">
+              <p>You have no active orders.</p>
+            </div>
+            {% endif %} {% endif %}
           </div>
         </div>
       </div>

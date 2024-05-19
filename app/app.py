@@ -980,7 +980,7 @@ def confirm_purchase():
     insufficient_balance = False
     totalprice = 0
     for item in available:
-        totalprice += item["price"] * item['amount']
+        totalprice += item["price"] * item["amount"]
     if totalprice > balance:
         insufficient_balance = True
 
@@ -992,7 +992,7 @@ def confirm_purchase():
                 "INSERT INTO Purchase_Information(purchase_ID, purchase_status, total_price, purchase_date, user_ID , product_ID, amount) VALUES(%s, %s,%s,%s,%s,%s,%s)",
                 (
                     get_next_ID_purchase_info(),
-                    "order created",
+                    "purchased",
                     total_price,
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     session["user_ID"],
@@ -1070,8 +1070,8 @@ def customer_active_orders():
     # Display according to their order status
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
-        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status <> %s",
-        (session["user_ID"], "shipped"),
+        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
+        (session["user_ID"], "purchased"),
     )
     purchaseinfo = cursor.fetchall()
 
@@ -1087,15 +1087,113 @@ def customer_active_orders():
     return render_template("customer_orders.html", purchaseinfo=purchaseinfo, past=past)
 
 
+# Returns/refunds the active order
+# The order status will be updated to returned
+# The product amount will be updated
+# The user balance will be updated
+# The business balance will be updated
+# Active order will be marked as returned and moved to past orders
+# The user will be redirected to the active orders page
+@app.route("/customer_order_return/<purchase_ID>", methods=["POST", "DELETE", "GET"])
+def customer_order_return(purchase_ID):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Purchase_Information WHERE purchase_ID = %s", (purchase_ID,)
+    )
+    purchase = cursor.fetchone()
+    cursor.execute(
+        "SELECT * FROM Product WHERE product_ID = %s", (purchase["product_ID"],)
+    )
+    product = cursor.fetchone()
+
+    # Update the product amount
+    cursor.execute(
+        "UPDATE Owns SET amount = amount + %s WHERE product_ID = %s",
+        (purchase["amount"], product["product_ID"]),
+    )
+    mysql.connection.commit()
+
+    # Update the user balance
+    cursor.execute(
+        "SELECT balance FROM Customer WHERE user_ID = %s", (session["user_ID"],)
+    )
+    balance = cursor.fetchone()
+    cursor.execute(
+        "UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
+        (purchase["total_price"], session["user_ID"]),
+    )
+    mysql.connection.commit()
+
+    # Update the business balance
+    cursor.execute(
+        "SELECT user_ID FROM Owns WHERE product_ID = %s", (product["product_ID"],)
+    )
+    business = cursor.fetchone()
+    cursor.execute(
+        "UPDATE Business SET balance = balance - %s WHERE user_ID = %s",
+        (purchase["total_price"], business["user_ID"]),
+    )
+    mysql.connection.commit()
+
+    # Update the purchase status
+    cursor.execute(
+        "UPDATE Purchase_Information SET purchase_status = %s WHERE purchase_ID = %s",
+        ("returned", purchase_ID),
+    )
+    mysql.connection.commit()
+
+    # Send notification to the business
+    cursor.execute(
+        "INSERT INTO Notification (notification_title, notification_text, notification_date, user_ID, notification_ID) VALUES (%s, %s, %s, %s, %s)",
+        (
+            "Order Returned",
+            f"Order with purchase ID {purchase_ID} has been returned",
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            business["user_ID"],
+            get_next_ID_notification(),
+        ),
+    )
+    mysql.connection.commit()
+
+    # Now redirect to the active orders page by fetching the active orders again
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
+        (session["user_ID"], "purchased"),
+    )
+    purchaseinfo = cursor.fetchall()
+
+    for info in purchaseinfo:
+        cursor.execute(
+            "SELECT * FROM Product WHERE product_ID = %s", (info["product_ID"],)
+        )
+        product = cursor.fetchone()
+        info["title"] = product["title"]
+        info["cover_picture"] = product["cover_picture"]
+
+    past = False
+
+    return render_template("customer_orders.html", purchaseinfo=purchaseinfo, past=past)
+
+
 @app.route("/customer_past_orders", methods=["GET"])
 def customer_past_orders():
     # Display according to their order status
+    # Display shipped orders
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
         (session["user_ID"], "shipped"),
     )
     purchaseinfo = cursor.fetchall()
+
+    # Display returned orders
+    cursor.execute(
+        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
+        (session["user_ID"], "returned"),
+    )
+    purchaseinfo += cursor.fetchall()
 
     for info in purchaseinfo:
         cursor.execute(

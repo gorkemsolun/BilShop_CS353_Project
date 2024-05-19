@@ -1,0 +1,51 @@
+body {
+  background-color: #222; // dark
+  color: #fff; // white
+  font-family: sans-serif;
+}
+
+.container {
+  margin-top: 20px;
+  color: #fff; // white
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  flex-direction: column;
+}
+
+.customer_product-container {
+  background-color: #333; // dark
+  padding: 20px;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.customer_product-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px;
+}
+
+.customer_product-price {
+  font-size: 18px;
+  margin: 10px;
+}
+
+.filter-section {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.navbar-brand {
+  font-size: 40px;
+}
+
+.navbar-nav .nav-link {
+  margin-right: 10px;
+}
+.btn-outline-light {
+  border: 0;
+}

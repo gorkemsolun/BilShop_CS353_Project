@@ -21,3 +21,23 @@ body {
 .btn-outline-light {
   border: 0;
 }
+
+.card {
+  background-color: #333; // Dark
+  color: #fff; // White
+}
+
+.card-header {
+  background-color: #444; // Dark
+  color: #fff; // White
+}
+
+.card-body {
+  background-color: #555; // Dark
+  color: #fff; // White
+}
+
+.card-footer {
+  background-color: #444; // Dark
+  color: #fff; // White
+}
