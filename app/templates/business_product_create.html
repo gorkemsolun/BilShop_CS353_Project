@@ -95,13 +95,20 @@
     {% with messages = get_flashed_messages(with_categories=true) %} {% for
     category, message in messages %}
 
-    <!-- Alert -->
-    <div
-      class="alert alert-{{ category }} alert-dismissible fade show"
-      role="alert"
-    >
-      <span>{{ message }}</span>
+    <div class="alert-container">
+      {% if message is defined and message %}
+      <div class="alert alert-warning">{{ message }}</div>
+      {% endif %}
     </div>
+    <script>
+      setTimeout(function () {
+        var alertContainer = document.querySelector(".alert-container");
+        if (alertContainer) {
+          alertContainer.remove();
+        }
+      }, 5000); // 5000 milliseconds = 5 seconds
+    </script>
+
     {% endfor %} {% endwith %}
 
     <div class="container mt-4 mb-5">
@@ -147,7 +154,8 @@
                 class="form-control"
                 id="amount"
                 name="amount"
-                step="0.01"
+                step="1"
+                min="1"
                 required
               />
             </div>
