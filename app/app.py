@@ -312,13 +312,21 @@ def login():
         cursor.execute("SELECT * FROM User WHERE email = % s", (username,))
         user_w_email = cursor.fetchone()
         user = user_w_name if user_w_name is not None else user_w_email
-        if user and check_password_hash(user['password'], password) or (username == "admin" and password == "admin"):
-            cursor.execute("SELECT * FROM Blacklists WHERE user_ID = % s", (user["user_ID"],))
+        if (
+            user
+            and check_password_hash(user["password"], password)
+            or (username == "admin" and password == "admin")
+        ):
+            cursor.execute(
+                "SELECT * FROM Blacklists WHERE user_ID = % s", (user["user_ID"],)
+            )
             isBlacklisted = cursor.fetchone()
             if isBlacklisted:
                 message = "Sorry, you are blacklisted."
             else:
-                cursor.execute("SELECT * FROM Customer WHERE user_ID = % s", (user["user_ID"],))
+                cursor.execute(
+                    "SELECT * FROM Customer WHERE user_ID = % s", (user["user_ID"],)
+                )
                 customer = cursor.fetchone()
                 if customer:
                     session["role"] = "customer"
@@ -327,7 +335,9 @@ def login():
                     session["username"] = user["name"]
                     return redirect(url_for("customer_main_page"))
                 else:
-                    cursor.execute("SELECT * FROM Business WHERE user_ID = % s", (user["user_ID"],))
+                    cursor.execute(
+                        "SELECT * FROM Business WHERE user_ID = % s", (user["user_ID"],)
+                    )
                     business = cursor.fetchone()
                     if business:
                         session["role"] = "business"
@@ -365,7 +375,7 @@ def register():
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             message = "Please enter a valid email format!"
             return render_template("register.html", message=message)
-        
+
         # Check for strong password
         if not re.match(r"[A-Za-z0-9@#$%^&+=*!(){}[\]:;<>,.?~`_|\\-]{8,}", password):
             message = "Password must be at least 8 characters long and contain a combination of letters, numbers, and special characters!"
@@ -729,7 +739,7 @@ def business_product_edit(product_ID):
         else:
             message = "Please fill the required fields"
             flash(message, "warning")
-        
+
     # Get the product information from the database
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
@@ -742,7 +752,6 @@ def business_product_edit(product_ID):
     )
 
 
-# TODO main page admin reports etc
 @app.route("/admin_main_page")
 def admin_main_page():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -783,7 +792,6 @@ def balance():
     return render_template("balance.html", message=message)
 
 
-# TODO Explain and fix the function
 @app.route("/balance_business", methods=["GET", "POST"])
 def balance_business():
     message = ""
@@ -806,7 +814,6 @@ def balance_business():
     return render_template("balance_business.html", message=message)
 
 
-# TODO shopping-cart page
 @app.route("/shopping_cart")
 def shopping_cart():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -1011,19 +1018,17 @@ def confirm_purchase():
 
             # update the balance of the business
             cursor.execute(
-                "SELECT user_ID FROM Owns WHERE product_ID = %s",
-                (item['product_ID'],)
+                "SELECT user_ID FROM Owns WHERE product_ID = %s", (item["product_ID"],)
             )
 
-            business= cursor.fetchone()
-            businessID = business['user_ID']
-            
+            business = cursor.fetchone()
+            businessID = business["user_ID"]
+
             cursor.execute(
                 "UPDATE Business SET balance = balance + %s WHERE user_ID = %s",
-                (total_price, businessID)
+                (total_price, businessID),
             )
             mysql.connection.commit()
-
 
         # finally update the balance of the customer
         balance -= totalprice
@@ -1072,19 +1077,14 @@ def customer_active_orders():
 
     for info in purchaseinfo:
         cursor.execute(
-            "SELECT * FROM Product WHERE product_ID = %s",
-            (info['product_ID'],)
+            "SELECT * FROM Product WHERE product_ID = %s", (info["product_ID"],)
         )
         product = cursor.fetchone()
-        info['title'] = product['title']
-        info['cover_picture'] = product['cover_picture']
+        info["title"] = product["title"]
+        info["cover_picture"] = product["cover_picture"]
 
     past = False
-    return render_template(
-        "customer_orders.html",
-        purchaseinfo = purchaseinfo,
-        past = past
-    )
+    return render_template("customer_orders.html", purchaseinfo=purchaseinfo, past=past)
 
 
 @app.route("/customer_past_orders", methods=["GET"])
@@ -1099,19 +1099,15 @@ def customer_past_orders():
 
     for info in purchaseinfo:
         cursor.execute(
-            "SELECT * FROM Product WHERE product_ID = %s",
-            (info['product_ID'],)
+            "SELECT * FROM Product WHERE product_ID = %s", (info["product_ID"],)
         )
         product = cursor.fetchone()
-        info['title'] = product['title']
-        info['cover_picture'] = product['cover_picture']
+        info["title"] = product["title"]
+        info["cover_picture"] = product["cover_picture"]
 
     past = True
-    return render_template(
-        "customer_orders.html",
-        purchaseinfo = purchaseinfo,
-        past = past
-    )
+    return render_template("customer_orders.html", purchaseinfo=purchaseinfo, past=past)
+
 
 # The orders received and shipped by the business
 @app.route("/business_past_orders", methods=["GET"])
@@ -1132,14 +1128,15 @@ def business_past_orders():
         )
         purchase = cursor.fetchone()
         if purchase:
-            purchase['title'] = item['title']
-            purchase['cover_picture'] = item['cover_picture']
+            purchase["title"] = item["title"]
+            purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
-    
+
     return render_template(
         "business_past_orders.html",
-        purchaseinfo = purchaseinfo,
+        purchaseinfo=purchaseinfo,
     )
+
 
 # The orders received by the business
 @app.route("/business_active_orders", methods=["GET"])
@@ -1160,15 +1157,11 @@ def business_active_orders():
         )
         purchase = cursor.fetchone()
         if purchase:
-            purchase['title'] = item['title']
-            purchase['cover_picture'] = item['cover_picture']
+            purchase["title"] = item["title"]
+            purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
 
- 
-    return render_template(
-        "business_active_orders.html",
-        purchaseinfo = purchaseinfo
-    )
+    return render_template("business_active_orders.html", purchaseinfo=purchaseinfo)
 
 
 @app.route("/update_purchase_status/<newstatus>/<product_ID>", methods=["POST"])
@@ -1204,6 +1197,7 @@ def customer_profile():
 # This page will be used to edit the customer details
 # The customer details will be fetched from the database
 # Link to this page will be provided in the customer_profile.html
+
 
 @app.route("/customer_profile_edit", methods=["GET", "POST"])
 def customer_profile_edit():
@@ -1249,19 +1243,19 @@ def customer_profile_edit():
         cursor.execute(
             "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
             (
-            name,
-            email,
-            hashedpassword,
-            phone_number,
-            country,
-            city,
-            state_code,
-            zip_code,
-            building,
-            street,
-            address_description,
-            picture_binary_data,
-            session["user_ID"],
+                name,
+                email,
+                hashedpassword,
+                phone_number,
+                country,
+                city,
+                state_code,
+                zip_code,
+                building,
+                street,
+                address_description,
+                picture_binary_data,
+                session["user_ID"],
             ),
         )
         mysql.connection.commit()  # Commit the changes to the database

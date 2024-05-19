@@ -6,11 +6,13 @@ body {
 
 .container {
   margin-top: 20px;
+  color: #fff; // White
 }
+
 .customer_product-amount {
   font-size: 16px;
   color: #888; // Gray
-  margin-bottom: 10px;
+  margin: 10px;
 }
 
 .navbar-brand {
@@ -27,12 +29,12 @@ body {
 .shopping-cart-title {
   font-family: sans-serif;
   font-size: 24px;
-  margin-bottom: 20px;
+  margin: 10px;
 }
 
 #addToCartForm input[type="submit"] {
   background-color: #007bff; // Blue
-  color: white; // white
+  color: fff; // white
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -41,6 +43,10 @@ body {
 
 #addToCartForm input[type="submit"]:hover {
   background-color: #0056b3; // Dark blue
+}
+
+.addToCartForm-button {
+  color: #fff; // White
 }
 
 .image-container {

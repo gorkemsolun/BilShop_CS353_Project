@@ -1,266 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ customer_product.title }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/customer_product.css') }}"/>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/customer_product.css') }}"
+    />
     <style>
-        .comment-container {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
+      .comment-container {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
 
-        .comment-text {
-            flex: 1;
-        }
+      .comment-text {
+        flex: 1;
+      }
 
-        .btn-delete-comment {
-            margin-left: 10px;
-        }
+      .btn-delete-comment {
+        margin-left: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
-            <div class="d-flex">
-                <form action="{{ url_for('shopping_cart') }}" method="get">
-                    <button class="btn btn-outline-light me-2" type="submit" title="Cart">
-                        <i class="bi bi-cart3"></i>
-                    </button>
-                </form>
-                <form action="{{ url_for('notifications') }}" method="get">
-                    <button class="btn btn-outline-light me-2" type="submit" title="Notification">
-                        <i class="bi bi-bell"></i>
-                    </button>
-                </form>
-                <form action="{{ url_for('customer_profile') }}" method="get">
-                    <button class="btn btn-outline-light me-2" type="submit" title="Customer Profile">
-                        <i class="bi bi-person"></i>
-                    </button>
-                </form>
-                <form action="{{ url_for('balance') }}" method="get">
-                    <button class="btn btn-outline-light me-2" type="submit" title="Balance">
-                        <i class="bi bi-wallet2"></i>
-                    </button>
-                </form>
-                <form action="{{ url_for('logout') }}" method="get">
-                    <button class="btn btn-outline-light me-2" type="submit" title="Logout">
-                        <i class="bi bi-box-arrow-left"></i>
-                    </button>
-                </form>
-            </div>
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
+        <div class="d-flex">
+          <form action="{{ url_for('shopping_cart') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Cart"
+            >
+              <i class="bi bi-cart3"></i>
+            </button>
+          </form>
+          <form action="{{ url_for('notifications') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Notification"
+            >
+              <i class="bi bi-bell"></i>
+            </button>
+          </form>
+          <form action="{{ url_for('customer_profile') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Customer Profile"
+            >
+              <i class="bi bi-person"></i>
+            </button>
+          </form>
+          <form action="{{ url_for('balance') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Balance"
+            >
+              <i class="bi bi-wallet2"></i>
+            </button>
+          </form>
+          <form action="{{ url_for('logout') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Logout"
+            >
+              <i class="bi bi-box-arrow-left"></i>
+            </button>
+          </form>
         </div>
+      </div>
     </nav>
 
     <div class="container">
-        <div class="container me-2">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="image-container">
-                        {% if product_picture is not none %}
-                            <img src="data:image/jpeg;base64,{{ product_picture }}" alt="Product Picture" class="product-image">
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div>
-                        <h1>{{ customer_product.title }}</h1>
-                        <p>{{ customer_product.description }}</p>
-                        <p>Price: ${{ customer_product.price }}</p>
-                        <form id="addToCartForm">
-                            <label for="amount">Amount:</label>
-                            <select id="amount" name="amount">
-                                {% for i in range(1, 31) %}
-                                    <option value="{{ i }}">{{ i }}</option>
-                                {% endfor %}
-                            </select>
-                            <br>
-                            <input type="submit" value="Add to Cart">
-                        </form>
-                        <div id="successMessage"></div>
-                    </div>
-                </div>
+      <div class="container me-2">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="image-container">
+              {% if product_picture is not none %}
+              <img
+                src="data:image/jpeg;base64,{{ product_picture }}"
+                alt="Product Picture"
+                class="product-image"
+              />
+              {% endif %}
             </div>
-        </div>
-        <!-- Comment Section -->
-        <div class="row mt-4">
-        <div class="col-md-6">
-            <div id="commentsContainer">
-                {% for comment in comments %}
-                <div class="comment-container" data-comment-id="{{ comment.comment_ID }}">
-                    <div class="comment-text">
-                        <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
-                    </div>
-                    {% if comment.user_ID == session['userID'] %}
-                    <button class="btn btn-outline-light me-2 btn-delete-comment" data-comment-id="{{ comment.comment_ID }}">
-                        <i class="bi bi-eraser-fill"></i> Delete
-                    </button>
-                    {% endif %}
-                </div>
-                {% endfor %}
-                <button id="addCommentButton" class="btn btn-outline-light me">
-                    <i class="bi bi-chat-fill"></i> Add Comment
-                </button>
-                <div id="commentFormContainer" class="mt-3" style="display:none;">
-                    <form id="commentForm" class="d-flex">
-                        <textarea class="form-control me-2" id="commentContent" name="content" rows="3" placeholder="Comment"></textarea>
-                        <button type="submit" class="btn btn-outline-light me"><i class="bi bi-send"></i></button>
-                    </form>
-                </div>
+          </div>
+          <div class="col-md-6">
+            <div>
+              <h1>{{ customer_product.title }}</h1>
+              <p>{{ customer_product.description }}</p>
+              <p>Price: ${{ customer_product.price }}</p>
+              <form id="addToCartForm">
+                <label for="amount m">Amount:</label>
+                <select id="amount" name="amount">
+                  {% for i in range(1, 31) %}
+                  <option value="{{ i }}">{{ i }}</option>
+                  {% endfor %}
+                </select>
+                <br />
+                <input class="m-3 p-2 addToCartForm-button" type="submit" value="Add to Cart" />
+              </form>
+              <div id="successMessage"></div>
             </div>
+          </div>
+        </div>
+      </div>
+      <!-- Comment Section -->
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <div id="commentsContainer">
+            {% for comment in comments %}
+            <div
+              class="comment-container"
+              data-comment-id="{{ comment.comment_ID }}"
+            >
+              <div class="comment-text">
+                <p>
+                  <strong>{{ comment.username }}:</strong> {{ comment.text }}
+                </p>
+              </div>
+              {% if comment.user_ID == session['userID'] %}
+              <button
+                class="btn btn-outline-light me-2 btn-delete-comment"
+                data-comment-id="{{ comment.comment_ID }}"
+              >
+                <i class="bi bi-eraser-fill"></i> Delete
+              </button>
+              {% endif %}
+            </div>
+            {% endfor %}
+            <button id="addCommentButton" class="btn btn-outline-light me">
+              <i class="bi bi-chat-fill"></i> Add Comment
+            </button>
+            <div id="commentFormContainer" class="mt-3" style="display: none">
+              <form id="commentForm" class="d-flex">
+                <textarea
+                  class="form-control me-2"
+                  id="commentContent"
+                  name="content"
+                  rows="3"
+                  placeholder="Comment"
+                ></textarea>
+                <button type="submit" class="btn btn-outline-light me">
+                  <i class="bi bi-send"></i>
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
         <div class="col-md-6">
-                <button id="addReportButton" class="btn btn-outline-light me">
-                    <i class="bi bi-shield-lock-fill"></i> Add Report
-                </button>
-                <div id="ReportFormContainer" class="mt-3" style="display:none;">
-                    <form id="reportForm" class="d-flex">
-                        <textarea class="form-control me-2" id="reportContent" name="content" rows="3" placeholder="Report"></textarea>
-                        <button type="submit" id="submitReportButton" class="btn btn-outline-light me"><i class="bi bi-send"></i></button>
-                    </form>
-                </div>
+          <button id="addReportButton" class="btn btn-outline-light me">
+            <i class="bi bi-shield-lock-fill"></i> Add Report
+          </button>
+          <div id="ReportFormContainer" class="mt-3" style="display: none">
+            <form id="reportForm" class="d-flex">
+              <textarea
+                class="form-control me-2"
+                id="reportContent"
+                name="content"
+                rows="3"
+                placeholder="Report"
+              ></textarea>
+              <button
+                type="submit"
+                id="submitReportButton"
+                class="btn btn-outline-light me"
+              >
+                <i class="bi bi-send"></i>
+              </button>
+            </form>
+          </div>
         </div>
-        </div>
+      </div>
     </div>
 
     <script>
-        document.getElementById('addToCartForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            var amount = document.getElementById('amount').value;
-            var productId = '{{ customer_product.product_ID }}';
-            var url = '/add_to_cart/' + productId + '/' + amount;
-            fetch(url, { method: 'GET' })
-                .then(response => {
-                    var successMessage = document.createElement('p');
-                    if (response.ok) {
-                        successMessage.textContent = 'Product added to cart';
-                    } else {
-                        successMessage.textContent = 'Not Enough Items In Stock';
-                    }
-                    document.getElementById('successMessage').appendChild(successMessage);
-                    setTimeout(() => {
-                        document.getElementById('successMessage').innerHTML = '';
-                    }, 3000);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
-
-        document.getElementById('addCommentButton').addEventListener('click', function() {
-            var commentFormContainer = document.getElementById('commentFormContainer');
-            commentFormContainer.style.display = commentFormContainer.style.display === 'none' ? 'block' : 'none';
-        });
-
-        document.getElementById('commentForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            var content = document.getElementById('commentContent').value;
-            var productId = '{{ customer_product.product_ID }}';
-            var url = '/customer_product/' + productId + '/add_comment';
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content: content })
+      document
+        .getElementById("addToCartForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var amount = document.getElementById("amount").value;
+          var productId = "{{ customer_product.product_ID }}";
+          var url = "/add_to_cart/" + productId + "/" + amount;
+          fetch(url, { method: "GET" })
+            .then((response) => {
+              var successMessage = document.createElement("p");
+              if (response.ok) {
+                successMessage.textContent = "Product added to cart";
+              } else {
+                successMessage.textContent = "Not Enough Items In Stock";
+              }
+              document
+                .getElementById("successMessage")
+                .appendChild(successMessage);
+              setTimeout(() => {
+                document.getElementById("successMessage").innerHTML = "";
+              }, 3000);
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload(); // Reload the page upon successful comment submission
-                } else {
-                    console.error('Error:', data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+            .catch((error) => {
+              console.error("Error:", error);
             });
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const deleteButtons = document.querySelectorAll('.btn-delete-comment');
-
-            deleteButtons.forEach(btn => {
-                btn.addEventListener('click', handleDeleteButtonClick);
-            });
-
-            function handleDeleteButtonClick(event) {
-                const commentId = event.currentTarget.dataset.commentId;
-                const confirmation = confirm('Are you sure you want to delete this comment?');
-                if (confirmation) {
-                    deleteComment(commentId);
-                }
-            }
-
-            window.deleteComment = function(commentId) { // Make deleteComment a global function
-                const productId = '{{ customer_product.product_ID }}';
-                const url = `/customer_product/${productId}/delete_comment/${commentId}`;
-                fetch(url, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload(); // Reload the page upon successful deletion
-                    } else {
-                        console.error('Failed to delete comment');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
+      document
+        .getElementById("addCommentButton")
+        .addEventListener("click", function () {
+          var commentFormContainer = document.getElementById(
+            "commentFormContainer"
+          );
+          commentFormContainer.style.display =
+            commentFormContainer.style.display === "none" ? "block" : "none";
         });
 
-        function attachDeleteEvent(button) {
-            button.addEventListener('click', function(event) {
-                const commentId = event.currentTarget.dataset.commentId;
-                const confirmation = confirm('Are you sure you want to delete this comment?');
-                if (confirmation) {
-                    deleteComment(commentId);
-                }
-            });
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('addReportButton').addEventListener('click', function() {
-        var reportFormContainer = document.getElementById('ReportFormContainer');
-        reportFormContainer.style.display = reportFormContainer.style.display === 'none' ? 'block' : 'none';
-    });
-
-    document.getElementById('reportForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        var content = document.getElementById('reportContent').value;
-        var productId = '{{ customer_product.product_ID }}';
-        var url = '/customer_product/' + productId + '/add_report';
-        fetch(url, {
-            method: 'POST',
+      document
+        .getElementById("commentForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var content = document.getElementById("commentContent").value;
+          var productId = "{{ customer_product.product_ID }}";
+          var url = "/customer_product/" + productId + "/add_comment";
+          fetch(url, {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ content: content })
-        })
-        .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload(); // Reload the page upon successful comment submission
-                } else {
-                    console.error('Error:', data.error);
-                }
+            body: JSON.stringify({ content: content }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                location.reload(); // Reload the page upon successful comment submission
+              } else {
+                console.error("Error:", data.error);
+              }
             })
-            .catch(error => {
-                console.error('Error:', error);
+            .catch((error) => {
+              console.error("Error:", error);
             });
-    });
-});
+        });
 
+      document.addEventListener("DOMContentLoaded", () => {
+        const deleteButtons = document.querySelectorAll(".btn-delete-comment");
 
+        deleteButtons.forEach((btn) => {
+          btn.addEventListener("click", handleDeleteButtonClick);
+        });
+
+        function handleDeleteButtonClick(event) {
+          const commentId = event.currentTarget.dataset.commentId;
+          const confirmation = confirm(
+            "Are you sure you want to delete this comment?"
+          );
+          if (confirmation) {
+            deleteComment(commentId);
+          }
+        }
+
+        window.deleteComment = function (commentId) {
+          // Make deleteComment a global function
+          const productId = "{{ customer_product.product_ID }}";
+          const url = `/customer_product/${productId}/delete_comment/${commentId}`;
+          fetch(url, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                location.reload(); // Reload the page upon successful deletion
+              } else {
+                console.error("Failed to delete comment");
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        };
+      });
+
+      function attachDeleteEvent(button) {
+        button.addEventListener("click", function (event) {
+          const commentId = event.currentTarget.dataset.commentId;
+          const confirmation = confirm(
+            "Are you sure you want to delete this comment?"
+          );
+          if (confirmation) {
+            deleteComment(commentId);
+          }
+        });
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("addReportButton")
+          .addEventListener("click", function () {
+            var reportFormContainer = document.getElementById(
+              "ReportFormContainer"
+            );
+            reportFormContainer.style.display =
+              reportFormContainer.style.display === "none" ? "block" : "none";
+          });
+
+        document
+          .getElementById("reportForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+            var content = document.getElementById("reportContent").value;
+            var productId = "{{ customer_product.product_ID }}";
+            var url = "/customer_product/" + productId + "/add_report";
+            fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ content: content }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  location.reload(); // Reload the page upon successful comment submission
+                } else {
+                  console.error("Error:", data.error);
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          });
+      });
     </script>
-</body>
+  </body>
 </html>
