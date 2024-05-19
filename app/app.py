@@ -980,7 +980,7 @@ def confirm_purchase():
     insufficient_balance = False
     totalprice = 0
     for item in available:
-        totalprice += item["price"]
+        totalprice += item["price"] * item['amount']
     if totalprice > balance:
         insufficient_balance = True
 
