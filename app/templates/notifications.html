@@ -92,8 +92,7 @@
               <i class="bi bi-person"></i>
             </button>
           </form>
-          {% endif %}
-          <!-- Balance Button -->
+          {% endif %} {% if role != 'admin' %}
           <form action="{{ url_for('balance') }}" method="get">
             <button
               class="btn btn-outline-light me-2"
@@ -103,6 +102,7 @@
               <i class="bi bi-wallet2"></i>
             </button>
           </form>
+          {% endif %}
           <!-- Logout button -->
           <form action="{{ url_for('logout') }}" method="get">
             <button

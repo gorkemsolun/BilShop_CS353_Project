@@ -1226,16 +1226,12 @@ def business_past_orders():
             (item["product_ID"], "shipped"),
         )
         purchases = cursor.fetchall()
-        for purchase in purchases: 
+        for purchase in purchases:
             purchase["title"] = item["title"]
             purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
     past = True
-    return render_template(
-        "business_orders.html",
-        purchaseinfo=purchaseinfo,
-        past = past
-    )
+    return render_template("business_orders.html", purchaseinfo=purchaseinfo, past=past)
 
 
 # The orders received by the business
@@ -1256,13 +1252,13 @@ def business_active_orders():
             (item["product_ID"], "shipped"),
         )
         purchases = cursor.fetchall()
-        for purchase in purchases: 
+        for purchase in purchases:
             purchase["title"] = item["title"]
             purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
-        
+
     past = False
-    return render_template("business_orders.html", purchaseinfo=purchaseinfo, past = past)
+    return render_template("business_orders.html", purchaseinfo=purchaseinfo, past=past)
 
 
 @app.route("/update_purchase_status/<product_ID>/<user_ID>/<title>", methods=["POST"])
@@ -1271,16 +1267,19 @@ def update_purchase_status(product_ID, user_ID, title):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         "UPDATE Purchase_Information SET purchase_status = %s WHERE product_ID = %s AND user_ID = %s",
-        ('shipped', product_ID, user_ID),
+        ("shipped", product_ID, user_ID),
     )
     mysql.connection.commit()
-    #Notify the user
+    # Notify the user
     notification_ID = (
-                get_next_ID_notification()
-            )  # Get the next available notification ID
+        get_next_ID_notification()
+    )  # Get the next available notification ID
 
     notification_title = "Update on Your Order"
-    notification_text = "The status of your order for the item \"%s\" has been updated to \"shipped\"." % (title)
+    notification_text = (
+        'The status of your order for the item "%s" has been updated to "shipped".'
+        % (title)
+    )
 
     cursor.execute(
         "INSERT INTO Notification (notification_title, notification_text, notification_date, user_ID, notification_ID) VALUES (%s, %s, %s, %s, %s)",
@@ -1290,7 +1289,7 @@ def update_purchase_status(product_ID, user_ID, title):
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             user_ID,
             notification_ID,
-        )
+        ),
     )
     mysql.connection.commit()
     return redirect(url_for("business_active_orders"))
@@ -1947,24 +1946,22 @@ def admin_user_report():
                     """
             cursor.execute(
                 query,
-                (
-                    reported_user_ID,
-                ),
+                (reported_user_ID,),
             )
             mysql.connection.commit()
-            message="User banned"
+            message = "User banned"
 
         elif action == "dismiss":
             query = "UPDATE Report SET report_status = 'Resolved' WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
-            message="Report dismissed"
+            message = "Report dismissed"
 
         elif action == "delete":
             query = "DELETE FROM Report WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
-            message="Report deleted"
+            message = "Report deleted"
 
     cursor.execute(
         "SELECT * FROM Report WHERE report_status='Under Review' ORDER BY report_id"
@@ -1977,7 +1974,10 @@ def admin_user_report():
     solved_reports = cursor.fetchall()
 
     return render_template(
-        "admin_user_report.html", reports=reports, solved_reports=solved_reports, message=message
+        "admin_user_report.html",
+        reports=reports,
+        solved_reports=solved_reports,
+        message=message,
     )
 
 
@@ -1985,7 +1985,7 @@ def admin_user_report():
 @app.route("/admin_system_report", methods=["GET", "POST"])
 def admin_system_report():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    
+
     query = "SELECT * FROM MostSoldItemPerCategory"
     cursor.execute(query)
     popular_products_category = cursor.fetchall()
@@ -2038,11 +2038,20 @@ def admin_system_report():
                     ) AS max_purchases_table
                 )
             """
-    
+
     cursor.execute(query)
     complex_query_2 = cursor.fetchall()
 
-    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business, complex_query_1=complex_query_1, complex_query_2=complex_query_2)
+    return render_template(
+        "admin_system_report.html",
+        popular_products_category=popular_products_category,
+        active_customers=active_customers,
+        popular_products=popular_products,
+        unresolved_return_requests=unresolved_return_requests,
+        total_sales_business=total_sales_business,
+        complex_query_1=complex_query_1,
+        complex_query_2=complex_query_2,
+    )
 
 
 # TODO: Explain and fix the function
