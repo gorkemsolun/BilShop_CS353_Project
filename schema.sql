@@ -1113,19 +1113,19 @@ JOIN
 GROUP BY 
     b.company_name;
 
-CREATE VIEW PopularProducts AS
+CREATE VIEW TotalSalesProducts AS
 SELECT 
     p.product_ID,
     p.title AS product_name,
-    COUNT(pi.purchase_ID) AS total_purchases
+    SUM(pi.amount) AS total_purchased_amount
 FROM 
     Product p
 JOIN 
     Purchase_Information pi ON p.product_ID = pi.product_ID
 GROUP BY 
-    p.product_ID
+    p.product_ID, p.title
 ORDER BY 
-    total_purchases DESC;
+    total_purchased_amount DESC;
 
 CREATE VIEW ActiveCustomers AS
 SELECT 
