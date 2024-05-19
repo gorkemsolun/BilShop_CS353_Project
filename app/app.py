@@ -1264,15 +1264,15 @@ def add_comment(product_ID):
         return jsonify({"success": False, "error": "Content is required"}), 400
 
     try:
-        cursor.execute("SELECT name FROM User WHERE user_ID = %s", (session['userID'],))
+        cursor.execute("SELECT name FROM User WHERE user_ID = %s", (session['user_ID'],))
         user = cursor.fetchone()
         if not user:
             return jsonify({"success": False, "error": "User not found"}), 404
         username = user['name']
-        comment_ID = get_next_id_comment()  # Ensure this function generates the next comment ID correctly
+        comment_ID = get_next_ID_comment()  # Ensure this function generates the next comment ID correctly
         cursor.execute(
             "INSERT INTO Comment (comment_ID, user_ID, product_ID, text) VALUES (%s, %s, %s, %s)",
-            (comment_ID, session['userID'], product_ID, content)
+            (comment_ID, session['user_ID'], product_ID, content)
         )
         mysql.connection.commit()
         return jsonify({"success": True, "username": username})
@@ -1309,7 +1309,7 @@ def delete_product(product_ID):
 def delete_comment(product_ID, comment_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Check if the comment exists and belongs to the current user
-    cursor.execute("SELECT * FROM Comment WHERE comment_ID = %s AND user_ID = %s", (comment_ID, session['userID']))
+    cursor.execute("SELECT * FROM Comment WHERE comment_ID = %s AND user_ID = %s", (comment_ID, session['user_ID']))
     comment = cursor.fetchone()
 
     if comment:
@@ -1368,7 +1368,7 @@ def add_report(product_ID):
             return jsonify({"success": False, "error": "Content is required"}), 400
 
         # Retrieve user_ID from the session
-        user_ID = session.get('userID')
+        user_ID = session.get('user_ID')
 
         if user_ID is None:
             return jsonify({"success": False, "error": "User session not found"}), 400
@@ -1385,9 +1385,9 @@ def add_report(product_ID):
         # Insert report into the database
         report_ID = generate_report_id()  # Assuming this function generates a unique report ID
         cursor.execute(
-            "INSERT INTO Report (report_ID, date, description, product_ID, reported_user_ID, user_ID, report_status) "
+            "INSERT INTO Report (report_ID, report_date, report_description, product_ID, reported_user_ID, user_ID, report_status) "
             "VALUES (%s, NOW(), %s, %s, %s, %s, %s)",
-            (report_ID, report_content, product_ID, seller_user_ID, user_ID, 'Pending')
+            (report_ID, report_content, product_ID, seller_user_ID, user_ID, 'Under Review'))
         # Commit the transaction
         mysql.connection.commit()
         cursor.close()
@@ -1399,69 +1399,6 @@ def add_report(product_ID):
         logging.error(f"Error adding report: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-# Called when a user adds a comment to a product
-# The comment is added to the database
-# The comment is associated with the current user and the product
-@app.route("/customer_product/<product_ID>/add_comment", methods=["POST"])
-def add_comment(product_ID):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    content = request.json.get("content")
-    if not content:
-        return jsonify({"success": False, "error": "Content is required"}), 400
-
-    try:
-        cursor.execute(
-            "SELECT name FROM User WHERE user_ID = %s", (session["user_ID"],)
-        )
-        user = cursor.fetchone()
-        if not user:
-            return jsonify({"success": False, "error": "User not found"}), 404
-
-        username = user["name"]
-        comment_ID = (
-            get_next_ID_comment()
-        )  # Ensure this function generates the next comment ID correctly
-        cursor.execute(
-            "INSERT INTO Comment (comment_ID, user_ID, product_ID, text) VALUES (%s, %s, %s, %s)",
-            (comment_ID, session["user_ID"], product_ID, content),
-        )
-
-        # Commit the transaction
-        mysql.connection.commit()
-        cursor.close()
-        return jsonify({"success": True}), 200
-
-    except Exception as e:
-        # Rollback the transaction in case of any error
-        mysql.connection.rollback()
-        logging.error(f"Error adding comment: {str(e)}")
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-
-@app.route(
-    "/customer_product/<product_ID>/delete_comment/<comment_ID>", methods=["DELETE"]
-)
-def delete_comment(product_ID, comment_ID):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-
-    # Check if the comment exists and belongs to the current user
-    cursor.execute(
-        "SELECT * FROM Comment WHERE comment_ID = %s AND user_ID = %s",
-        (comment_ID, session["user_ID"]),
-    )
-    comment = cursor.fetchone()
-
-    if comment:
-        # Delete the comment
-        cursor.execute("DELETE FROM Comment WHERE comment_ID = %s", (comment_ID,))
-        mysql.connection.commit()
-        return jsonify({"success": True}), 200
-    else:
-        return (
-            jsonify({"success": False, "error": "Comment not found or unauthorized"}),
-            404,
-        )
 
 
 # This page will be used to show the business product details and the business product picture
