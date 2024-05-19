@@ -1229,8 +1229,8 @@ def business_past_orders():
             "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status = %s",
             (item["product_ID"], "shipped"),
         )
-        purchase = cursor.fetchone()
-        if purchase:
+        purchases = cursor.fetchall()
+        for purchase in purchases: 
             purchase["title"] = item["title"]
             purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
@@ -1259,11 +1259,12 @@ def business_active_orders():
             "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status <> %s",
             (item["product_ID"], "shipped"),
         )
-        purchase = cursor.fetchone()
-        if purchase:
+        purchases = cursor.fetchall()
+        for purchase in purchases: 
             purchase["title"] = item["title"]
             purchase["cover_picture"] = item["cover_picture"]
             purchaseinfo.append(purchase)
+        
     past = False
     return render_template("business_orders.html", purchaseinfo=purchaseinfo, past = past)
 
@@ -1291,7 +1292,7 @@ def update_purchase_status(product_ID, user_ID, title):
             notification_title,
             notification_text,
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            session["user_ID"],
+            user_ID,
             notification_ID,
         )
     )
