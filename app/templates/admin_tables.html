@@ -1,22 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Report Panel</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <!-- Reference Bootstrap Icons library -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='styles/test_tables.css') }}"
+      href="{{ url_for('static', filename='styles/admin_product.css') }}"
     />
-  </head>
-  <body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        h1 {
+          color: white
+        }
+
+        nav ul li {
+            margin: 0;
+        }
+
+        nav ul li.selected a {
+            background-color: #111;
+        }
+
+        nav ul li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            background-color: #111;
+        }
+
+        .content {
+            padding: 20px;
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* Specific styles for each section */
+        .userreports {
+            background-color: #f9f9f9;
+        }
+
+        .systemreports {
+            background-color: #e9e9e9;
+        }
+
+        .services {
+            background-color: #d9d9d9;
+        }
+
+        .blacklist {
+            background-color: #c9c9c9;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            color:white;
+            padding: 8px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/admin_system_report">System Reports</a></li>
+                <li><a href="/admin_user_report">User Reports</a></li>
+                <li><a href="/tables">Services</a></li>
+                <li><a href="/admin_blacklist">Blacklist</a></li>
+            </ul>
+        </nav>
+    </header>
     <div class="container">
       <div class="table-container">
-        <h1>TABLES</h1>
-        <hr />
-        <!-- User Table -->
         <h1 class="heading">USER</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
             <th>name</th>
@@ -57,7 +165,7 @@
       <!-- Customer Table -->
       <div class="table-container">
         <h1 class="heading">CUSTOMER</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
             <th>balance</th>
@@ -76,7 +184,7 @@
       <!-- Business Table -->
       <div class="table-container">
         <h1 class="heading">BUSINESS</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
             <th>rating</th>
@@ -103,7 +211,7 @@
       <!-- Admin Table -->
       <div class="table-container">
         <h1 class="heading">ADMIN</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
           </tr>
@@ -118,7 +226,7 @@
       <!-- Product Table -->
       <div class="table-container">
         <h1 class="heading">PRODUCT</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>product_ID</th>
             <th>title</th>
@@ -153,7 +261,7 @@
       <!-- Product_Picture Table -->
       <div class="table-container">
         <h1 class="heading">PRODUCT PICTURE</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>product_ID</th>
             <th>picture</th>
@@ -170,7 +278,7 @@
       <!-- Owns Table -->
       <div class="table-container">
         <h1 class="heading">OWNS</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
             <th>product_ID</th>
@@ -189,7 +297,7 @@
       <!-- Wishes Table -->
       <div class="table-container">
         <h1 class="heading">WISHES</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
             <th>product_ID</th>
@@ -206,7 +314,7 @@
       <!-- Puts_On_Cart Table -->
       <div class="table-container">
         <h1 class="heading">PUTS ON CART</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
             <th>product_ID</th>
@@ -225,7 +333,7 @@
       <!-- Purchase_Information Table -->
       <div class="table-container">
         <h1 class="heading">PURCHASE INFORMATION</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>purchase_ID</th>
             <th>status</th>
@@ -248,7 +356,7 @@
       <!-- Return_Request_Information Table -->
       <div class="table-container">
         <h1 class="heading">RETURN REQUEST INFORMATION</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>return_ID</th>
             <th>date</th>
@@ -271,7 +379,7 @@
       <!-- Has_Return_Request Table -->
       <div class="table-container">
         <h1 class="heading">HAS RETURN REQUEST</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>return_ID</th>
             <th>product_ID</th>
@@ -290,7 +398,7 @@
       <!-- Report Table -->
       <div class="table-container">
         <h1 class="heading">REPORT</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>report_ID</th>
             <th>date</th>
@@ -321,7 +429,7 @@
       <!-- Blacklists Table -->
       <div class="table-container">
         <h1 class="heading">BLACKLISTS</h1>
-        <table>
+        <table class="table table-bordered">
           <tr>
             <th>user_ID</th>
             <th>report_ID</th>
@@ -339,5 +447,5 @@
         </table>
       </div>
     </div>
-  </body>
+</body>
 </html>

@@ -1,15 +1,17 @@
 body {
-  background-color: #222; /* Dark background */
-  color: #fff; /* White text for better readability */
+  background-color: #222; // Dark
+  color: #fff; // White
   font-family: sans-serif;
 }
 
 .container {
   margin-top: 20px;
+  color: #fff; // White
+  padding: 20px;
 }
 
 .customer_product-container {
-  background-color: #333; /* Darker container background */
+  background-color: #333; // Dark
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
@@ -26,23 +28,22 @@ body {
   margin-bottom: 10px;
 }
 
-/* Adjustments for the filter section */
 .filter-section {
-  background-color: #333;
+  background-color: #333; // Dark
   padding: 20px;
   border-radius: 10px;
   margin-right: 20px;
-  margin-left: 20px; /* Adjusted margin for the left */
+  margin-left: 20px;
 }
 
-/* Adjustments for the navbar icons */
 .navbar-brand {
   font-size: 40px;
 }
 
 .navbar-nav .nav-link {
-  margin-right: 10px; /* Increased margin for the icons */
+  margin-right: 10px;
 }
+
 .btn-outline-light {
   border: 0;
 }

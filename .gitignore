@@ -1,3 +1,4 @@
 *.yaml
 !/yaml/mac/docker-compose.yaml
 !/yaml/windows/docker-compose.yaml
+.idea

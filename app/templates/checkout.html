@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Checkout</title>
@@ -14,9 +14,9 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='styles/checkout.css') }}"
     />
-</head>
-<body>
- <nav class="navbar navbar-dark bg-dark">
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
         <div class="d-flex">
@@ -40,8 +40,8 @@
               <i class="bi bi-person"></i>
             </button>
           </form>
-            <!-- Balance Button -->
-            <form action="{{ url_for('balance') }}" method="get">
+          <!-- Balance Button -->
+          <form action="{{ url_for('balance') }}" method="get">
             <button
               class="btn btn-outline-light me-2"
               type="submit"
@@ -49,7 +49,7 @@
             >
               <i class="bi bi-wallet2"></i>
             </button>
-                </form>
+          </form>
           <!-- Logout button -->
           <form action="{{ url_for('logout') }}" method="get">
             <button
@@ -65,62 +65,272 @@
     </nav>
 
     <div class="container mt-3">
-        <div class="row">
-            <!-- Title -->
-            <div class="col-md-12">
-                <h1 class="checkout-title">Checkout</h1>
-            </div>
-            <!-- Product listings -->
-            <div class="col-md-9" id="productListings">
-                <div class="row">
-                    {% if cart %}
-                        {% for customer_product in cart %}
-                            <div class="col-md-4">
-                                <div class="customer_product-container">
-                                    <div class="customer_product-title">
-                                        {{ customer_product.title }}
-                                    </div>
-                                    <div class="customer_product-price">
-                                        {{ customer_product.price }}
-                                    </div>
-                                    <div class="customer_product-amount">
-                                      Amount: {{ customer_product.amount }}
-                                    </div>
-                                    <!-- Add other customer product details as needed -->
-                                    <a href="/customer_product/{{ customer_product.product_ID }}" class="btn btn-primary">View Product</a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                        <!-- Total Price -->
-                        <div class="col-md-12 mt-3">
-                            <h2>Total Price: ${{ total_price }}</h2>
-                        </div>
-                        <!-- Continue to Payment button -->
-                        <div class="col-md-12 text-center mt-3">
-                            <form action="/continue_to_payment" method="post">
-                                <button type="submit" class="btn btn-success">Continue to Payment</button>
-                            </form>
-                        </div>
-                        <!-- Shopping Cart -->
-                        <div class="col-md-12 text-center mt-3">
-                          <form action="{{ url_for('shopping_cart') }}" method="get">
-                            <button
-                            class="btn btn-danger"
-                            type="submit"
-                            title="Cart"
-                            >
-                            Back to Cart
-                            </button>
-                        </form>  
-                        </div>
-                    {% else %}
-                        <div class="col-md-12">
-                            <p>Your cart is empty.</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+      <div class="row">
+        <!-- Title -->
+        <div class="col-md-12">
+          <h1 class="checkout-title">Checkout</h1>
         </div>
+        <!-- Product listings -->
+        <div class="col-md-9" id="productListings">
+          <div class="row">
+            {% if cart %} {% for customer_product in cart %}
+            <div class="col-md-4">
+              <div class="customer_product-container">
+                <div class="customer_product-title">
+                  {{ customer_product.title }}
+                </div>
+                <div class="customer_product-price">
+                  {{ customer_product.price }}
+                </div>
+                <div class="customer_product-amount">
+                  Amount: {{ customer_product.amount }}
+                </div>
+                <!-- Add other customer product details as needed -->
+                <a
+                  href="/customer_product/{{ customer_product.product_ID }}"
+                  class="btn btn-primary"
+                  >View Product</a
+                >
+              </div>
+            </div>
+            {% endfor %}
+            <!-- Total Price -->
+            <div class="col-md-12 mt-3">
+              <h2>Total Price: ${{ total_price }}</h2>
+            </div>
+
+            <div id="currentAddress">
+              <h2>Current Address</h2>
+
+              <ul>
+                {% if address.country is not none %} {% for key, value in
+                address.items() %}
+                <li>
+                  <strong>{{ key.replace('_', ' ').capitalize() }}:</strong> {{
+                  value }}
+                </li>
+                {% endfor %} {% endif %}
+              </ul>
+              <button
+                id="changeAddressButton"
+                class="btn btn-warning"
+                type="button"
+              >
+                Change Address
+              </button>
+            </div>
+
+            <!-- Address Form -->
+            <div id="addressForm" class="address-form">
+              <h2>Enter Your Address</h2>
+              <form id="addressform" action="/enteraddress" method="post">
+                <div class="mb-3">
+                  <label for="country" class="form-label">Country</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="country"
+                    name="country"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="city" class="form-label">City</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="city"
+                    name="city"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="state" class="form-label">State</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="state"
+                    name="state"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="zip" class="form-label">ZIP Code</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="zip"
+                    name="zip"
+                    pattern="\d*"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="building" class="form-label">Building</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="building"
+                    name="building"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="street" class="form-label">Street</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="street"
+                    name="street"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="address_description" class="form-label"
+                    >Address Description</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="address_description"
+                    name="address_description"
+                  ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+            <div class="col-md-12 text-center mt-3">
+              <button type="submit" id="back" class="btn btn-danger">
+                Back
+              </button>
+            </div>
+
+            <!-- Continue to Payment button -->
+            <div class="col-md-12 text-center mt-3">
+              <form
+                id="paymentForm"
+                action="/confirm_purchase"
+                method="post"
+              >
+                <button type="submit" class="btn btn-success">
+                  Continue to Payment
+                </button>
+              </form>
+            </div>
+            <!-- Shopping Cart -->
+            <div class="col-md-12 text-center mt-3">
+              <form action="{{ url_for('shopping_cart') }}" method="get">
+                <button class="btn btn-danger" type="submit" title="Cart">
+                  Back to Cart
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <div class="col-md-12">
+              <p>Your cart is empty.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </div>
-</body>
+    <script>
+      var addressnamespace = { addressExists: false };
+      document.addEventListener("DOMContentLoaded", function () {
+        var address = {{ address | tojson | safe }}; // Get the address from the server as a JSON object
+        console.log(address);
+        // Check if the address is empty or null
+        if (!address.city) {
+          document.getElementById("addressform").style.display = "block";
+          document.getElementById("back").style.display = "block";
+          document.getElementById("currentAddress").style.display = "none";
+          addressnamespace.addressExists = false;
+        } else {
+          document.getElementById("addressform").style.display = "none";
+          document.getElementById("back").style.display = "none";
+          document.getElementById("currentAddress").style.display = "block";
+          addressnamespace.addressExists = true;
+        }
+      });
+
+      // Update the address value if needed
+      function updateAddress(newAddress) {
+        address = newAddress;
+
+        console.log("Updated address:", address);
+        console.log(typeof address);
+        // Send the updated address back to the server
+        fetch("/enteraddress", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(address),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            document.getElementById("addressform").style.display = "none";
+            document.getElementById("back").style.display = "none";
+            document.getElementById("currentAddress").style.display = "block";
+            addressnamespace.addressExists = true;
+
+            // Update the address display
+            var addressList = document.querySelector("#currentAddress ul");
+            addressList.innerHTML = "";
+            for (var key in address) {
+              if (address.hasOwnProperty(key)) {
+                var listItem = document.createElement("li");
+                listItem.innerHTML =
+                  "<strong>" +
+                  key
+                    .replace("_", " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase()) +
+                  ":</strong> " +
+                  address[key];
+                addressList.appendChild(listItem);
+              }
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      // Handle form submission
+      document
+        .getElementById("addressform")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var formData = new FormData(this);
+          var addressData = {};
+          formData.forEach((value, key) => (addressData[key] = value));
+          updateAddress(addressData);
+        });
+
+      // Show address form when the Change Address button is clicked
+      document
+        .getElementById("changeAddressButton")
+        .addEventListener("click", function () {
+          document.getElementById("addressform").style.display = "block";
+          document.getElementById("back").style.display = "block";
+          document.getElementById("currentAddress").style.display = "none";
+        });
+
+      // Handle the payment form submission
+      document
+        .getElementById("paymentForm")
+        .addEventListener("submit", function (event) {
+          if (!addressnamespace.addressExists) {
+            event.preventDefault();
+            alert("Please provide an address");
+          }
+        });
+      document
+        .getElementById("back")
+        .addEventListener("click", function (event) {
+          document.getElementById("addressform").style.display = "none";
+          document.getElementById("back").style.display = "none";
+          document.getElementById("currentAddress").style.display = "block";
+        });
+    </script>
+  </body>
 </html>

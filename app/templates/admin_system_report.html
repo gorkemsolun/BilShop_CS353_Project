@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Report Panel</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <!-- Reference Bootstrap Icons library -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/admin_product.css') }}"
+    />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        h1 {
+          color: white
+        }
+
+        nav ul li {
+            margin: 0;
+        }
+
+        nav ul li.selected a {
+            background-color: #111;
+        }
+
+        nav ul li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            background-color: #111;
+        }
+
+        .content {
+            padding: 20px;
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* Specific styles for each section */
+        .userreports {
+            background-color: #f9f9f9;
+        }
+
+        .systemreports {
+            background-color: #e9e9e9;
+        }
+
+        .services {
+            background-color: #d9d9d9;
+        }
+
+        .blacklist {
+            background-color: #c9c9c9;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            color:white;
+            padding: 8px;
+            text-align: left;
+        }
+        .container {
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .report {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            color: white; /* Set text color to white */
+            background-color: #333; /* Set background color for better contrast */
+        }
+        .report-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/admin_system_report">System Reports</a></li>
+                <li><a href="/admin_user_report">User Reports</a></li>
+                <li><a href="/tables">Services</a></li>
+                <li><a href="/admin_blacklist">Blacklist</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container mt-4">
+        <div class="row">
+            <h1>System Reports</h1>
+            <div class="container mt-4">
+                <div class="row">
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report1')">Toggle Report 1</button>
+                    <div class="report" id="report1" textcolor="white">
+                        Report 1 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report2')">Toggle Report 2</button>
+                    <div class="report" id="report2">
+                        Report 2 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report3')">Toggle Report 3</button>
+                    <div class="report" id="report3">
+                        Report 3 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report4')">Toggle Report 4</button>
+                    <div class="report" id="report4">
+                        Report 4 Content
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="report-button" onclick="toggleReport('report5')">Toggle Report 5</button>
+                    <div class="report" id="report5">
+                        Report 5 Content
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleReport(reportId) {
+            var report = document.getElementById(reportId);
+            if (report.style.display === 'none') {
+                report.style.display = 'block';
+            } else {
+                report.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var reports = document.querySelectorAll('.report');
+            reports.forEach(function(report) {
+                report.style.display = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>
