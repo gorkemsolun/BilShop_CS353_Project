@@ -187,7 +187,18 @@ CREATE TABLE
         primary key (notification_ID),
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
     );
-
+DELIMITER $$
+CREATE TRIGGER update_product_status
+AFTER UPDATE ON Owns
+FOR EACH ROW
+BEGIN
+IF NEW.amount = 0 THEN
+UPDATE Product
+SET product_status = 'Out of stock'
+WHERE product_ID = NEW.product_ID;
+END IF;
+END $$
+DELIMITER ;
 -- Inserting data into User table
 INSERT INTO
     User (
