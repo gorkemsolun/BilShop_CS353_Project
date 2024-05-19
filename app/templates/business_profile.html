@@ -42,16 +42,6 @@
         <!-- TODO: href here should be designed so that it is suitable for every user type-->
         <a class="navbar-brand" href="/business_main_page"><b>BilShop</b></a>
         <div class="d-flex">
-          <!-- Shopping Cart -->
-          <form action="{{ url_for('shopping_cart') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Cart"
-            >
-              <i class="bi bi-cart3"></i>
-            </button>
-          </form>
           <!-- Notifications button -->
           <form action="{{ url_for('notifications') }}" method="get">
             <button

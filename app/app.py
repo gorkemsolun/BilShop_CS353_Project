@@ -464,8 +464,8 @@ def notifications():
         (session["user_ID"], per_page, offset),
     )
     notifications = cursor.fetchall()
-
-    return render_template("notifications.html", notifications=notifications, page=page)
+    role = session['role']
+    return render_template("notifications.html", notifications=notifications, page=page, role= role)
 
 
 # TODO: Make this function work
@@ -991,6 +991,99 @@ def purchase_summary():
         balance=purchase_result["balance"],
     )
 
+@app.route("/customer_active_orders", methods = ['GET'])
+def customer_active_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status <> %s",
+        (session['user_ID'], "shipped")
+    )
+    purchaseinfo = cursor.fetchall()
+    return render_template(
+        "customer_orders.html",
+        purchaseinfo = purchaseinfo
+    )
+
+@app.route("/customer_past_orders", methods = ['GET'])
+def customer_past_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
+        (session['user_ID'], "shipped")
+    )
+    purchaseinfo = cursor.fetchall()
+    return render_template(
+        "customer_orders.html",
+        purchaseinfo = purchaseinfo
+    )
+
+# The orders received and shipped by the business
+@app.route("/business_past_orders", methods = ['GET'])
+def business_past_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all products of the business
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s",
+        (session["user_ID"],),
+    )
+    products = cursor.fetchall()
+    purchaseinfo = []
+    for item in products:
+        cursor.execute(
+            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status = %s",
+            (item['product_ID'], "shipped")
+        )
+        purchase = cursor.fetchall()
+        if purchase:
+            purchaseinfo.append(purchase)
+    
+    return render_template(
+        "business_past_orders.html",
+        purchaseinfo = purchaseinfo
+    )
+
+# The orders received by the business
+@app.route("/business_active_orders", methods = ['GET'])
+def business_active_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all products of the business
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s",
+        (session["user_ID"], ),
+    )
+    products = cursor.fetchall()
+    purchaseinfo = []
+    for item in products:
+        cursor.execute(
+            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status <> %s",
+            (item['product_ID'], "shipped")
+        )
+        purchase = cursor.fetchall()
+        if purchase:
+            purchaseinfo.append(purchase)
+
+    
+    return render_template(
+        "business_active_orders.html",
+        purchaseinfo = purchaseinfo
+    )
+
+@app.route("/update_purchase_status/<newstatus>/<product_ID>", methods = ['POST'])
+def update_purchase_status(newstatus, product_ID, user_ID):
+  
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "UPDATE Purchase_Information SET purchase_status = %s WHERE product_ID = %s AND user_ID = %s",
+        (newstatus, product_ID, user_ID)
+    )
+    mysql.connection.commit()
+    #TODO send notification
+    return redirect(url_for("business_active_orders"))
+    
 
 # Profile page for the customer
 # This page will be used to show the customer details
