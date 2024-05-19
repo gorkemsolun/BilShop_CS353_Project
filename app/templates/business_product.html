@@ -80,6 +80,11 @@
           <h1>{{ business_product.title }}</h1>
           <p>{{ business_product.description }}</p>
           <p>Price: ${{ business_product.price }}</p>
+          <a
+            href="/business_product_edit/{{ business_product.product_ID }}"
+            class="btn btn-primary"
+            >Edit</a
+          >
         </div>
       </div>
       <div class="comments-section mt-4">

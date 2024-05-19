@@ -692,6 +692,84 @@ def business_product_create():
     return render_template("business_product_create.html", message=message)
 
 
+# This function is used to edit a product for the business
+@app.route("/business_product_edit/<product_ID>", methods=["GET", "POST"])
+def business_product_edit(product_ID):
+    message = ""
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
+    )
+    product = cursor.fetchone()
+
+    if request.method == "POST":
+        required_fields = ["title", "price", "amount", "category"]
+
+        if all(field in request.form for field in required_fields):
+            title = request.form["title"]
+            price = request.form["price"]
+            amount = request.form["amount"]
+            category = request.form["category"]
+            status = "not_sold"
+
+            query = "UPDATE Product SET title = %s, price = %s, category = %s, product_status = %s"
+            values = [title, price, category, status]
+
+            optional_fields = [
+                "product_description",
+                "cover_picture",
+                "proportions",
+                "mass",
+                "color",
+                "product_date",
+            ]
+
+            for field in optional_fields:
+                if field == "date" and field in request.form and request.form[field]:
+                    query += f", {field} = %s"
+                    date = datetime.strptime(request.form[field], "%Y-%m-%dT%H:%M")
+                    values.append(date)
+                elif field in request.form and request.form[field]:
+                    query += f", {field} = %s"
+
+                    if field != "cover_picture":
+                        values.append(request.form[field])
+                    else:
+                        cover_picture = request.files["cover_picture"]
+                        cover_picture_binary_data = cover_picture.read()
+                        values.append(cover_picture_binary_data)
+
+            query += " WHERE product_ID = %s"
+            values.append(product_ID)
+
+            try:
+                cursor.execute(query, values)
+                cursor.execute(
+                    "UPDATE Owns SET amount = %s WHERE product_ID = %s",
+                    (int(amount), product_ID),
+                )
+                mysql.connection.commit()
+                flash("Product updated successfully!", "success")
+            except Exception as e:
+                flash(f"Error: {str(e)}", "danger")
+                mysql.connection.rollback()
+            cursor.close()
+        else:
+            message = "Please fill the required fields"
+            flash(message, "warning")
+        
+    # Get the product information from the database
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
+    )
+    product = cursor.fetchone()
+
+    return render_template(
+        "business_product_edit.html", product=product, message=message
+    )
+
+
 # TODO main page admin reports etc
 @app.route("/admin_main_page")
 def admin_main_page():
