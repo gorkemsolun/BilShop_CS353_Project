@@ -1938,6 +1938,19 @@ def admin_user_report():
                     report_description,
                 ),
             )
+            query = """
+                    DELETE P
+                    FROM Puts_On_Cart P
+                    JOIN Owns O ON O.product_ID = P.product_ID
+                    JOIN Blacklists B ON O.user_ID = B.user_ID
+                    WHERE B.user_ID = %s
+                    """
+            cursor.execute(
+                query,
+                (
+                    reported_user_ID,
+                ),
+            )
             mysql.connection.commit()
             message="User banned"
 
