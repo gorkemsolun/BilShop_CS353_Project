@@ -182,7 +182,7 @@ CREATE TABLE
         notification_image varchar(50) default null,
         notification_title varchar(50) not null,
         user_ID varchar(20) not null,
-        notification_text varchar(50) not null,
+        notification_text varchar(100) not null,
         notification_date timestamp not null,
         primary key (notification_ID),
         foreign key (user_ID) references User (user_ID) on delete cascade on update cascade
