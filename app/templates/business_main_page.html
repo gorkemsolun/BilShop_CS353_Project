@@ -168,8 +168,7 @@
             </div>
           </div>
         </div>
-
-        <!-- Product listings -->
+          <!-- Product listings -->
         <div class="col-md-9" id="productListings">
           <div class="row">
             {% for business_product in product_table %}
@@ -182,11 +181,11 @@
                   {{ business_product.price }}
                 </div>
                 <!-- Add other business product details as needed -->
-                <a
-                  href="/business_product/{{ business_product.product_ID }}"
-                  class="btn btn-primary"
-                  >View Product</a
-                >
+                <a href="/business_product/{{ business_product.product_ID }}" class="btn btn-primary">View Product</a>
+                <!-- Delete product button -->
+                <button class="btn btn-danger btn-delete-product" data-product-id="{{ business_product.product_ID }}">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
               </div>
             </div>
             {% endfor %}
@@ -253,7 +252,20 @@
             xhr.send(JSON.stringify({ search: searchInput }));
           });
       });
+      // Function to add event listeners to delete buttons
+      function addDeleteButtonListeners() {
+        document.querySelectorAll('.btn-delete-product').forEach(button => {
+          button.addEventListener('click', function(event) {
+            const productId = event.currentTarget.dataset.productId;
+            const confirmation = confirm('Are you sure you want to delete this product?');
+            if (confirmation) {
+              deleteProduct(productId);
+            }
+          });
+        });
+      }
 
+      // Update product listings with filtered products
       function updateProductListings(products) {
         var productListingsDiv = document.getElementById("productListings");
         productListingsDiv.innerHTML = ""; // Clear previous listings
@@ -263,23 +275,27 @@
           var productDiv = document.createElement("div");
           productDiv.className = "col-md-4";
           productDiv.innerHTML = `
-          <div class="business_product-container">
-            <div class="business_product-title">${business_product.title}</div>
-            <div class="business_product-price">${business_product.price}</div>
-            <!-- Add other business product details as needed -->
-            <div>
-                <a
-                  href="/business_product/${business_product.product_ID}"
-                  class="btn btn-primary"
-                  >View Product</a
-                >
+            <div class="business_product-container">
+              <div class="business_product-title">${business_product.title}</div>
+              <div class="business_product-price">${business_product.price}</div>
+              <!-- Add other business product details as needed -->
+              <div>
+                <a href="/business_product/${business_product.product_ID}" class="btn btn-primary">View Product</a>
+                <button class="btn btn-danger btn-delete-product" data-product-id="${business_product.product_ID}">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
             </div>
-          </div>
-        `;
+          `;
           productRow.appendChild(productDiv);
         });
         productListingsDiv.appendChild(productRow); // Append the row to the parent container
+
+        // Reattach event listeners to delete buttons
+        addDeleteButtonListeners();
       }
+
+      // Apply filter function
       function applyFilter() {
         var category = document.getElementById("category").value;
         var min_price = document.getElementById("min_price").value;
@@ -305,6 +321,30 @@
         };
         xhr.send();
       }
+
+      // Function to delete a product
+      function deleteProduct(productId) {
+        fetch(`/delete_product/${productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            // Reload the page upon successful deletion
+            location.reload();
+          } else {
+            console.error('Failed to delete product');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+
+      // Initial setup: attach event listeners to delete buttons
+      addDeleteButtonListeners();
     </script>
   </body>
 </html>

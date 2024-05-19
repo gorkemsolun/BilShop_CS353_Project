@@ -94,82 +94,76 @@
     </nav>
 
     <div class="container">
-      <div class="container me-2">
-        <div class="row">
-          <div class="col-md-6">
-            {% if product_picture is not none %}
-            <img
-              src="data:image/jpeg;base64,{{ product_picture }}"
-              alt="Product Picture"
-            />
-            {% endif %}
-          </div>
-          <div class="col-md-6">
-            <div>
-              <h1>{{ customer_product.title }}</h1>
-              <p>{{ customer_product.description }}</p>
-              <p>Price: ${{ customer_product.price }}</p>
-              <form id="addToCartForm">
-                <label for="amount">Amount:</label>
-                <select id="amount" name="amount">
-                  {% for i in range(1, 31) %}
-                  <option value="{{ i }}">{{ i }}</option>
-                  {% endfor %}
-                </select>
-                <br />
-                <input type="submit" value="Add to Cart" />
-              </form>
-              <div id="successMessage"></div>
+
+        <div class="container me-2">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="image-container">
+                        {% if product_picture is not none %}
+                            <img src="data:image/jpeg;base64,{{ product_picture }}" alt="Product Picture" class="product-image">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div>
+                        <h1>{{ customer_product.title }}</h1>
+                        <p>{{ customer_product.description }}</p>
+                        <p>Price: ${{ customer_product.price }}</p>
+                        <form id="addToCartForm">
+                            <label for="amount">Amount:</label>
+                            <select id="amount" name="amount">
+                                {% for i in range(1, 31) %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                            <br>
+                            <input type="submit" value="Add to Cart">
+                        </form>
+                        <div id="successMessage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Comment Section -->
+        <div class="row mt-4">
+        <div class="col-md-6">
+            <div id="commentsContainer">
+                {% for comment in comments %}
+                <div class="comment-container" data-comment-id="{{ comment.comment_ID }}">
+                    <div class="comment-text">
+                        <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+                    </div>
+                    {% if comment.user_ID == session['userID'] %}
+                    <button class="btn btn-outline-light me-2 btn-delete-comment" data-comment-id="{{ comment.comment_ID }}">
+                        <i class="bi bi-eraser-fill"></i> Delete
+                    </button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button id="addCommentButton" class="btn btn-outline-light me">
+                    <i class="bi bi-chat-fill"></i> Add Comment
+                </button>
+                <div id="commentFormContainer" class="mt-3" style="display:none;">
+                    <form id="commentForm" class="d-flex">
+                        <textarea class="form-control me-2" id="commentContent" name="content" rows="3" placeholder="Comment"></textarea>
+                        <button type="submit" class="btn btn-outline-light me"><i class="bi bi-send"></i></button>
+                    </form>
+                </div>
             </div>
           </div>
         </div>
-      </div>
-      <!-- Comment Section -->
-      <div class="comments-section">
-        <h3><b>comments</b></h3>
-        <div id="commentsContainer">
-          {% for comment in comments %}
-          <div class="comment-container">
-            <div
-              class="comment-text"
-              data-comment-id="{{ comment.comment_ID }}"
-            >
-              <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
-            </div>
-            {% if comment.user_ID == session['userID'] %}
-            <button
-              class="btn btn-outline-light me-2 btn-delete-comment"
-              data-comment-id="{{ comment.comment_ID }}"
-            >
-              <i class="bi bi-eraser-fill"></i> Delete
-            </button>
-            {% endif %}
-          </div>
-          {% endfor %}
+        <div class="col-md-6">
+                <button id="addReportButton" class="btn btn-outline-light me">
+                    <i class="bi bi-shield-lock-fill"></i> Add Report
+                </button>
+                <div id="ReportFormContainer" class="mt-3" style="display:none;">
+                    <form id="reportForm" class="d-flex">
+                        <textarea class="form-control me-2" id="reportContent" name="content" rows="3" placeholder="Report"></textarea>
+                        <button type="submit" id="submitReportButton" class="btn btn-outline-light me"><i class="bi bi-send"></i></button>
+                    </form>
+                </div>
         </div>
-        <button
-          id="addCommentButton"
-          class="btn btn-outline-light me"
-          type="button"
-          title="Add Comment"
-        >
-          <i class="bi bi-chat-fill"></i>
-        </button>
-        <div id="commentFormContainer" class="mt-3" style="display: none">
-          <form id="commentForm" class="d-flex">
-            <textarea
-              class="form-control me-2"
-              id="commentContent"
-              name="content"
-              rows="3"
-              placeholder="Comment"
-            ></textarea>
-            <button type="submit" class="btn btn-outline-light me">
-              <i class="bi bi-send"></i>
-            </button>
-          </form>
         </div>
-      </div>
     </div>
 
     <!-- var's should be let -->
@@ -211,48 +205,34 @@
             commentFormContainer.style.display === "none" ? "block" : "none";
         });
 
-      document
-        .getElementById("commentForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
-          var content = document.getElementById("commentContent").value;
-          var productId = "{{ customer_product.product_ID }}";
-          var url = "/customer_product/" + productId + "/add_comment";
-          fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ content: content }),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.success) {
-                var newComment = document.createElement("div");
-                newComment.classList.add("comment-container"); // Added container class
-                newComment.innerHTML = `
-                        <div class="comment-text">
-                            <p><strong>${data.username}:</strong> ${content}</p>
-                        </div>
-                        <button class="btn btn-outline-light me-2 btn-delete-comment" data-comment-id="${data.comment_id}"> <!-- Added data-comment-id -->
-                            <i class="bi bi-eraser-fill"></i> Delete
-                        </button>`;
-                document
-                  .getElementById("commentsContainer")
-                  .appendChild(newComment);
-                document.getElementById("commentContent").value = "";
-                document.getElementById("commentFormContainer").style.display =
-                  "none";
-              } else {
-                console.error("Error:", data.error);
-              }
+
+        document.getElementById('commentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var content = document.getElementById('commentContent').value;
+            var productId = '{{ customer_product.product_ID }}';
+            var url = '/customer_product/' + productId + '/add_comment';
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Reload the page upon successful comment submission
+                } else {
+                    console.error('Error:', data.error);
+                }
             })
             .catch((error) => {
               console.error("Error:", error);
             });
         });
-      document.addEventListener("DOMContentLoaded", () => {
-        const deleteButtons = document.querySelectorAll(".btn-delete-comment");
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const deleteButtons = document.querySelectorAll('.btn-delete-comment');
 
         deleteButtons.forEach((btn) => {
           btn.addEventListener("click", handleDeleteButtonClick);
@@ -268,30 +248,70 @@
           }
         }
 
-        function deleteComment(commentId) {
-          const productId = "{{ customer_product.product_ID }}";
-          const url = `/customer_product/${productId}/delete_comment/${commentId}`;
-          fetch(url, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .then((response) => {
-              if (response.ok) {
-                const commentElement = document.querySelector(
-                  `.comment-container[data-comment-id="${commentId}"]`
-                ); // Changed to .comment-container
-                commentElement.remove();
-              } else {
-                console.error("Failed to delete comment");
-              }
-            })
-            .catch((error) => {
-              console.error("Error:", error);
+            window.deleteComment = function(commentId) { // Make deleteComment a global function
+                const productId = '{{ customer_product.product_ID }}';
+                const url = `/customer_product/${productId}/delete_comment/${commentId}`;
+                fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload(); // Reload the page upon successful deletion
+                    } else {
+                        console.error('Failed to delete comment');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        function attachDeleteEvent(button) {
+            button.addEventListener('click', function(event) {
+                const commentId = event.currentTarget.dataset.commentId;
+                const confirmation = confirm('Are you sure you want to delete this comment?');
+                if (confirmation) {
+                    deleteComment(commentId);
+                }
             });
         }
-      });
+        document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('addReportButton').addEventListener('click', function() {
+        var reportFormContainer = document.getElementById('ReportFormContainer');
+        reportFormContainer.style.display = reportFormContainer.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('reportForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        var content = document.getElementById('reportContent').value;
+        var productId = '{{ customer_product.product_ID }}';
+        var url = '/customer_product/' + productId + '/add_report';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ content: content })
+        })
+        .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Reload the page upon successful comment submission
+                } else {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+});
+
+
     </script>
   </body>
 </html>
