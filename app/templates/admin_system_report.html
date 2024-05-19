@@ -229,13 +229,27 @@
                     </div>
                 </div>
                 <div class="row">
-                    <button class="report-button" onclick="toggleReport('report2')">Toggle Report 2</button>
+                    <button class="report-button" onclick="toggleReport('report2')">Complex Query 1</button>
                     <div class="report" id="report2">
-                        Report 2 Content
+                        <h2>Total Sales by Business</h2>
+                        <table id="total-sales-business">
+                            <tr>
+                                <th>Category</th>
+                                <th>Minimum Price</th>
+                                <th>Maximum Price</th>
+                            </tr>
+                            {% for sales in complex_query_1 %}
+                            <tr>
+                                <td>{{ sales.category }}</td>
+                                <td>{{ sales.min_price }}</td>
+                                <td>{{ sales.max_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
                     </div>
                 </div>
                 <div class="row">
-                    <button class="report-button" onclick="toggleReport('report3')">Toggle Report 3</button>
+                    <button class="report-button" onclick="toggleReport('report3')">Complex Query 2</button>
                     <div class="report" id="report3">
                         Report 3 Content
                     </div>

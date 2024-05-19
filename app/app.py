@@ -1973,7 +1973,19 @@ def admin_system_report():
     cursor.execute(query)
     active_customers = cursor.fetchall()
 
-    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business)
+    query = """ 
+                SELECT p.category,
+                MIN(p.price) AS min_price, 
+                MAX(p.price) AS max_price, 
+                (SELECT title FROM Product WHERE price = MIN(p.price) AND category = p.category) AS min_price_product,
+                (SELECT title FROM Product WHERE price = MAX(p.price) AND category = p.category) AS max_price_product
+                FROM Product p
+                GROUP BY p.category;
+            """
+    cursor.execute(query)
+    complex_query_1 = cursor.fetchall()
+
+    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business, complex_query_1=complex_query_1)
 
 
 # TODO: Explain and fix the function
