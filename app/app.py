@@ -957,6 +957,22 @@ def confirm_purchase():
             )
             mysql.connection.commit()
 
+            # update the balance of the business
+            cursor.execute(
+                "SELECT user_ID FROM Owns WHERE product_ID = %s",
+                (item['product_ID'],)
+            )
+
+            business= cursor.fetchone()
+            businessID = business['user_ID']
+            
+            cursor.execute(
+                "UPDATE Business SET balance = balance + %s WHERE user_ID = %s",
+                (total_price, businessID)
+            )
+            mysql.connection.commit()
+
+
         # finally update the balance of the customer
         balance -= totalprice
         cursor.execute(
@@ -1000,9 +1016,21 @@ def customer_active_orders():
         (session['user_ID'], "shipped")
     )
     purchaseinfo = cursor.fetchall()
+
+    for info in purchaseinfo:
+        cursor.execute(
+            "SELECT * FROM Product WHERE product_ID = %s",
+            (info['product_ID'],)
+        )
+        product = cursor.fetchone()
+        info['title'] = product['title']
+        info['cover_picture'] = product['cover_picture']
+
+    past = False
     return render_template(
         "customer_orders.html",
-        purchaseinfo = purchaseinfo
+        purchaseinfo = purchaseinfo,
+        past = past
     )
 
 @app.route("/customer_past_orders", methods = ['GET'])
@@ -1014,9 +1042,21 @@ def customer_past_orders():
         (session['user_ID'], "shipped")
     )
     purchaseinfo = cursor.fetchall()
+
+    for info in purchaseinfo:
+        cursor.execute(
+            "SELECT * FROM Product WHERE product_ID = %s",
+            (info['product_ID'],)
+        )
+        product = cursor.fetchone()
+        info['title'] = product['title']
+        info['cover_picture'] = product['cover_picture']
+
+    past = True
     return render_template(
         "customer_orders.html",
-        purchaseinfo = purchaseinfo
+        purchaseinfo = purchaseinfo,
+        past = past
     )
 
 # The orders received and shipped by the business
@@ -1036,13 +1076,15 @@ def business_past_orders():
             "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status = %s",
             (item['product_ID'], "shipped")
         )
-        purchase = cursor.fetchall()
+        purchase = cursor.fetchone()
         if purchase:
+            purchase['title'] = item['title']
+            purchase['cover_picture'] = item['cover_picture']
             purchaseinfo.append(purchase)
     
     return render_template(
         "business_past_orders.html",
-        purchaseinfo = purchaseinfo
+        purchaseinfo = purchaseinfo,
     )
 
 # The orders received by the business
@@ -1062,11 +1104,13 @@ def business_active_orders():
             "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status <> %s",
             (item['product_ID'], "shipped")
         )
-        purchase = cursor.fetchall()
+        purchase = cursor.fetchone()
         if purchase:
+            purchase['title'] = item['title']
+            purchase['cover_picture'] = item['cover_picture']
             purchaseinfo.append(purchase)
 
-    
+ 
     return render_template(
         "business_active_orders.html",
         purchaseinfo = purchaseinfo
