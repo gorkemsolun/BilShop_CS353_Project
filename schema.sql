@@ -1073,3 +1073,93 @@ VALUES
         'A product from your wishlist is now available: High Performance Laptop.',
         '2024-05-20 20:00:00'
     );
+
+-- VIEWS
+
+CREATE VIEW unresReturenReq AS
+SELECT
+    rr.return_ID,
+    rr.reason,
+    rr.return_request_status,
+    pi.purchase_ID
+FROM
+    Return_Request_Information rr
+JOIN
+    Purchase_Information pi ON rr.purchase_ID = pi.purchase_ID
+WHERE
+    rr.return_request_status != 'Approved';
+
+CREATE VIEW totSalesByBusiness AS
+SELECT 
+    b.company_name,
+    SUM(pi.total_price) AS total_sales
+FROM 
+    Business b
+JOIN 
+    Owns o ON b.user_ID = o.user_ID
+JOIN 
+    Product p ON o.product_ID = p.product_ID
+JOIN 
+    Purchase_Information pi ON p.product_ID = pi.product_ID
+GROUP BY 
+    b.company_name;
+
+CREATE VIEW PopularProducts AS
+SELECT 
+    p.product_ID,
+    p.title AS product_name,
+    COUNT(pi.purchase_ID) AS total_purchases
+FROM 
+    Product p
+JOIN 
+    Purchase_Information pi ON p.product_ID = pi.product_ID
+GROUP BY 
+    p.product_ID
+ORDER BY 
+    total_purchases DESC;
+
+CREATE VIEW ActiveCustomers AS
+SELECT 
+    c.user_ID,
+    u.name AS customer_name,
+    SUM(pi.total_price) AS total_spent
+FROM 
+    Customer c
+JOIN 
+    User u ON c.user_ID = u.user_ID
+JOIN 
+    Purchase_Information pi ON c.user_ID = pi.user_ID
+WHERE 
+    pi.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)  -- Active within the last 6 months
+GROUP BY 
+    c.user_ID, u.name;
+
+CREATE VIEW PopularProductsByCategory AS
+SELECT 
+    p.category,
+    p.title AS product_name,
+    COUNT(pi.purchase_ID) AS purchase_count
+FROM 
+    Product p
+JOIN 
+    Purchase_Information pi ON p.product_ID = pi.product_ID
+GROUP BY 
+    p.category, p.title
+HAVING 
+    COUNT(pi.purchase_ID) = (
+        SELECT MAX(purchase_count)
+        FROM (
+            SELECT 
+                p2.category,
+                COUNT(pi2.purchase_ID) AS purchase_count
+            FROM 
+                Product p2
+            JOIN 
+                Purchase_Information pi2 ON p2.product_ID = pi2.product_ID
+            GROUP BY 
+                p2.category, p2.title
+        ) AS subquery
+        WHERE subquery.category = p.category
+    );
+
+-- VIEWS
