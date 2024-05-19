@@ -3,7 +3,7 @@ CREATE TABLE
         user_ID varchar(20) not null,
         name varchar(50) not null,
         email varchar(50) not null,
-        password varchar(50) not null,
+        password varchar(500) not null,
         picture varchar(100) default null,
         phone_number varchar(100) default null,
         country varchar(100) default null,

@@ -16,6 +16,9 @@ from flask import (
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from datetime import datetime
+import re
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__, static_folder="static")
 
@@ -283,12 +286,11 @@ def filter_products():
     return jsonify(product_table)
 
 
-# Login page elements and given checks for login
+# # Login page elements and given checks for login
 @app.route("/")
 @app.route("/login", methods=["GET", "POST"])
 def login():
     message = ""
-    # Checking whether the user logged in the system, redirect to the correct page using user roles
     if "username" in session:
         if session["role"] == "customer":
             return redirect(url_for("customer_main_page"))
@@ -304,80 +306,47 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        # Getting the user with the provided name
-        cursor.execute(
-            "SELECT * FROM User WHERE name = % s AND password = % s",
-            (
-                username,
-                password,
-            ),
-        )
+        cursor.execute("SELECT * FROM User WHERE name = % s", (username,))
         user_w_name = cursor.fetchone()
-        # Getting the user with the provided name
-        cursor.execute(
-            "SELECT * FROM User WHERE email = % s AND password = % s",
-            (
-                username,
-                password,
-            ),
-        )
+        cursor.execute("SELECT * FROM User WHERE email = % s", (username,))
         user_w_email = cursor.fetchone()
-        # Assigning user to the default choice of providing name
-        user = user_w_name
-        # If name is empty assign it to user with provided email, noting that user can still be empty
-        if user_w_name is None:
-            user = user_w_email
-        # Checking whether user is empty
-        if user:
-            # Check whether the user is blacklisted
-            cursor.execute(
-                "SELECT * FROM Blacklists WHERE user_ID = % s", (user["user_ID"],)
-            )
+        user = user_w_name if user_w_name is not None else user_w_email
+        if user and check_password_hash(user['password'], password):
+            cursor.execute("SELECT * FROM Blacklists WHERE user_ID = % s", (user["user_ID"],))
             isBlacklisted = cursor.fetchone()
             if isBlacklisted:
                 message = "Sorry, you are blacklisted."
             else:
-                # Check whether the user_ID exists in the Customer table, noting that user_ID are same in business and user
-                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-                cursor.execute(
-                    "SELECT * FROM Customer WHERE user_ID = % s", (user["user_ID"],)
-                )
+                cursor.execute("SELECT * FROM Customer WHERE user_ID = % s", (user["user_ID"],))
                 customer = cursor.fetchone()
                 if customer:
-                    # user_ID are same in customer and user
                     session["role"] = "customer"
                     session["loggedin"] = True
                     session["user_ID"] = user["user_ID"]
                     session["username"] = user["name"]
                     return redirect(url_for("customer_main_page"))
                 else:
-                    # Check whether the user_ID exists in the Business table, noting that user_ID are same in business and user
-                    cursor.execute(
-                        "SELECT * FROM Business WHERE user_ID = % s", (user["user_ID"],)
-                    )
+                    cursor.execute("SELECT * FROM Business WHERE user_ID = % s", (user["user_ID"],))
                     business = cursor.fetchone()
-                    # If business exists assign session information to local storage
                     if business:
                         session["role"] = "business"
                         session["loggedin"] = True
                         session["user_ID"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("business_main_page"))
-                    # Assign admin session information to local storage
                     else:
                         session["role"] = "admin"
                         session["loggedin"] = True
                         session["user_ID"] = user["user_ID"]
                         session["username"] = user["name"]
                         return redirect(url_for("admin_main_page"))
-        # user not found
         else:
             message = "Please enter correct email / username and password !"
     return render_template("login.html", message=message)
 
 
-# Customer and Business registers through this
-# No admin registration
+# # Customer and Business registers through this
+# # No admin registration is allowed
 @app.route("/register", methods=["GET", "POST"])
 def register():
     message = ""
@@ -390,36 +359,41 @@ def register():
         username = request.form["username"]
         password = request.form["password"]
         email = request.form["email"]
+
+        # Check for valid email format
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            message = "Please enter a valid email format!"
+            return render_template("register.html", message=message)
+        
+        # Check for strong password
+        if not re.match(r"[A-Za-z0-9@#$%^&+=*!(){}[\]:;<>,.?~`_|\\-]{8,}", password):
+            message = "Password must be at least 8 characters long and contain a combination of letters, numbers, and special characters!"
+            return render_template("register.html", message=message)
+        # Hash the password
+        hashed_password = generate_password_hash(password)
+
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        # Check whether the given field, username, exists in the db
         cursor.execute("SELECT * FROM User WHERE name = % s", (username,))
         account = cursor.fetchone()
-        # Check whether the given field, email, exists in the db
         cursor.execute("SELECT * FROM User WHERE email = % s", (email,))
         account_email = cursor.fetchone()
         if account:
             message = "Username already exists."
         elif account_email:
             message = "Email address is already registered."
-        elif not username or not password or not email:
-            message = "Please fill out the form!"
         else:
-            # The chosen role in HTML is requested by request.form.get('role') function
             role = request.form.get("role")
-            # Get a new id which is unique
             new_id = get_next_ID()
-            # Insert the user with a new ID, given password, name and email
             cursor.execute(
                 "INSERT INTO User (password, name, email, user_ID) VALUES (% s, % s, %s, %s)",
                 (
-                    password,
+                    hashed_password,
                     username,
                     email,
                     new_id,
                 ),
             )
             mysql.connection.commit()
-            # For the chosen role insert to balance default value 0 and user_ID Customer table
             if role == "customer":
                 cursor.execute(
                     "INSERT INTO Customer (balance, user_ID) VALUES (% s, % s)",
@@ -429,7 +403,6 @@ def register():
                     ),
                 )
                 mysql.connection.commit()
-            # For the chosen role insert the balance default value 0 and user_ID to Business table
             elif role == "business":
                 cursor.execute(
                     "INSERT INTO Business (balance, user_ID) VALUES (% s, % s)",
@@ -439,7 +412,6 @@ def register():
                     ),
                 )
                 mysql.connection.commit()
-            mysql.connection.commit()
             message = "User successfully created!"
             return render_template("login.html", message=message)
     elif request.method == "POST":
@@ -1012,6 +984,7 @@ def customer_profile():
 # This page will be used to edit the customer details
 # The customer details will be fetched from the database
 # Link to this page will be provided in the customer_profile.html
+
 @app.route("/customer_profile_edit", methods=["GET", "POST"])
 def customer_profile_edit():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -1046,13 +1019,19 @@ def customer_profile_edit():
         else:
             picture_binary_data = None
 
+        # If password field is not empty, hash the password
+        if password:
+            hashedpassword = generate_password_hash(password)
+        else:
+            hashedpassword = customer["password"]
+
         # Update the customer details in the database
         cursor.execute(
             "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
             (
             name,
             email,
-            password,
+            hashedpassword,
             phone_number,
             country,
             city,
@@ -1162,13 +1141,18 @@ def business_profile_edit():
             picture_binary_data = picture.read()
             print(picture_binary_data)
 
+        if password:
+            # Hash the password
+            hashedpassword = generate_password_hash(password)
+        else:
+            hashedpassword = business["password"]
         # Update the business details in the database
         cursor.execute(
             "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
             (
                 name,
                 email,
-                password,
+                hashedpassword,
                 phone_number,
                 country,
                 city,
