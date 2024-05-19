@@ -1890,6 +1890,7 @@ def admin():
 @app.route("/admin_user_report", methods=["GET", "POST"])
 def admin_user_report():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    message = ""
 
     if request.method == "POST":
         action = request.form.get("action")
@@ -1901,8 +1902,6 @@ def admin_user_report():
         purchase_ID = request.form.get("purchase_ID")
         return_ID = request.form.get("return_ID")
         user_ID = request.form.get("user_ID")
-
-        cursor = mysql.connection.cursor()
 
         if action == "ban":
             # "UPDATE User SET name = %s WHERE user_ID = %s",
@@ -1919,19 +1918,19 @@ def admin_user_report():
                 ),
             )
             mysql.connection.commit()
-            return redirect(url_for("admin_user_report"))
+            message="User banned"
 
         elif action == "dismiss":
             query = "UPDATE Report SET report_status = 'Resolved' WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
-            return redirect(url_for("admin_user_report"))
+            message="Report dismissed"
 
         elif action == "delete":
             query = "DELETE FROM Report WHERE report_ID = %s"
             cursor.execute(query, (report_ID,))
             mysql.connection.commit()
-            return redirect(url_for("admin_user_report"))
+            message="Report deleted"
 
     cursor.execute(
         "SELECT * FROM Report WHERE report_status='Under Review' ORDER BY report_id"
@@ -1944,7 +1943,7 @@ def admin_user_report():
     solved_reports = cursor.fetchall()
 
     return render_template(
-        "admin_user_report.html", reports=reports, solved_reports=solved_reports
+        "admin_user_report.html", reports=reports, solved_reports=solved_reports, message=message
     )
 
 
