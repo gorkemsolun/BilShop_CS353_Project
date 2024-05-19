@@ -1110,6 +1110,7 @@ WHERE
 CREATE VIEW totSalesByBusiness AS
 SELECT 
     b.company_name,
+    COUNT(pi.purchase_ID) AS total_sale_count,
     SUM(pi.total_price) AS total_sales
 FROM 
     Business b
