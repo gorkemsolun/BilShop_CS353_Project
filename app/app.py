@@ -1951,7 +1951,29 @@ def admin_user_report():
 # TODO: Explain and fix the function
 @app.route("/admin_system_report", methods=["GET", "POST"])
 def admin_system_report():
-    return render_template("admin_system_report.html")
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    query = "SELECT * FROM MostSoldItemPerCategory"
+    cursor.execute(query)
+    popular_products_category = cursor.fetchall()
+
+    query = "SELECT * FROM unresReturenReq"
+    cursor.execute(query)
+    unresolved_return_requests = cursor.fetchall()
+
+    query = "SELECT * FROM totSalesByBusiness"
+    cursor.execute(query)
+    total_sales_business = cursor.fetchall()
+
+    query = "SELECT * FROM TotalSalesProducts"
+    cursor.execute(query)
+    popular_products = cursor.fetchall()
+
+    query = "SELECT * FROM ActiveCustomers"
+    cursor.execute(query)
+    active_customers = cursor.fetchall()
+
+    return render_template("admin_system_report.html", popular_products_category=popular_products_category, active_customers=active_customers, popular_products=popular_products, unresolved_return_requests=unresolved_return_requests, total_sales_business=total_sales_business)
 
 
 # TODO: Explain and fix the function

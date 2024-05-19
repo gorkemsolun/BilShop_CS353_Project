@@ -690,6 +690,15 @@ VALUES
         2
     ),
     (
+        '8',
+        'Completed',
+        999.99,
+        '2024-05-12 11:00:00',
+        '1',
+        '1',
+        2
+    ),
+    (
         '2',
         'Completed',
         39.98,
@@ -706,6 +715,15 @@ VALUES
         '3',
         '3',
         2
+    ),
+    (
+        '9',
+        'Completed',
+        599.99,
+        '2024-05-18 18:00:00',
+        '3',
+        '3',
+        12
     ),
     (
         '4',
@@ -860,6 +878,7 @@ VALUES
     );
 
 -- Inserting data into Blacklists table
+/*
 INSERT INTO
     Blacklists (user_ID, report_ID, admin_ID, reason_description)
 VALUES
@@ -882,7 +901,7 @@ VALUES
         '0',
         'Repeated complaints about product quality'
     );
-
+*/
 INSERT INTO
     Notification (
         notification_ID,
@@ -1072,3 +1091,99 @@ VALUES
         'A product from your wishlist is now available: High Performance Laptop.',
         '2024-05-20 20:00:00'
     );
+
+-- VIEWS
+
+CREATE VIEW unresReturenReq AS
+SELECT
+    rr.return_ID,
+    rr.reason,
+    rr.return_request_status,
+    pi.purchase_ID
+FROM
+    Return_Request_Information rr
+JOIN
+    Purchase_Information pi ON rr.purchase_ID = pi.purchase_ID
+WHERE
+    rr.return_request_status != 'Approved';
+
+CREATE VIEW totSalesByBusiness AS
+SELECT 
+    b.company_name,
+    COUNT(pi.purchase_ID) AS total_sale_count,
+    SUM(pi.total_price) AS total_sales
+FROM 
+    Business b
+JOIN 
+    Owns o ON b.user_ID = o.user_ID
+JOIN 
+    Product p ON o.product_ID = p.product_ID
+JOIN 
+    Purchase_Information pi ON p.product_ID = pi.product_ID
+GROUP BY 
+    b.company_name;
+
+CREATE VIEW TotalSalesProducts AS
+SELECT 
+    p.product_ID,
+    p.title AS product_name,
+    SUM(pi.amount) AS total_purchased_amount
+FROM 
+    Product p
+JOIN 
+    Purchase_Information pi ON p.product_ID = pi.product_ID
+GROUP BY 
+    p.product_ID, p.title
+ORDER BY 
+    total_purchased_amount DESC;
+
+CREATE VIEW ActiveCustomers AS
+SELECT 
+    c.user_ID,
+    u.name AS customer_name,
+    SUM(pi.total_price) AS total_spent
+FROM 
+    Customer c
+JOIN 
+    User u ON c.user_ID = u.user_ID
+JOIN 
+    Purchase_Information pi ON c.user_ID = pi.user_ID
+WHERE 
+    pi.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)  -- Active within the last 6 months
+GROUP BY 
+    c.user_ID, u.name;
+
+CREATE VIEW MostSoldItemPerCategory AS
+SELECT 
+    p.category AS category,
+    pi.product_ID AS most_sold_product_ID,
+    p.title AS most_sold_product_title,
+    SUM(pi.amount) AS total_sold
+FROM 
+    Product p
+JOIN 
+    Purchase_Information pi ON p.product_ID = pi.product_ID
+GROUP BY 
+    p.category, pi.product_ID, p.title
+HAVING 
+    SUM(pi.amount) = (
+        SELECT 
+            MAX(total_sold_category)
+        FROM (
+            SELECT 
+                p.category AS category,
+                pi.product_ID AS product_ID,
+                SUM(pi.amount) AS total_sold_category
+            FROM 
+                Product p
+            JOIN 
+                Purchase_Information pi ON p.product_ID = pi.product_ID
+            GROUP BY 
+                p.category, pi.product_ID
+        ) AS category_sales
+        WHERE 
+            category_sales.category = p.category
+    );
+
+
+-- VIEWS
