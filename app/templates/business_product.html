@@ -1,59 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ business_product.title }}</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
-    crossorigin="anonymous"
-  />
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
-    rel="stylesheet"
-  />
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='styles/business_product.css') }}"
-  />
-</head>
-<body>
-  <nav class="navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/business_main_page"><b>BilShop</b></a>
-      <div class="d-flex">
-        <form action="{{ url_for('notifications') }}" method="get">
-          <button class="btn btn-outline-light me-2" type="submit" title="Notification">
-            <i class="bi bi-bell"></i>
-          </button>
-        </form>
-        <form action="{{ url_for('business_profile') }}" method="get">
-          <button class="btn btn-outline-light me-2" type="submit" title="Business Profile">
-            <i class="bi bi-person"></i>
-          </button>
-        </form>
-        <form action="{{ url_for('balance_business') }}" method="get">
-          <button class="btn btn-outline-light me-2" type="submit" title="Balance">
-            <i class="bi bi-wallet2"></i>
-          </button>
-        </form>
-        <form action="{{ url_for('logout') }}" method="get">
-          <button class="btn btn-outline-light me-2" type="submit" title="Logout">
-            <i class="bi bi-box-arrow-left"></i>
-          </button>
-        </form>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ business_product.title }}</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/business_product.css') }}"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/business_main_page"><b>BilShop</b></a>
+        <div class="d-flex">
+          <form action="{{ url_for('notifications') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Notification"
+            >
+              <i class="bi bi-bell"></i>
+            </button>
+          </form>
+          <form action="{{ url_for('business_profile') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Business Profile"
+            >
+              <i class="bi bi-person"></i>
+            </button>
+          </form>
+          <form action="{{ url_for('balance_business') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Balance"
+            >
+              <i class="bi bi-wallet2"></i>
+            </button>
+          </form>
+          <form action="{{ url_for('logout') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Logout"
+            >
+              <i class="bi bi-box-arrow-left"></i>
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <div class="container">
-    <div class="row">
+    <div class="container">
+      <div class="row">
         <div class="col-md-6">
           {% if product_picture %}
           <div class="image-container">
-            <img src="data:image/jpeg;base64,{{ product_picture }}" alt="Product Picture">
+            <img
+              src="data:image/jpeg;base64,{{ product_picture }}"
+              alt="Product Picture"
+            />
           </div>
           {% endif %}
         </div>
@@ -62,90 +81,111 @@
           <p>{{ business_product.description }}</p>
           <p>Price: ${{ business_product.price }}</p>
         </div>
-    </div>
-    <div class="comments-section mt-4">
-      <h3><b>Comments</b></h3>
-      <div id="commentsContainer">
-        {% for comment in comments %}
-        <div class="comment">
-          <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
-          <button class="btn btn-outline-light btn-reply" data-comment-id="{{ comment.id }}">
-            <i class="bi bi-reply-fill"></i> Reply
-          </button>
+      </div>
+      <div class="comments-section mt-4">
+        <h3><b>Comments</b></h3>
+        <div id="commentsContainer">
+          {% for comment in comments %}
+          <div class="comment">
+            <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+            <button
+              class="btn btn-outline-light btn-reply"
+              data-comment-id="{{ comment.id }}"
+            >
+              <i class="bi bi-reply-fill"></i> Reply
+            </button>
+          </div>
+          <div
+            id="replyContainer{{ comment.id }}"
+            class="reply-container mt-3"
+            style="display: none"
+          >
+            <form id="commentForm{{ comment.id }}" class="commentForm d-flex">
+              <textarea
+                class="form-control me-2 commentContent"
+                name="content"
+                rows="3"
+                placeholder="Reply"
+              ></textarea>
+              <button type="submit" class="btn btn-outline-light me-2">
+                <i class="bi bi-send"></i>
+              </button>
+            </form>
+          </div>
+          {% endfor %} {% for comment in business_comments %}
+          <div class="comment">
+            <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+          </div>
+          {% endfor %}
         </div>
-        <div id="replyContainer{{ comment.id }}" class="reply-container mt-3" style="display: none;">
-          <form id="commentForm{{ comment.id }}" class="commentForm d-flex">
-            <textarea class="form-control me-2 commentContent" name="content" rows="3" placeholder="Reply"></textarea>
-            <button type="submit" class="btn btn-outline-light me-2"><i class="bi bi-send"></i></button>
-          </form>
-        </div>
-        {% endfor %}
-        {% for comment in business_comments %}
-        <div class="comment">
-          <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
-            </div>
-      {% endfor %}
       </div>
     </div>
-  </div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const replyButtons = document.querySelectorAll('.btn-reply');
-    const commentForms = document.querySelectorAll('.commentForm');
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const replyButtons = document.querySelectorAll(".btn-reply");
+        const commentForms = document.querySelectorAll(".commentForm");
 
-    replyButtons.forEach(btn => {
-      btn.addEventListener('click', handleReplyButtonClick);
-    });
+        replyButtons.forEach((btn) => {
+          btn.addEventListener("click", handleReplyButtonClick);
+        });
 
-    commentForms.forEach(form => {
-      form.addEventListener('submit', handleCommentFormSubmit);
-    });
+        commentForms.forEach((form) => {
+          form.addEventListener("submit", handleCommentFormSubmit);
+        });
 
-    function handleReplyButtonClick(event) {
-      const commentId = event.currentTarget.dataset.commentId;
-      const replyContainer = document.getElementById(`replyContainer${commentId}`);
-      replyContainer.style.display = replyContainer.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function handleCommentFormSubmit(event) {
-      event.preventDefault();
-      const form = event.currentTarget;
-      const content = form.querySelector('.commentContent').value;
-      const commentId = form.id.replace('commentForm', '');
-      const productId = '{{ business_product.product_ID }}';
-      const url = `/customer_product/${productId}/add_comment`;
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ content: content, parent_comment_id: commentId })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          addNewComment(data.username, content, commentId);
-          form.querySelector('.commentContent').value = '';
-          form.parentNode.style.display = 'none';
-        } else {
-          console.error('Error:', data.error);
+        function handleReplyButtonClick(event) {
+          const commentId = event.currentTarget.dataset.commentId;
+          const replyContainer = document.getElementById(
+            `replyContainer${commentId}`
+          );
+          replyContainer.style.display =
+            replyContainer.style.display === "none" ? "block" : "none";
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    }
 
-    function addNewComment(username, content, commentId) {
-      const newComment = document.createElement('div');
-      newComment.classList.add('comment');
-      newComment.innerHTML = `<p><strong>${username}:</strong> ${content}</p>`;
-      const replyContainer = document.getElementById(`replyContainer${commentId}`);
-      replyContainer.parentNode.insertBefore(newComment, replyContainer);
-    }
-  });
-</script>
-</body>
+        function handleCommentFormSubmit(event) {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const content = form.querySelector(".commentContent").value;
+          const commentId = form.id.replace("commentForm", "");
+          const productId = "{{ business_product.product_ID }}";
+          const url = `/customer_product/${productId}/add_comment`;
+
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: content,
+              parent_comment_id: commentId,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                addNewComment(data.username, content, commentId);
+                form.querySelector(".commentContent").value = "";
+                form.parentNode.style.display = "none";
+              } else {
+                console.error("Error:", data.error);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+
+        function addNewComment(username, content, commentId) {
+          const newComment = document.createElement("div");
+          newComment.classList.add("comment");
+          newComment.innerHTML = `<p><strong>${username}:</strong> ${content}</p>`;
+          const replyContainer = document.getElementById(
+            `replyContainer${commentId}`
+          );
+          replyContainer.parentNode.insertBefore(newComment, replyContainer);
+        }
+      });
+    </script>
+  </body>
 </html>
