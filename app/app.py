@@ -95,7 +95,9 @@ def get_next_ID_comment():
 def generate_report_id():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Fetch the current maximum ID from the table
-    cursor.execute("SELECT * FROM Report ORDER BY CONVERT(report_ID, UNSIGNED INTEGER) DESC")
+    cursor.execute(
+        "SELECT * FROM Report ORDER BY CONVERT(report_ID, UNSIGNED INTEGER) DESC"
+    )
     max_id = cursor.fetchone()
     if max_id is None:
         return str(1)  # Start from 1 if no records exist
@@ -117,7 +119,6 @@ def get_next_ID_notification():
         return "1"  # Start from 1 if no records exist
     max_id = max_id["notification_ID"]
     return str(int(max_id) + 1)
-
 
 
 # The helper function that returns a json file of the given string query
@@ -436,11 +437,12 @@ def notifications():
         (session["user_ID"], per_page, offset),
     )
     notifications = cursor.fetchall()
+    role = session["role"]
+    return render_template(
+        "notifications.html", notifications=notifications, page=page, role=role
+    )
 
-    return render_template("notifications.html", notifications=notifications, page=page)
 
-
-# TODO: Make this function work
 # Delete the notification from the database and redirect to the notifications page
 @app.route("/notification_delete/<notification_ID>", methods=["POST", "DELETE"])
 def notification_delete(notification_ID):
@@ -579,7 +581,6 @@ def business_main_page():
     )
 
 
-
 # This function is used to create a product for the business
 @app.route("/business_product_create", methods=["GET", "POST"])
 def business_product_create():
@@ -661,6 +662,7 @@ def business_product_create():
             flash(message, "warning")
 
     return render_template("business_product_create.html", message=message)
+
 
 # TODO main page admin reports etc
 @app.route("/admin_main_page")
@@ -964,6 +966,91 @@ def purchase_summary():
     )
 
 
+@app.route("/customer_active_orders", methods=["GET"])
+def customer_active_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status <> %s",
+        (session["user_ID"], "shipped"),
+    )
+    purchaseinfo = cursor.fetchall()
+    return render_template("customer_orders.html", purchaseinfo=purchaseinfo)
+
+
+@app.route("/customer_past_orders", methods=["GET"])
+def customer_past_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
+        (session["user_ID"], "shipped"),
+    )
+    purchaseinfo = cursor.fetchall()
+    return render_template("customer_orders.html", purchaseinfo=purchaseinfo)
+
+
+# The orders received and shipped by the business
+@app.route("/business_past_orders", methods=["GET"])
+def business_past_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all products of the business
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s",
+        (session["user_ID"],),
+    )
+    products = cursor.fetchall()
+    purchaseinfo = []
+    for item in products:
+        cursor.execute(
+            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status = %s",
+            (item["product_ID"], "shipped"),
+        )
+        purchase = cursor.fetchall()
+        if purchase:
+            purchaseinfo.append(purchase)
+
+    return render_template("business_past_orders.html", purchaseinfo=purchaseinfo)
+
+
+# The orders received by the business
+@app.route("/business_active_orders", methods=["GET"])
+def business_active_orders():
+    # Display according to their order status
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # Get all products of the business
+    cursor.execute(
+        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s",
+        (session["user_ID"],),
+    )
+    products = cursor.fetchall()
+    purchaseinfo = []
+    for item in products:
+        cursor.execute(
+            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status <> %s",
+            (item["product_ID"], "shipped"),
+        )
+        purchase = cursor.fetchall()
+        if purchase:
+            purchaseinfo.append(purchase)
+
+    return render_template("business_active_orders.html", purchaseinfo=purchaseinfo)
+
+
+@app.route("/update_purchase_status/<newstatus>/<product_ID>", methods=["POST"])
+def update_purchase_status(newstatus, product_ID, user_ID):
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "UPDATE Purchase_Information SET purchase_status = %s WHERE product_ID = %s AND user_ID = %s",
+        (newstatus, product_ID, user_ID),
+    )
+    mysql.connection.commit()
+    # TODO send notification
+    return redirect(url_for("business_active_orders"))
+
+
 # Profile page for the customer
 # This page will be used to show the customer details
 # The customer details will be fetched from the database
@@ -1084,7 +1171,8 @@ def customer_profile_delete():
         # Redirect to the login page by clearing the session
         session.clear()
 
-        return redirect(url_for("login"))
+        return render_template("login.html", message="Account deleted successfully")
+
     return render_template("customer_profile_delete.html", customer=customer)
 
 
@@ -1214,7 +1302,7 @@ def business_profile_delete():
         # clear the session
         session.clear()
 
-        return redirect(url_for("login"))
+        return render_template("login.html", message="Account deleted successfully")
 
     return render_template("business_profile_delete.html", business=business)
 
@@ -1240,29 +1328,35 @@ def admin_profile():
 # Link to this page will be provided in the customer_main_page.html, link will be /customer_product/<product_ID>
 # The product_ID will be passed to this page as a parameter
 
+
 @app.route("/customer_product/<product_ID>/add_comment", methods=["POST"])
 def add_comment(product_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    content = request.json.get('content')
+    content = request.json.get("content")
     if not content:
         return jsonify({"success": False, "error": "Content is required"}), 400
 
     try:
-        cursor.execute("SELECT name FROM User WHERE user_ID = %s", (session['user_ID'],))
+        cursor.execute(
+            "SELECT name FROM User WHERE user_ID = %s", (session["user_ID"],)
+        )
         user = cursor.fetchone()
         if not user:
             return jsonify({"success": False, "error": "User not found"}), 404
-        username = user['name']
-        comment_ID = get_next_ID_comment()  # Ensure this function generates the next comment ID correctly
+        username = user["name"]
+        comment_ID = (
+            get_next_ID_comment()
+        )  # Ensure this function generates the next comment ID correctly
         cursor.execute(
             "INSERT INTO Comment (comment_ID, user_ID, product_ID, text) VALUES (%s, %s, %s, %s)",
-            (comment_ID, session['user_ID'], product_ID, content)
+            (comment_ID, session["user_ID"], product_ID, content),
         )
         mysql.connection.commit()
         return jsonify({"success": True, "username": username})
     except Exception as e:
         mysql.connection.rollback()
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route("/delete_product/<product_ID>", methods=["DELETE"])
 def delete_product(product_ID):
@@ -1289,11 +1383,17 @@ def delete_product(product_ID):
     finally:
         cursor.close()
 
-@app.route("/customer_product/<product_ID>/delete_comment/<comment_ID>", methods=["DELETE"])
+
+@app.route(
+    "/customer_product/<product_ID>/delete_comment/<comment_ID>", methods=["DELETE"]
+)
 def delete_comment(product_ID, comment_ID):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # Check if the comment exists and belongs to the current user
-    cursor.execute("SELECT * FROM Comment WHERE comment_ID = %s AND user_ID = %s", (comment_ID, session['user_ID']))
+    cursor.execute(
+        "SELECT * FROM Comment WHERE comment_ID = %s AND user_ID = %s",
+        (comment_ID, session["user_ID"]),
+    )
     comment = cursor.fetchone()
 
     if comment:
@@ -1302,7 +1402,11 @@ def delete_comment(product_ID, comment_ID):
         mysql.connection.commit()
         return jsonify({"success": True}), 200
     else:
-        return jsonify({"success": False, "error": "Comment not found or unauthorized"}), 404
+        return (
+            jsonify({"success": False, "error": "Comment not found or unauthorized"}),
+            404,
+        )
+
 
 @app.route("/customer_product/<product_ID>", methods=["GET", "POST"])
 def customer_product(product_ID):
@@ -1336,6 +1440,7 @@ def customer_product(product_ID):
         comments=comments,
     )
 
+
 import logging
 
 
@@ -1345,33 +1450,46 @@ def add_report(product_ID):
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
         # Get the report content from the request JSON
-        report_content = request.json.get('content')
+        report_content = request.json.get("content")
 
         # Ensure content is provided
         if not report_content:
             return jsonify({"success": False, "error": "Content is required"}), 400
 
         # Retrieve user_ID from the session
-        user_ID = session.get('user_ID')
+        user_ID = session.get("user_ID")
 
         if user_ID is None:
             return jsonify({"success": False, "error": "User session not found"}), 400
 
         # Get the user_ID of the seller associated with the product
-        cursor.execute("SELECT user_ID FROM Product NATURAL JOIN Owns WHERE product_ID = %s", (product_ID,))
+        cursor.execute(
+            "SELECT user_ID FROM Product NATURAL JOIN Owns WHERE product_ID = %s",
+            (product_ID,),
+        )
         seller_user = cursor.fetchone()
 
         if seller_user is None:
             return jsonify({"success": False, "error": "Seller user not found"}), 404
 
-        seller_user_ID = seller_user['user_ID']
+        seller_user_ID = seller_user["user_ID"]
 
         # Insert report into the database
-        report_ID = generate_report_id()  # Assuming this function generates a unique report ID
+        report_ID = (
+            generate_report_id()
+        )  # Assuming this function generates a unique report ID
         cursor.execute(
             "INSERT INTO Report (report_ID, report_date, report_description, product_ID, reported_user_ID, user_ID, report_status) "
             "VALUES (%s, NOW(), %s, %s, %s, %s, %s)",
-            (report_ID, report_content, product_ID, seller_user_ID, user_ID, 'Under Review'))
+            (
+                report_ID,
+                report_content,
+                product_ID,
+                seller_user_ID,
+                user_ID,
+                "Under Review",
+            ),
+        )
         # Commit the transaction
         mysql.connection.commit()
         cursor.close()
@@ -1382,7 +1500,6 @@ def add_report(product_ID):
         mysql.connection.rollback()
         logging.error(f"Error adding report: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 
 # This page will be used to show the business product details and the business product picture
