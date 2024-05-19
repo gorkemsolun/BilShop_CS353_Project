@@ -761,12 +761,17 @@ def admin_main_page():
         ("not_sold",),
     )
     product_table = cursor.fetchall()
+
+    """
     return render_template(
         "admin_main_page.html",
         product_table=product_table,
         is_in_session=session["loggedin"],
         username=session["username"],
     )
+    """
+
+    return redirect(url_for("admin_user_report"))
 
 
 # TODO Explain and fix the function
