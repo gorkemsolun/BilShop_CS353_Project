@@ -6,6 +6,7 @@ body {
 
 .container {
   margin-top: 20px;
+  color: #fff;
 }
 
 .navbar-brand {
@@ -17,4 +18,9 @@ body {
 }
 .btn-outline-light {
   border: 0;
+}
+
+.back-button {
+  margin-left: 500px;
+  background-color: red; // red
 }

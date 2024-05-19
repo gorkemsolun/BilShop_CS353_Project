@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Report Panel</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
@@ -20,163 +20,181 @@
       href="{{ url_for('static', filename='styles/admin_product.css') }}"
     />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
 
-        nav {
-            background-color: #333;
-            display: flex;
-            justify-content: center;
-        }
+      nav {
+        background-color: #333;
+        display: flex;
+        justify-content: center;
+      }
 
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
+      nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+      }
 
-        nav ul li {
-            margin: 0;
-        }
+      nav ul li {
+        margin: 0;
+      }
 
-        nav ul li.selected a {
-            background-color: #111;
-        }
+      nav ul li.selected a {
+        background-color: #111;
+      }
 
-        nav ul li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
+      nav ul li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+      }
 
-        nav ul li a:hover {
-            background-color: #111;
-        }
+      nav ul li a:hover {
+        background-color: #111;
+      }
 
-        .content {
-            padding: 20px;
-            display: none;
-        }
+      .content {
+        padding: 20px;
+        display: none;
+      }
 
-        .content.active {
-            display: block;
-        }
+      .content.active {
+        display: block;
+      }
 
-        /* Specific styles for each section */
-        .userreports {
-            background-color: #f9f9f9;
-        }
+      /* Specific styles for each section */
+      .userreports {
+        background-color: #f9f9f9;
+      }
 
-        .systemreports {
-            background-color: #e9e9e9;
-        }
+      .systemreports {
+        background-color: #e9e9e9;
+      }
 
-        .services {
-            background-color: #d9d9d9;
-        }
+      .services {
+        background-color: #d9d9d9;
+      }
 
-        .blacklist {
-            background-color: #c9c9c9;
-        }
+      .blacklist {
+        background-color: #c9c9c9;
+      }
 
-        .table-container {
-            margin-top: 20px;
-        }
+      .table-container {
+        margin-top: 20px;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
 
-        table, th, td {
-            border: 1px solid black;
-        }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
 
-        th, td {
-            color:white;
-            padding: 8px;
-            text-align: left;
-        }
+      th,
+      td {
+        color: white;
+        padding: 8px;
+        text-align: left;
+      }
 
-        th {
-            background-color: #f2f2f2;
-        }
+      th {
+        background-color: #f2f2f2;
+      }
 
-        h1 {
-            color:white
-        }
+      h1 {
+        color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="alert-container">
-        {% if message is defined and message %}
-        <div class="alert alert-warning">{{ message }}</div>
-        {% endif %}
+      {% if message is defined and message %}
+      <div class="alert alert-warning">{{ message }}</div>
+      {% endif %}
     </div>
     <header>
-        <nav>
-            <ul>
-                <li><a href="/admin_main_page">Main Page</a></li>
-                <li><a href="/admin_system_report">System Reports</a></li>
-                <li><a href="/admin_user_report">User Reports</a></li>
-                <li><a href="/tables">Services</a></li>
-                <li><a href="/admin_blacklist">Blacklist</a></li>
-                <li><a href="/logout" id="logoutLink">Logout</a></li>
-            </ul>
-        </nav>
+      <nav>
+        <ul>
+          <li><a href="/admin_main_page">Main Page</a></li>
+          <li><a href="/admin_system_report">System Reports</a></li>
+          <li><a href="/admin_user_report">User Reports</a></li>
+          <li><a href="/tables">Services</a></li>
+          <li><a href="/admin_blacklist">Blacklist</a></li>
+          <li><a href="/logout" id="logoutLink">Logout</a></li>
+        </ul>
+      </nav>
     </header>
     <div class="content active">
-        <div class="search-container">
-            <form action="/admin_blacklist" method="GET">
-                <label for="search">Search:</label>
-                <input type="text" id="search" name="search_query" placeholder="Search for user ID or name..." value="{{ search_query }}">
-                <button type="submit">Search</button>
-            </form>
-        </div>
-        <div class="table-container">
-            <!-- Blacklists Table -->
-            <div class="container mt-4">
-                <div class="row">
-                    <div id="reportsSection" class="col-md-12">
-                        <h1 class="heading">Blacklist</h1>
-                        <table class="table table-bordered">
-                            <tr>
-                                <th>User ID</th>
-                                <th>Username</th>
-                                <th>Report ID</th>
-                                <th>Description</th>
-                                <th>Action</th> <!-- Add a new column for the action button -->
-                            </tr>
-                            {% for row in blacklist %}
-                            <tr>
-                                <td>{{ row['user_ID'] }}</td>
-                                <td>{{ row['name'] }}</td>
-                                <td>{{ row['report_ID'] }}</td>
-                                <td>{{ row['reason_description'] }}</td>
-                                <td>
-                                    <form action="/admin_blacklist" method="POST" onsubmit="return confirm('Are you sure you want to forgive this user?');">
-                                        <input type="hidden" name="user_id" value="{{ row['user_ID'] }}">
-                                        <button type="submit">Forgive</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                </div>
+      <div class="search-container">
+        <form action="/admin_blacklist" method="GET">
+          <label for="search">Search:</label>
+          <input
+            type="text"
+            id="search"
+            name="search_query"
+            placeholder="Search for user ID or name..."
+            value="{{ search_query }}"
+          />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+      <div class="table-container">
+        <!-- Blacklists Table -->
+        <div class="container mt-4">
+          <div class="row">
+            <div id="reportsSection" class="col-md-12">
+              <h1 class="heading">Blacklist</h1>
+              <table class="table table-bordered">
+                <tr>
+                  <th>User ID</th>
+                  <th>Username</th>
+                  <th>Report ID</th>
+                  <th>Description</th>
+                  <th>Action</th>
+                  <!-- Add a new column for the action button -->
+                </tr>
+                {% for row in blacklist %}
+                <tr>
+                  <td>{{ row['user_ID'] }}</td>
+                  <td>{{ row['name'] }}</td>
+                  <td>{{ row['report_ID'] }}</td>
+                  <td>{{ row['reason_description'] }}</td>
+                  <td>
+                    <form
+                      action="/admin_blacklist"
+                      method="POST"
+                      onsubmit="return confirm('Are you sure you want to forgive this user?');"
+                    >
+                      <input
+                        type="hidden"
+                        name="user_id"
+                        value="{{ row['user_ID'] }}"
+                      />
+                      <button type="submit">Forgive</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <script>
-        // Function to show confirmation message
-        function confirmLogout(event) {
+      // Function to show confirmation message
+      function confirmLogout(event) {
         event.preventDefault(); // Prevent the default action (following the link)
 
         // Display the confirmation message
@@ -184,12 +202,14 @@
 
         // If user confirms, redirect to the logout URL
         if (confirmation) {
-            window.location.href = event.target.href; // Redirect to the logout URL
+          window.location.href = event.target.href; // Redirect to the logout URL
         }
-        }
+      }
 
-        // Attach click event listener to the logout link
-        document.getElementById("logoutLink").addEventListener("click", confirmLogout);
+      // Attach click event listener to the logout link
+      document
+        .getElementById("logoutLink")
+        .addEventListener("click", confirmLogout);
     </script>
-</body>
+  </body>
 </html>

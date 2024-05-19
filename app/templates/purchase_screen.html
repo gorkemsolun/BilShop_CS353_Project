@@ -50,6 +50,16 @@
               <i class="bi bi-wallet2"></i>
             </button>
           </form>
+          <!-- Active Orders Button -->
+          <form action="{{ url_for('customer_active_orders') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Orders"
+            >
+              <i class="bi bi-receipt"></i>
+            </button>
+          </form>
           <!-- Logout button -->
           <form action="{{ url_for('logout') }}" method="get">
             <button
@@ -89,7 +99,10 @@
         {% if out_of_stock %}
         <div class="col-md-12">
           <h2>Out of Stock Items</h2>
-          <p>The following items could not be purchased due to being out of stock:</p>
+          <p>
+            The following items could not be purchased due to being out of
+            stock:
+          </p>
           <ul class="list-group">
             {% for item in out_of_stock %}
             <li class="list-group-item">
