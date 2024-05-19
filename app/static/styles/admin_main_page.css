@@ -11,6 +11,7 @@ body {
 .admin_product-container {
   background-color: #333; // Dark
   padding: 20px;
+
   border-radius: 10px;
   margin-bottom: 20px;
 }
@@ -32,6 +33,7 @@ body {
   border-radius: 10px;
   margin-right: 20px;
   margin-left: 20px;
+  color: #fff;
 }
 
 .navbar-brand {
