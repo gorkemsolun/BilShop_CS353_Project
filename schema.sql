@@ -860,6 +860,7 @@ VALUES
     );
 
 -- Inserting data into Blacklists table
+/*
 INSERT INTO
     Blacklists (user_ID, report_ID, admin_ID, reason_description)
 VALUES
@@ -882,7 +883,7 @@ VALUES
         '0',
         'Repeated complaints about product quality'
     );
-
+*/
 INSERT INTO
     Notification (
         notification_ID,
