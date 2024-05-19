@@ -76,19 +76,19 @@
             {% if cart %} {% for customer_product in cart %}
             <div class="col-md-4">
               <div class="customer_product-container">
-                <div class="customer_product-title">
+                <div class="customer_product-title m-2">
                   {{ customer_product.title }}
                 </div>
-                <div class="customer_product-price">
+                <div class="customer_product-price m-2">
                   {{ customer_product.price }}
                 </div>
-                <div class="customer_product-amount">
+                <div class="customer_product-amount m-2">
                   Amount: {{ customer_product.amount }}
                 </div>
                 <!-- Add other customer product details as needed -->
                 <a
                   href="/customer_product/{{ customer_product.product_ID }}"
-                  class="btn btn-primary"
+                  class="btn btn-primary m-2"
                   >View Product</a
                 >
               </div>
@@ -122,8 +122,8 @@
 
             <!-- Address Form -->
             <div id="addressForm" class="address-form">
-              <h2>Enter Your Address</h2>
               <form id="addressform" action="/enteraddress" method="post">
+                <h2>Enter Your Address</h2>
                 <div class="mb-3">
                   <label for="country" class="form-label">Country</label>
                   <input
@@ -205,11 +205,7 @@
 
             <!-- Continue to Payment button -->
             <div class="col-md-12 text-center mt-3">
-              <form
-                id="paymentForm"
-                action="/confirm_purchase"
-                method="post"
-              >
+              <form id="paymentForm" action="/confirm_purchase" method="post">
                 <button type="submit" class="btn btn-success">
                   Continue to Payment
                 </button>

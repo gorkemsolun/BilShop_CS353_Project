@@ -105,18 +105,18 @@
                 <div class="customer_product-price">
                   {{ customer_product.price }}
                 </div>
-                <div class="customer_product-amount">
+                <div class="customer_product-amount m-2">
                   Amount: {{ customer_product.amount }}
                 </div>
                 <!-- Add other customer product details as needed -->
                 <a
                   href="/customer_product/{{ customer_product.product_ID }}"
-                  class="btn btn-primary"
+                  class="btn btn-primary m-2"
                   >View Product</a
                 >
                 <a
                   href="/remove_from_cart/{{ customer_product.product_ID }}"
-                  class="btn btn-danger"
+                  class="btn btn-danger m-2"
                   >Remove From Cart</a
                 >
               </div>
