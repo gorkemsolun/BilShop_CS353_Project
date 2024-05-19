@@ -1855,7 +1855,7 @@ def admin_user_report():
 def admin_system_report():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     
-    query = "SELECT * FROM PopularProductsByCategory"
+    query = "SELECT * FROM MostSoldItemPerCategory"
     cursor.execute(query)
     popular_products_category = cursor.fetchall()
 

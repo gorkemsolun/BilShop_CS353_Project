@@ -148,14 +148,16 @@
                         <table id="popular-products-category">
                             <tr>
                                 <th>Category</th>
+                                <th>Product ID</th>
                                 <th>Product Name</th>
                                 <th>Purchase Count</th>
                             </tr>
                             {% for product in popular_products_category %}
                             <tr>
                                 <td>{{ product.category }}</td>
-                                <td>{{ product.product_name }}</td>
-                                <td>{{ product.purchase_count }}</td>
+                                <td>{{ product.most_sold_product_ID }}</td>
+                                <td>{{ product.most_sold_product_title }}</td>
+                                <td>{{ product.total_sold }}</td>
                             </tr>
                             {% endfor %}
                         </table>

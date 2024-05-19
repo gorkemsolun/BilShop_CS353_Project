@@ -1153,32 +1153,37 @@ WHERE
 GROUP BY 
     c.user_ID, u.name;
 
-CREATE VIEW PopularProductsByCategory AS
+CREATE VIEW MostSoldItemPerCategory AS
 SELECT 
-    p.category,
-    p.title AS product_name,
-    COUNT(pi.purchase_ID) AS purchase_count
+    p.category AS category,
+    pi.product_ID AS most_sold_product_ID,
+    p.title AS most_sold_product_title,
+    SUM(pi.amount) AS total_sold
 FROM 
     Product p
 JOIN 
     Purchase_Information pi ON p.product_ID = pi.product_ID
 GROUP BY 
-    p.category, p.title
+    p.category, pi.product_ID, p.title
 HAVING 
-    COUNT(pi.purchase_ID) = (
-        SELECT MAX(purchase_count)
+    SUM(pi.amount) = (
+        SELECT 
+            MAX(total_sold_category)
         FROM (
             SELECT 
-                p2.category,
-                COUNT(pi2.purchase_ID) AS purchase_count
+                p.category AS category,
+                pi.product_ID AS product_ID,
+                SUM(pi.amount) AS total_sold_category
             FROM 
-                Product p2
+                Product p
             JOIN 
-                Purchase_Information pi2 ON p2.product_ID = pi2.product_ID
+                Purchase_Information pi ON p.product_ID = pi.product_ID
             GROUP BY 
-                p2.category, p2.title
-        ) AS subquery
-        WHERE subquery.category = p.category
+                p.category, pi.product_ID
+        ) AS category_sales
+        WHERE 
+            category_sales.category = p.category
     );
+
 
 -- VIEWS
