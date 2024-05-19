@@ -53,3 +53,11 @@ body {
 .product-create-button-italic {
   font-size: xx-large;
 }
+
+.btn-primary.me{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    margin: 7px;
+}
+

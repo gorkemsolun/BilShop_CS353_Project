@@ -194,7 +194,7 @@
                 <!-- Add other business product details as needed -->
                 <a
                   href="/business_product/{{ business_product.product_ID }}"
-                  class="btn btn-primary m-2"
+                  class="btn btn-primary me m-2"
                   >View Product</a
                 >
                 <!-- Delete product button -->
@@ -286,34 +286,33 @@
       }
 
       // Update product listings with filtered products
-      function updateProductListings(products) {
-        var productListingsDiv = document.getElementById("productListings");
-        productListingsDiv.innerHTML = ""; // Clear previous listings
-        var productRow = document.createElement("div");
-        productRow.className = "row"; // Create a row for horizontal layout
-        products.forEach(function (business_product) {
-          var productDiv = document.createElement("div");
-          productDiv.className = "col-md-4";
-          productDiv.innerHTML = `
-            <div class="business_product-container">
-              <div class="business_product-title">${business_product.title}</div>
-              <div class="business_product-price">${business_product.price}</div>
-              <!-- Add other business product details as needed -->
-              <div>
-                <a href="/business_product/${business_product.product_ID}" class="btn btn-primary">View Product</a>
-                <button class="btn btn-danger btn-delete-product" data-product-id="${business_product.product_ID}">
-                  <i class="bi bi-trash-fill"></i>
-                </button>
-              </div>
-            </div>
-          `;
-          productRow.appendChild(productDiv);
-        });
-        productListingsDiv.appendChild(productRow); // Append the row to the parent container
+        // Update product listings with filtered products
+        function updateProductListings(products) {
+            var productListingsDiv = document.getElementById("productListings");
+            var productRow = productListingsDiv.querySelector(".row");
+            productRow.innerHTML = ""; // Clear previous listings
+            products.forEach(function (business_product) {
+                var productDiv = document.createElement("div");
+                productDiv.className = "col-md-4";
+                productDiv.innerHTML = `
+      <div class="business_product-container">
+        <div class="business_product-title">${business_product.title}</div>
+        <div class="business_product-price">${business_product.price}</div>
+        <!-- Add other business product details as needed -->
+        <div>
+          <a href="/business_product/${business_product.product_ID}" class="btn btn-primary me">View Product</a>
+          <button class="btn btn-danger btn-delete-product m-2" data-product-id="${business_product.product_ID}">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </div>
+      </div>
+    `;
+                productRow.appendChild(productDiv);
+            });
 
-        // Reattach event listeners to delete buttons
-        addDeleteButtonListeners();
-      }
+            // Reattach event listeners to delete buttons
+            addDeleteButtonListeners();
+        }
 
       // Apply filter function
       function applyFilter() {

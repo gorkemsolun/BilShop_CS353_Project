@@ -436,21 +436,23 @@ def register():
 # Link to this page will be provided in the navigation bar
 @app.route("/notifications")
 def notifications():
-    page = max(request.args.get("page", 1, type=int), 1)
-    per_page = 10
-    offset = (page - 1) * per_page
+    if "username" in session:
+        page = max(request.args.get("page", 1, type=int), 1)
+        per_page = 10
+        offset = (page - 1) * per_page
 
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get paginated notifications for the user
-    cursor.execute(
-        "SELECT * FROM Notification WHERE user_ID = %s LIMIT %s OFFSET %s",
-        (session["user_ID"], per_page, offset),
-    )
-    notifications = cursor.fetchall()
-    role = session["role"]
-    return render_template(
-        "notifications.html", notifications=notifications, page=page, role=role
-    )
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get paginated notifications for the user
+        cursor.execute(
+            "SELECT * FROM Notification WHERE user_ID = %s LIMIT %s OFFSET %s",
+            (session["user_ID"], per_page, offset),
+        )
+        notifications = cursor.fetchall()
+        role = session["role"]
+        return render_template(
+            "notifications.html", notifications=notifications, page=page, role=role
+        )
+    return redirect(url_for("login"))
 
 
 # Delete the notification from the database and redirect to the notifications page
@@ -540,28 +542,30 @@ def admin_notification_send():
 # Customer will have the ability to filter products
 @app.route("/customer_main_page", methods=["GET", "POST"])
 def customer_main_page():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the page number from the request parameters
-    page = max(request.args.get("page", default=1, type=int), 1)
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get the page number from the request parameters
+        page = max(request.args.get("page", default=1, type=int), 1)
 
-    # Set the number of items per page
-    items_per_page = 10
-    # Calculate the offset based on the page number and items per page
-    offset = (page - 1) * items_per_page
-    # Get all products that are not sold using the following query with paging
-    cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s LIMIT %s OFFSET %s",
-        ("not_sold", items_per_page, offset),
-    )
-    product_table = cursor.fetchall()
-    # Pass the customer product table, page number, and user session information to HTML
-    return render_template(
-        "customer_main_page.html",
-        product_table=product_table,
-        page=page,
-        is_in_session=session["loggedin"],
-        username=session["username"],
-    )
+        # Set the number of items per page
+        items_per_page = 10
+        # Calculate the offset based on the page number and items per page
+        offset = (page - 1) * items_per_page
+        # Get all products that are not sold using the following query with paging
+        cursor.execute(
+            "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s AND user_ID not in (SELECT user_ID FROM Blacklists) LIMIT %s OFFSET %s",
+            ("not_sold", items_per_page, offset),
+        )
+        product_table = cursor.fetchall()
+        # Pass the customer product table, page number, and user session information to HTML
+        return render_template(
+            "customer_main_page.html",
+            product_table=product_table,
+            page=page,
+            is_in_session=session["loggedin"],
+            username=session["username"]
+        )
+    return redirect(url_for("login"))
 
 
 # Business main page to show the products that are not sold by the business
@@ -569,263 +573,277 @@ def customer_main_page():
 # Business will have the ability to create and edit a product
 @app.route("/business_main_page")
 def business_main_page():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the page number from the request parameters
-    page = max(request.args.get("page", default=1, type=int), 1)
-    # Set the number of items per page
-    items_per_page = 10
-    # Calculate the offset based on the page number and items per page
-    offset = (page - 1) * items_per_page
-    # Modify the query to include paging
-    cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s LIMIT %s OFFSET %s",
-        (session["user_ID"], items_per_page, offset),
-    )
-    product_table = cursor.fetchall()
-    return render_template(
-        "business_main_page.html",
-        product_table=product_table,
-        page=page,
-        is_in_session=session["loggedin"],
-        username=session["username"],
-    )
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get the page number from the request parameters
+        page = max(request.args.get("page", default=1, type=int), 1)
+        # Set the number of items per page
+        items_per_page = 10
+        # Calculate the offset based on the page number and items per page
+        offset = (page - 1) * items_per_page
+        # Modify the query to include paging
+        cursor.execute(
+            "SELECT * FROM Owns NATURAL JOIN Product WHERE user_ID = %s LIMIT %s OFFSET %s",
+            (session["user_ID"], items_per_page, offset),
+        )
+        product_table = cursor.fetchall()
+        return render_template(
+            "business_main_page.html",
+            product_table=product_table,
+            page=page,
+            is_in_session=session["loggedin"],
+            username=session["username"],
+        )
+    return redirect(url_for("login"))
 
 
 # This function is used to create a product for the business
 @app.route("/business_product_create", methods=["GET", "POST"])
 def business_product_create():
-    message = ""  # Message to be shown to the user
+    if "username" in session:
+        message = ""  # Message to be shown to the user
 
-    # If a POST request is made, then the form is filled
-    if request.method == "POST":
-        required_fields = ["title", "price", "amount", "category"]
+        # If a POST request is made, then the form is filled
+        if request.method == "POST":
+            required_fields = ["title", "price", "amount", "category"]
 
-        # Check if all required fields are filled
-        if all(field in request.form for field in required_fields):
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            title = request.form["title"]
-            price = request.form["price"]
-            amount = request.form["amount"]
-            category = request.form["category"]
-            product_ID = get_next_ID_product()
-            status = "not_sold"
+            # Check if all required fields are filled
+            if all(field in request.form for field in required_fields):
+                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+                title = request.form["title"]
+                price = request.form["price"]
+                amount = request.form["amount"]
+                category = request.form["category"]
+                product_ID = get_next_ID_product()
+                status = "not_sold"
 
-            query = "INSERT INTO Product (product_ID, title, price, category, product_status"
-            values = [product_ID, title, price, category, status]
+                query = "INSERT INTO Product (product_ID, title, price, category, product_status"
+                values = [product_ID, title, price, category, status]
 
-            optional_fields = [
-                "product_description",
-                "cover_picture",
-                "proportions",
-                "mass",
-                "color",
-                "product_date",
-            ]
+                optional_fields = [
+                    "product_description",
+                    "cover_picture",
+                    "proportions",
+                    "mass",
+                    "color",
+                    "product_date",
+                ]
 
-            # Check if optional fields are filled
-            for field in optional_fields:
-                # If the field is date, convert it to datetime object and add it to the query
-                if field == "date" and field in request.form and request.form[field]:
-                    query += f", {field}"
-                    date = datetime.strptime(request.form[field], "%Y-%m-%dT%H:%M")
-                    values.append(date)
-                # If the field is filled, add it to the query
-                elif field in request.form and request.form[field]:
-                    query += f", {field}"
+                # Check if optional fields are filled
+                for field in optional_fields:
+                    # If the field is date, convert it to datetime object and add it to the query
+                    if field == "date" and field in request.form and request.form[field]:
+                        query += f", {field}"
+                        date = datetime.strptime(request.form[field], "%Y-%m-%dT%H:%M")
+                        values.append(date)
+                    # If the field is filled, add it to the query
+                    elif field in request.form and request.form[field]:
+                        query += f", {field}"
 
-                    # If the field is not cover_picture, add it to the query as a string
-                    if field != "cover_picture":
-                        values.append(request.form[field])
+                        # If the field is not cover_picture, add it to the query as a string
+                        if field != "cover_picture":
+                            values.append(request.form[field])
 
-                    # If the field is cover_picture, add it to the query as binary data
-                    else:
-                        cover_picture = request.files["cover_picture"]
-                        cover_picture_binary_data = cover_picture.read()
-                        values.append(cover_picture_binary_data)
+                        # If the field is cover_picture, add it to the query as binary data
+                        else:
+                            cover_picture = request.files["cover_picture"]
+                            cover_picture_binary_data = cover_picture.read()
+                            values.append(cover_picture_binary_data)
 
-            # Add the values to the query
-            query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
+                # Add the values to the query
+                query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
 
-            # Insert the picture into Product_Picture
-            picture = request.files["pictures"]
-            picture_binary_data = picture.read()
+                # Insert the picture into Product_Picture
+                picture = request.files["pictures"]
+                picture_binary_data = picture.read()
 
-            # Try to insert the product into the database
-            try:
-                cursor.execute(query, values)
-                cursor.execute(
-                    "INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
-                    (session["user_ID"], product_ID, int(amount)),
-                )
-                cursor.execute(
-                    "INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
-                    (product_ID, picture_binary_data),
-                )
-                mysql.connection.commit()
-                flash("Product created successfully!", "success")
-            except Exception as e:
-                flash(f"Error: {str(e)}", "danger")
-                mysql.connection.rollback()
-            cursor.close()
-        else:
-            message = "Please fill the required fields"
-            flash(message, "warning")
+                # Try to insert the product into the database
+                try:
+                    cursor.execute(query, values)
+                    cursor.execute(
+                        "INSERT INTO Owns(user_ID, product_ID, amount) VALUES (%s, %s, %s)",
+                        (session["user_ID"], product_ID, int(amount)),
+                    )
+                    cursor.execute(
+                        "INSERT INTO Product_Picture(product_ID, picture) VALUES (%s, %s)",
+                        (product_ID, picture_binary_data),
+                    )
+                    mysql.connection.commit()
+                    flash("Product created successfully!", "success")
+                except Exception as e:
+                    flash(f"Error: {str(e)}", "danger")
+                    mysql.connection.rollback()
+                cursor.close()
+            else:
+                message = "Please fill the required fields"
+                flash(message, "warning")
 
-    return render_template("business_product_create.html", message=message)
+        return render_template("business_product_create.html", message=message)
+    return redirect(url_for("login"))
 
 
 # This function is used to edit a product for the business
 @app.route("/business_product_edit/<product_ID>", methods=["GET", "POST"])
 def business_product_edit(product_ID):
-    message = ""
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
-    )
-    product = cursor.fetchone()
+    if "username" in session:
+        message = ""
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute(
+            "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
+        )
+        product = cursor.fetchone()
 
-    if request.method == "POST":
-        required_fields = ["title", "price", "amount", "category"]
+        if request.method == "POST":
+            required_fields = ["title", "price", "amount", "category"]
 
-        if all(field in request.form for field in required_fields):
-            title = request.form["title"]
-            price = request.form["price"]
-            amount = request.form["amount"]
-            category = request.form["category"]
-            status = "not_sold"
+            if all(field in request.form for field in required_fields):
+                title = request.form["title"]
+                price = request.form["price"]
+                amount = request.form["amount"]
+                category = request.form["category"]
+                status = "not_sold"
 
-            query = "UPDATE Product SET title = %s, price = %s, category = %s, product_status = %s"
-            values = [title, price, category, status]
+                query = "UPDATE Product SET title = %s, price = %s, category = %s, product_status = %s"
+                values = [title, price, category, status]
 
-            optional_fields = [
-                "product_description",
-                "cover_picture",
-                "proportions",
-                "mass",
-                "color",
-                "product_date",
-            ]
+                optional_fields = [
+                    "product_description",
+                    "cover_picture",
+                    "proportions",
+                    "mass",
+                    "color",
+                    "product_date",
+                ]
 
-            for field in optional_fields:
-                if field == "date" and field in request.form and request.form[field]:
-                    query += f", {field} = %s"
-                    date = datetime.strptime(request.form[field], "%Y-%m-%dT%H:%M")
-                    values.append(date)
-                elif field in request.form and request.form[field]:
-                    query += f", {field} = %s"
+                for field in optional_fields:
+                    if field == "date" and field in request.form and request.form[field]:
+                        query += f", {field} = %s"
+                        date = datetime.strptime(request.form[field], "%Y-%m-%dT%H:%M")
+                        values.append(date)
+                    elif field in request.form and request.form[field]:
+                        query += f", {field} = %s"
 
-                    if field != "cover_picture":
-                        values.append(request.form[field])
-                    else:
-                        cover_picture = request.files["cover_picture"]
-                        cover_picture_binary_data = cover_picture.read()
-                        values.append(cover_picture_binary_data)
+                        if field != "cover_picture":
+                            values.append(request.form[field])
+                        else:
+                            cover_picture = request.files["cover_picture"]
+                            cover_picture_binary_data = cover_picture.read()
+                            values.append(cover_picture_binary_data)
 
-            query += " WHERE product_ID = %s"
-            values.append(product_ID)
+                query += " WHERE product_ID = %s"
+                values.append(product_ID)
 
-            try:
-                cursor.execute(query, values)
-                cursor.execute(
-                    "UPDATE Owns SET amount = %s WHERE product_ID = %s",
-                    (int(amount), product_ID),
-                )
-                mysql.connection.commit()
-                flash("Product updated successfully!", "success")
-            except Exception as e:
-                flash(f"Error: {str(e)}", "danger")
-                mysql.connection.rollback()
-            cursor.close()
-        else:
-            message = "Please fill the required fields"
-            flash(message, "warning")
+                try:
+                    cursor.execute(query, values)
+                    cursor.execute(
+                        "UPDATE Owns SET amount = %s WHERE product_ID = %s",
+                        (int(amount), product_ID),
+                    )
+                    mysql.connection.commit()
+                    flash("Product updated successfully!", "success")
+                except Exception as e:
+                    flash(f"Error: {str(e)}", "danger")
+                    mysql.connection.rollback()
+                cursor.close()
+            else:
+                message = "Please fill the required fields"
+                flash(message, "warning")
 
-    # Get the product information from the database
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
-    )
-    product = cursor.fetchone()
+        # Get the product information from the database
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute(
+            "SELECT * FROM Owns NATURAL JOIN Product WHERE product_ID = %s", (product_ID,)
+        )
+        product = cursor.fetchone()
 
-    return render_template(
-        "business_product_edit.html", product=product, message=message
-    )
+        return render_template(
+            "business_product_edit.html", product=product, message=message
+        )
+    return redirect(url_for("login"))
 
 
 @app.route("/admin_main_page")
 def admin_main_page():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get all products that are not sold using the following query
-    cursor.execute(
-        "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s",
-        ("not_sold",),
-    )
-    product_table = cursor.fetchall()
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get all products that are not sold using the following query
+        cursor.execute(
+            "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s",
+            ("not_sold",),
+        )
+        product_table = cursor.fetchall()
 
-    return render_template(
-        "admin_main_page.html",
-        product_table=product_table,
-        is_in_session=session["loggedin"],
-        username=session["username"],
-    )
+        return render_template(
+            "admin_main_page.html",
+            product_table=product_table,
+            is_in_session=session["loggedin"],
+            username=session["username"],
+        )
+    return redirect(url_for("login"))
 
 
 # TODO Explain and fix the function
 @app.route("/balance", methods=["GET", "POST"])
 def balance():
-    message = ""
-    if request.method == "POST":
-        amount = request.form["amount"]
-        if amount:
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute(
-                "UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
-                (
-                    amount,
-                    session["user_ID"],
-                ),
-            )
-            mysql.connection.commit()
-            flash("Balance is updated successfully!", "success")
-        else:
-            message = "Please fill the required fields"
-            flash(message, "warning")
-    return render_template("balance.html", message=message)
+    if "username" in session:
+        message = ""
+        if request.method == "POST":
+            amount = request.form["amount"]
+            if amount:
+                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+                cursor.execute(
+                    "UPDATE Customer SET balance = balance + %s WHERE user_ID = %s",
+                    (
+                        amount,
+                        session["user_ID"],
+                    ),
+                )
+                mysql.connection.commit()
+                flash("Balance is updated successfully!", "success")
+            else:
+                message = "Please fill the required fields"
+                flash(message, "warning")
+        return render_template("balance.html", message=message)
+    return redirect(url_for("login"))
 
 
 @app.route("/balance_business", methods=["GET", "POST"])
 def balance_business():
-    message = ""
-    if request.method == "POST":
-        amount = request.form["amount"]
-        if amount:
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute(
-                "UPDATE Business SET balance = balance + %s WHERE user_ID = %s",
-                (
-                    amount,
-                    session["user_ID"],
-                ),
-            )
-            mysql.connection.commit()
-            flash("Balance is updated successfully!", "success")
-        else:
-            message = "Please fill the required fields"
-            flash(message, "warning")
-    return render_template("balance_business.html", message=message)
+    if "username" in session:
+        message = ""
+        if request.method == "POST":
+            amount = request.form["amount"]
+            if amount:
+                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+                cursor.execute(
+                    "UPDATE Business SET balance = balance + %s WHERE user_ID = %s",
+                    (
+                        amount,
+                        session["user_ID"],
+                    ),
+                )
+                mysql.connection.commit()
+                flash("Balance is updated successfully!", "success")
+            else:
+                message = "Please fill the required fields"
+                flash(message, "warning")
+        return render_template("balance_business.html", message=message)
+    return redirect(url_for("login"))
 
 
 @app.route("/shopping_cart")
 def shopping_cart():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get all products from shopping cart
-    cursor.execute(
-        "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
-        (session["user_ID"],),
-    )
-    cart = cursor.fetchall()
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get all products from shopping cart
+        cursor.execute(
+            "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
+            (session["user_ID"],),
+        )
+        cart = cursor.fetchall()
 
-    return render_template("shopping_cart.html", cart=cart)
+        return render_template("shopping_cart.html", cart=cart)
+    return redirect(url_for("login"))
 
 
 # Called when a user adds an item to their shopping cart
@@ -883,31 +901,33 @@ def remove_from_cart(product_ID):
 # Checkout, add the items up and provide the "confirm purchase" order
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
-    # an item in cart has the following fields: product_ID, title, price, amount
-    # sum up the total price
-    total_price = 0
-    list = request.get_json()
-    cartlist = list
-    for item in cartlist:
-        total_price += float(item["price"]) * int(item["amount"])
+    if "username" in session:
+        # an item in cart has the following fields: product_ID, title, price, amount
+        # sum up the total price
+        total_price = 0
+        list = request.get_json()
+        cartlist = list
+        for item in cartlist:
+            total_price += float(item["price"]) * int(item["amount"])
 
-    # Get existing addresses
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # We could come up with a view for the address
-    cursor.execute(
-        "SELECT country, city, state_code, zip_code, building, street, address_description FROM User WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    address = cursor.fetchone()
-    response = {
-        "redirect_url": url_for(
-            "render_checkout",
-            cart=json.dumps(cartlist),
-            total_price=total_price,
-            address=json.dumps(address),
+        # Get existing addresses
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # We could come up with a view for the address
+        cursor.execute(
+            "SELECT country, city, state_code, zip_code, building, street, address_description FROM User WHERE user_ID = %s",
+            (session["user_ID"],),
         )
-    }
-    return jsonify(response)
+        address = cursor.fetchone()
+        response = {
+            "redirect_url": url_for(
+                "render_checkout",
+                cart=json.dumps(cartlist),
+                total_price=total_price,
+                address=json.dumps(address),
+            )
+        }
+        return jsonify(response)
+    return redirect(url_for("login"))
 
 
 @app.route("/render_checkout")
@@ -1053,40 +1073,43 @@ def confirm_purchase():
 
 @app.route("/purchase_summary")
 def purchase_summary():
-    purchase_result = session.pop("purchase_result", None)
-    if purchase_result is None:
-        return redirect(url_for("customer_main_page"))
+    if "username" in session:
+        purchase_result = session.pop("purchase_result", None)
+        if purchase_result is None:
+            return redirect(url_for("customer_main_page"))
 
-    return render_template(
-        "purchase_screen.html",
-        insufficient_balance=purchase_result["insufficient_balance"],
-        available=purchase_result["available"],
-        out_of_stock=purchase_result["out_of_stock"],
-        balance=purchase_result["balance"],
-    )
+        return render_template(
+            "purchase_screen.html",
+            insufficient_balance=purchase_result["insufficient_balance"],
+            available=purchase_result["available"],
+            out_of_stock=purchase_result["out_of_stock"],
+            balance=purchase_result["balance"],
+        )
+    return redirect(url_for("login"))
 
 
 @app.route("/customer_active_orders", methods=["GET"])
 def customer_active_orders():
-    # Display according to their order status
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute(
-        "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
-        (session["user_ID"], "purchased"),
-    )
-    purchaseinfo = cursor.fetchall()
-
-    for info in purchaseinfo:
+    if "username" in session:
+        # Display according to their order status
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute(
-            "SELECT * FROM Product WHERE product_ID = %s", (info["product_ID"],)
+            "SELECT * FROM Purchase_Information WHERE user_ID = %s AND purchase_status = %s",
+            (session["user_ID"], "purchased"),
         )
-        product = cursor.fetchone()
-        info["title"] = product["title"]
-        info["cover_picture"] = product["cover_picture"]
+        purchaseinfo = cursor.fetchall()
 
-    past = False
-    return render_template("customer_orders.html", purchaseinfo=purchaseinfo, past=past)
+        for info in purchaseinfo:
+            cursor.execute(
+                "SELECT * FROM Product WHERE product_ID = %s", (info["product_ID"],)
+            )
+            product = cursor.fetchone()
+            info["title"] = product["title"]
+            info["cover_picture"] = product["cover_picture"]
 
+        past = False
+        return render_template("customer_orders.html", purchaseinfo=purchaseinfo, past=past)
+    return redirect(url_for("login"))
 
 # Returns/refunds the active order
 # The order status will be updated to returned
@@ -1302,14 +1325,16 @@ def update_purchase_status(product_ID, user_ID, title):
 # Link to this page will be provided in the customer_main_page.html
 @app.route("/customer_profile")
 def customer_profile():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the customer details from the database using the user_ID
-    cursor.execute(
-        "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    customer = cursor.fetchone()
-    return render_template("customer_profile.html", customer=customer)
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get the customer details from the database using the user_ID
+        cursor.execute(
+            "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
+            (session["user_ID"],),
+        )
+        customer = cursor.fetchone()
+        return render_template("customer_profile.html", customer=customer)
+    return redirect(url_for("login"))
 
 
 # Edit profile page for the customer
@@ -1320,78 +1345,80 @@ def customer_profile():
 
 @app.route("/customer_profile_edit", methods=["GET", "POST"])
 def customer_profile_edit():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    # Get the customer details from the database using the user_ID
-    cursor.execute(
-        "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-
-    # Fetch the customer details
-    customer = cursor.fetchone()
-
-    # If the form is submitted, update the customer details in the database and show a message
-    if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        password = request.form["password"]
-        phone_number = request.form["phone_number"]
-        country = request.form["country"]
-        city = request.form["city"]
-        state_code = request.form["state_code"]
-        zip_code = request.form["zip_code"]
-        building = request.form["building"]
-        street = request.form["street"]
-        address_description = request.form["address_description"]
-
-        # If an image is provided, read the binary data of the image
-        if "picture" in request.files:
-            picture = request.files["picture"]
-            picture_binary_data = picture.read()
-        else:
-            picture_binary_data = None
-
-        # If password field is not empty, hash the password
-        if password:
-            hashedpassword = generate_password_hash(password)
-        else:
-            hashedpassword = customer["password"]
-
-        # Update the customer details in the database
-        cursor.execute(
-            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
-            (
-                name,
-                email,
-                hashedpassword,
-                phone_number,
-                country,
-                city,
-                state_code,
-                zip_code,
-                building,
-                street,
-                address_description,
-                picture_binary_data,
-                session["user_ID"],
-            ),
-        )
-        mysql.connection.commit()  # Commit the changes to the database
-
-        # Update the current details of the customer
+        # Get the customer details from the database using the user_ID
         cursor.execute(
             "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
             (session["user_ID"],),
         )
+
+        # Fetch the customer details
         customer = cursor.fetchone()
 
-        return render_template(
-            "customer_profile.html",
-            message="Profile updated successfully",
-            customer=customer,
-        )  # Show a message to the user that the profile is updated
-    return render_template("customer_profile_edit.html", customer=customer)
+        # If the form is submitted, update the customer details in the database and show a message
+        if request.method == "POST":
+            name = request.form["name"]
+            email = request.form["email"]
+            password = request.form["password"]
+            phone_number = request.form["phone_number"]
+            country = request.form["country"]
+            city = request.form["city"]
+            state_code = request.form["state_code"]
+            zip_code = request.form["zip_code"]
+            building = request.form["building"]
+            street = request.form["street"]
+            address_description = request.form["address_description"]
+
+            # If an image is provided, read the binary data of the image
+            if "picture" in request.files:
+                picture = request.files["picture"]
+                picture_binary_data = picture.read()
+            else:
+                picture_binary_data = None
+
+            # If password field is not empty, hash the password
+            if password:
+                hashedpassword = generate_password_hash(password)
+            else:
+                hashedpassword = customer["password"]
+
+            # Update the customer details in the database
+            cursor.execute(
+                "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
+                (
+                    name,
+                    email,
+                    hashedpassword,
+                    phone_number,
+                    country,
+                    city,
+                    state_code,
+                    zip_code,
+                    building,
+                    street,
+                    address_description,
+                    picture_binary_data,
+                    session["user_ID"],
+                ),
+            )
+            mysql.connection.commit()  # Commit the changes to the database
+
+            # Update the current details of the customer
+            cursor.execute(
+                "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
+                (session["user_ID"],),
+            )
+            customer = cursor.fetchone()
+
+            return render_template(
+                "customer_profile.html",
+                message="Profile updated successfully",
+                customer=customer,
+            )  # Show a message to the user that the profile is updated
+        return render_template("customer_profile_edit.html", customer=customer)
+    return redirect(url_for("login"))
 
 
 # Delete profile page for the customer
@@ -1400,26 +1427,28 @@ def customer_profile_edit():
 # Link to this page will be provided in the customer_profile.html
 @app.route("/customer_profile_delete", methods=["GET", "POST"])
 def customer_profile_delete():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the customer details from the database using the user_ID
-    cursor.execute(
-        "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    customer = cursor.fetchone()
-    if request.method == "POST":
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get the customer details from the database using the user_ID
         cursor.execute(
-            "DELETE FROM User WHERE user_ID = %s",
+            "SELECT * FROM User NATURAL JOIN Customer WHERE user_ID = %s",
             (session["user_ID"],),
         )
-        mysql.connection.commit()
+        customer = cursor.fetchone()
+        if request.method == "POST":
+            cursor.execute(
+                "DELETE FROM User WHERE user_ID = %s",
+                (session["user_ID"],),
+            )
+            mysql.connection.commit()
 
-        # Redirect to the login page by clearing the session
-        session.clear()
+            # Redirect to the login page by clearing the session
+            session.clear()
 
-        return render_template("login.html", message="Account deleted successfully")
+            return render_template("login.html", message="Account deleted successfully")
 
-    return render_template("customer_profile_delete.html", customer=customer)
+        return render_template("customer_profile_delete.html", customer=customer)
+    return redirect(url_for("login"))
 
 
 # Profile page for the business
@@ -1428,14 +1457,16 @@ def customer_profile_delete():
 # Link to this page will be provided in the business_main_page.html
 @app.route("/business_profile")
 def business_profile():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the business details from the database using the user_ID
-    cursor.execute(
-        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    business = cursor.fetchone()
-    return render_template("business_profile.html", business=business)
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get the business details from the database using the user_ID
+        cursor.execute(
+            "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+            (session["user_ID"],),
+        )
+        business = cursor.fetchone()
+        return render_template("business_profile.html", business=business)
+    return redirect(url_for("login"))
 
 
 # Edit profile page for the business
@@ -1444,76 +1475,78 @@ def business_profile():
 # Link to this page will be provided in the business_profile.html
 @app.route("/business_profile_edit", methods=["GET", "POST"])
 def business_profile_edit():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    # Get the business details from the database using the user_ID
-    cursor.execute(
-        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    business = cursor.fetchone()
-
-    # If the form is submitted, update the business details in the database and show a message
-    if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        password = request.form["password"]
-        phone_number = request.form["phone_number"]
-        country = request.form["country"]
-        city = request.form["city"]
-        state_code = request.form["state_code"]
-        zip_code = request.form["zip_code"]
-        building = request.form["building"]
-        street = request.form["street"]
-        address_description = request.form["address_description"]
-
-        picture_binary_data = None
-        # If an image is provided, read the binary data of the image
-        if "picture" in request.files:
-            picture = request.files["picture"]
-            print(picture)
-            picture_binary_data = picture.read()
-            print(picture_binary_data)
-
-        if password:
-            # Hash the password
-            hashedpassword = generate_password_hash(password)
-        else:
-            hashedpassword = business["password"]
-        # Update the business details in the database
-        cursor.execute(
-            "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
-            (
-                name,
-                email,
-                hashedpassword,
-                phone_number,
-                country,
-                city,
-                state_code,
-                zip_code,
-                building,
-                street,
-                address_description,
-                picture_binary_data,
-                session["user_ID"],
-            ),
-        )
-        mysql.connection.commit()
-
-        # Update the current details of the business
+        # Get the business details from the database using the user_ID
         cursor.execute(
             "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
             (session["user_ID"],),
         )
         business = cursor.fetchone()
 
-        return render_template(
-            "business_profile.html",
-            message="Profile updated successfully",
-            business=business,
-        )
-    return render_template("business_profile_edit.html", business=business)
+        # If the form is submitted, update the business details in the database and show a message
+        if request.method == "POST":
+            name = request.form["name"]
+            email = request.form["email"]
+            password = request.form["password"]
+            phone_number = request.form["phone_number"]
+            country = request.form["country"]
+            city = request.form["city"]
+            state_code = request.form["state_code"]
+            zip_code = request.form["zip_code"]
+            building = request.form["building"]
+            street = request.form["street"]
+            address_description = request.form["address_description"]
+
+            picture_binary_data = None
+            # If an image is provided, read the binary data of the image
+            if "picture" in request.files:
+                picture = request.files["picture"]
+                print(picture)
+                picture_binary_data = picture.read()
+                print(picture_binary_data)
+
+            if password:
+                # Hash the password
+                hashedpassword = generate_password_hash(password)
+            else:
+                hashedpassword = business["password"]
+            # Update the business details in the database
+            cursor.execute(
+                "UPDATE User SET name = %s, email = %s, password = %s, phone_number = %s, country = %s, city = %s, state_code = %s, zip_code = %s, building = %s, street = %s, address_description = %s, picture = %s WHERE user_ID = %s",
+                (
+                    name,
+                    email,
+                    hashedpassword,
+                    phone_number,
+                    country,
+                    city,
+                    state_code,
+                    zip_code,
+                    building,
+                    street,
+                    address_description,
+                    picture_binary_data,
+                    session["user_ID"],
+                ),
+            )
+            mysql.connection.commit()
+
+            # Update the current details of the business
+            cursor.execute(
+                "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+                (session["user_ID"],),
+            )
+            business = cursor.fetchone()
+
+            return render_template(
+                "business_profile.html",
+                message="Profile updated successfully",
+                business=business,
+            )
+        return render_template("business_profile_edit.html", business=business)
+    return redirect(url_for("login"))
 
 
 # Delete profile page for the business
@@ -1522,35 +1555,37 @@ def business_profile_edit():
 # Link to this page will be provided in the business_profile.html
 @app.route("/business_profile_delete", methods=["GET", "POST"])
 def business_profile_delete():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the business details from the database using the user_ID
-    cursor.execute(
-        "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    business = cursor.fetchone()
-
-    #  Delete all products of the business
-    cursor.execute(
-        "DELETE FROM Owns WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    mysql.connection.commit()
-
-    #  Delete the business
-    if request.method == "POST":
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get the business details from the database using the user_ID
         cursor.execute(
-            "DELETE FROM User WHERE user_ID = %s",
+            "SELECT * FROM User NATURAL JOIN Business WHERE user_ID = %s",
+            (session["user_ID"],),
+        )
+        business = cursor.fetchone()
+
+        #  Delete all products of the business
+        cursor.execute(
+            "DELETE FROM Owns WHERE user_ID = %s",
             (session["user_ID"],),
         )
         mysql.connection.commit()
 
-        # clear the session
-        session.clear()
+        #  Delete the business
+        if request.method == "POST":
+            cursor.execute(
+                "DELETE FROM User WHERE user_ID = %s",
+                (session["user_ID"],),
+            )
+            mysql.connection.commit()
 
-        return render_template("login.html", message="Account deleted successfully")
+            # clear the session
+            session.clear()
 
-    return render_template("business_profile_delete.html", business=business)
+            return render_template("login.html", message="Account deleted successfully")
+
+        return render_template("business_profile_delete.html", business=business)
+    return redirect(url_for("login"))
 
 
 # Profile page for the admin
@@ -1559,14 +1594,16 @@ def business_profile_delete():
 # Link to this page will be provided in the admin_main_page.html
 @app.route("/admin_profile")
 def admin_profile():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Get the admin details from the database using the user_ID
-    cursor.execute(
-        "SELECT * FROM User NATURAL JOIN Admin WHERE user_ID = %s",
-        (session["user_ID"],),
-    )
-    admin = cursor.fetchone()
-    return render_template("admin_profile.html", admin=admin)
+    if "username" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Get the admin details from the database using the user_ID
+        cursor.execute(
+            "SELECT * FROM User NATURAL JOIN Admin WHERE user_ID = %s",
+            (session["user_ID"],),
+        )
+        admin = cursor.fetchone()
+        return render_template("admin_profile.html", admin=admin)
+    return redirect(url_for("login"))
 
 
 # This page will be used to show the customer product details and the customer product picture
@@ -2126,20 +2163,6 @@ def admin_report():
     cursor.execute("SELECT * FROM Report ORDER BY report_date")
     reports = cursor.fetchall()
     return render_template("admin_user_report.html", reports=reports)
-
-
-# TODO: Explain and fix the function
-def get_next_ID_report():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # Fetch the current maximum ID from the table
-    cursor.execute(
-        "SELECT * FROM Report ORDER BY CONVERT(report_ID, UNSIGNED INTEGER) DESC"
-    )
-    max_id = cursor.fetchone()
-    if max_id is None:
-        return "1"  # Start from 1 if no records exist
-    max_id = max_id["report_ID"]
-    return str(int(max_id) + 1)
 
 
 # Main function to run the application
