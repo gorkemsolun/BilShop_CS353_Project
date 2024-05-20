@@ -557,6 +557,10 @@ def customer_main_page():
             ("not_sold", items_per_page, offset),
         )
         product_table = cursor.fetchall()
+        for product in product_table:
+            if product['cover_picture']:
+                encoded_image = base64.b64encode(product['cover_picture']).decode("utf-8")
+                product['cover_picture'] = encoded_image
         # Pass the customer product table, page number, and user session information to HTML
         return render_template(
             "customer_main_page.html",
@@ -845,11 +849,14 @@ def shopping_cart():
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # Get all products from shopping cart
         cursor.execute(
-            "SELECT product_ID, title, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
+            "SELECT product_ID, title, cover_picture, price, amount FROM Product NATURAL JOIN Puts_On_Cart NATURAL JOIN User  WHERE user_ID= %s",
             (session["user_ID"],),
         )
         cart = cursor.fetchall()
-
+        for product in cart:
+            if product['cover_picture']:
+                encoded_image = base64.b64encode(product['cover_picture']).decode("utf-8")
+                product['cover_picture'] = encoded_image
         return render_template("shopping_cart.html", cart=cart)
     return redirect(url_for("login"))
 
