@@ -139,6 +139,15 @@
             <div class="col-md-4">
               <div class="admin_product-container">
                 <div class="admin_product-title">{{ admin_product.title }}</div>
+                  {% if admin_product.cover_picture %}
+                  <div class = "product-picture">
+                    <img
+                    src="data:image/jpeg;base64,{{ admin_product.cover_picture }}"
+                    alt="Product Picture"
+                    width="150"
+                  />
+                  </div>
+                {% endif %}
                 <div class="admin_product-price">{{ admin_product.price }}</div>
                 <!-- Add other admin product details as needed -->
                 <a
@@ -146,6 +155,13 @@
                   class="btn btn-primary"
                   >View Product</a
                 >
+                  <!-- Delete product button -->
+                <button
+                  class="btn btn-danger btn-delete-product m-2"
+                  data-product-id="{{ admin_product.product_ID }}"
+                >
+                  <i class="bi bi-trash-fill"></i>
+                </button>
               </div>
             </div>
             {% endfor %}
@@ -176,7 +192,7 @@
         </form>
     </div>
     </div>
-
+    </div>
     <!-- Bootstrap JS Bundle with Popper -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
@@ -186,6 +202,19 @@
 
     <!-- TODO: WHAT THIS DOES? -->
     <script>
+        function addDeleteButtonListeners() {
+        document.querySelectorAll(".btn-delete-product").forEach((button) => {
+          button.addEventListener("click", function (event) {
+            const productId = event.currentTarget.dataset.productId;
+            const confirmation = confirm(
+              "Are you sure you want to delete this product?"
+            );
+            if (confirmation) {
+              deleteProduct(productId);
+            }
+          });
+        });
+      }
       document.addEventListener("DOMContentLoaded", function () {
         document
           .getElementById("searchButton")
@@ -223,11 +252,15 @@
             <div class="admin_product-title">${admin_product.title}</div>
             <div class="admin_product-price">${admin_product.price}</div>
             <!-- Add other admin product details as needed -->
+            <a href="/admin_product/${admin_product.product_ID}" class="btn btn-primary me">View Product</a>
+          <button class="btn btn-danger btn-delete-product m-2" data-product-id="${admin_product.product_ID}">
+            <i class="bi bi-trash-fill"></i>
+          </button>
           </div>
         `;
           productRow.appendChild(productDiv);
         });
-        productListingsDiv.appendChild(productRow); // Append the row to the parent container
+        addDeleteButtonListeners();
       }
       function applyFilter() {
         var category = document.getElementById("category").value;
@@ -254,6 +287,29 @@
         };
         xhr.send();
       }
+      // Function to delete a product
+      function deleteProduct(productId) {
+        fetch(`/delete_product/${productId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            if (response.ok) {
+              // Reload the page upon successful deletion
+              location.reload();
+            } else {
+              console.error("Failed to delete product");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      // Initial setup: attach event listeners to delete buttons
+      addDeleteButtonListeners();
     </script>
   </body>
 </html>

@@ -780,11 +780,13 @@ def admin_main_page():
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # Get all products that are not sold using the following query
         cursor.execute(
-            "SELECT * FROM Owns NATURAL JOIN Product WHERE product_status= %s",
-            ("not_sold",),
+            "SELECT * FROM Owns NATURAL JOIN Product"
         )
         product_table = cursor.fetchall()
-
+        for product in product_table:
+            if product['cover_picture']:
+                encoded_image = base64.b64encode(product['cover_picture']).decode("utf-8")
+                product['cover_picture'] = encoded_image
         return render_template(
             "admin_main_page.html",
             product_table=product_table,
