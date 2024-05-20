@@ -1309,6 +1309,9 @@ def customer_profile():
         (session["user_ID"],),
     )
     customer = cursor.fetchone()
+    if customer['picture']:
+        encoded_image = base64.b64encode(customer['picture']).decode("utf-8")
+        customer['picture'] = encoded_image
     return render_template("customer_profile.html", customer=customer)
 
 
@@ -1435,6 +1438,9 @@ def business_profile():
         (session["user_ID"],),
     )
     business = cursor.fetchone()
+    if business['picture']:
+        encoded_image = base64.b64encode(business['picture']).decode("utf-8")
+        business['picture'] = encoded_image
     return render_template("business_profile.html", business=business)
 
 

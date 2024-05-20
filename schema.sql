@@ -4,7 +4,7 @@ CREATE TABLE
         name varchar(50) not null,
         email varchar(50) not null,
         password varchar(1000) not null,
-        picture varchar(100) default null,
+        picture BLOB default null,
         phone_number varchar(100) default null,
         country varchar(100) default null,
         city varchar(100) default null,
