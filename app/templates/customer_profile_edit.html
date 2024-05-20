@@ -20,6 +20,21 @@
       href="{{ url_for('static', filename='styles/customer_profile_edit.css') }}"
     />
   </head>
+
+  <!-- Message -->
+  {% if message is defined and message %}
+  <div class="alert-container">
+    <div class="alert alert-warning">{{ message }}</div>
+  </div>
+  {% endif %}
+  <script>
+    setTimeout(function () {
+      var alertContainer = document.querySelector(".alert-container");
+      if (alertContainer) {
+        alertContainer.remove();
+      }
+    }, 5000); // 5000 milliseconds = 5 seconds
+  </script>
   <body>
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
