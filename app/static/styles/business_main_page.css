@@ -54,10 +54,16 @@ body {
   font-size: xx-large;
 }
 
-.btn-primary.me{
-    display: flex;
-    justify-content: space-around;
-    flex-direction: column;
-    margin: 7px;
+.btn-primary.me {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  margin: 7px;
 }
 
+.product-picture {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+}

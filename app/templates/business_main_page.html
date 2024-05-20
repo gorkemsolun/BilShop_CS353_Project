@@ -188,15 +188,28 @@
                 <div class="business_product-title">
                   {{ business_product.title }}
                 </div>
-                {% if business_product.cover_picture %}
-                  <div >
+                <div class="product-image">
+                  {% if business_product.cover_picture %}
+                  <div class="product-image">
                     <img
-                    src="data:image/jpeg;base64,{{ business_product.cover_picture }}"
-                    alt="Product Picture"
-                    class="product-image"
-                  /> 
+                      src="data:image/jpeg;base64,{{ business_product.cover_picture }}"
+                      alt="Product Picture"
+                      width="200"
+                      style="margin-left: 10%"
+                    />
                   </div>
-                {% endif %}
+                  {% endif %} {% if not business_product.cover_picture %}
+                  <div class="product-image">
+                    <img
+                      src="{{ url_for('static', filename='images/product.png') }}"
+                      alt="Product Picture"
+                      width="200"
+                      style="margin-left: 10%"
+                    />
+                  </div>
+                  {% endif %}
+                </div>
+
                 <div class="business_product-price">
                   {{ business_product.price }}
                 </div>
@@ -295,15 +308,15 @@
       }
 
       // Update product listings with filtered products
-        // Update product listings with filtered products
-        function updateProductListings(products) {
-            var productListingsDiv = document.getElementById("productListings");
-            var productRow = productListingsDiv.querySelector(".row");
-            productRow.innerHTML = ""; // Clear previous listings
-            products.forEach(function (business_product) {
-                var productDiv = document.createElement("div");
-                productDiv.className = "col-md-4";
-                productDiv.innerHTML = `
+      // Update product listings with filtered products
+      function updateProductListings(products) {
+        var productListingsDiv = document.getElementById("productListings");
+        var productRow = productListingsDiv.querySelector(".row");
+        productRow.innerHTML = ""; // Clear previous listings
+        products.forEach(function (business_product) {
+          var productDiv = document.createElement("div");
+          productDiv.className = "col-md-4";
+          productDiv.innerHTML = `
       <div class="business_product-container">
         <div class="business_product-title">${business_product.title}</div>
         <div class="business_product-price">${business_product.price}</div>
@@ -316,12 +329,12 @@
         </div>
       </div>
     `;
-                productRow.appendChild(productDiv);
-            });
+          productRow.appendChild(productDiv);
+        });
 
-            // Reattach event listeners to delete buttons
-            addDeleteButtonListeners();
-        }
+        // Reattach event listeners to delete buttons
+        addDeleteButtonListeners();
+      }
 
       // Apply filter function
       function applyFilter() {

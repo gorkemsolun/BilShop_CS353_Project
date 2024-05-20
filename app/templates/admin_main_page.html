@@ -138,24 +138,36 @@
             {% for admin_product in product_table %}
             <div class="col-md-4">
               <div class="admin_product-container">
-                <div class="admin_product-title m-2">{{ admin_product.title }}</div>
-                  {% if admin_product.cover_picture %}
-                  <div class = "product-picture m-2">
-                    <img
+                <div class="admin_product-title m-2">
+                  {{ admin_product.title }}
+                </div>
+                {% if admin_product.cover_picture %}
+                <div class="product-picture m-2">
+                  <img
                     src="data:image/jpeg;base64,{{ admin_product.cover_picture }}"
                     alt="Product Picture"
                     width="150"
                   />
-                  </div>
+                </div>
+                {% endif %} {% if not admin_product.cover_picture %}
+                <div class="product-picture m-2">
+                  <img
+                    src="{{ url_for('static', filename='images/product.png') }}"
+                    alt="Product Picture"
+                    width="150"
+                  />
+                </div>
                 {% endif %}
-                <div class="admin_product-price m-2">{{ admin_product.price }}</div>
+                <div class="admin_product-price m-2">
+                  {{ admin_product.price }}
+                </div>
                 <!-- Add other admin product details as needed -->
                 <a
                   href="/admin_product/{{ admin_product.product_ID }}"
                   class="btn btn-primary m-2"
                   >View Product</a
                 >
-                  <!-- Delete product button -->
+                <!-- Delete product button -->
                 <button
                   class="btn btn-danger btn-delete-product m-2"
                   data-product-id="{{ admin_product.product_ID }}"
@@ -179,19 +191,19 @@
               Send Notification
             </button>
           </form>
+        </div>
+        <div class="col-md-12 m-3">
+          <form action="{{ url_for('admin_system_report') }}" method="get">
+            <button
+              class="btn btn-primary w-100"
+              type="submit"
+              title="Send Notification"
+            >
+              System Panel
+            </button>
+          </form>
+        </div>
       </div>
-      <div class="col-md-12 m-3">
-        <form action="{{ url_for('admin_system_report') }}" method="get">
-          <button
-            class="btn btn-primary w-100"
-            type="submit"
-            title="Send Notification"
-          >
-            System Panel
-          </button>
-        </form>
-    </div>
-    </div>
     </div>
     <!-- Bootstrap JS Bundle with Popper -->
     <script
@@ -202,7 +214,7 @@
 
     <!-- TODO: WHAT THIS DOES? -->
     <script>
-        function addDeleteButtonListeners() {
+      function addDeleteButtonListeners() {
         document.querySelectorAll(".btn-delete-product").forEach((button) => {
           button.addEventListener("click", function (event) {
             const productId = event.currentTarget.dataset.productId;

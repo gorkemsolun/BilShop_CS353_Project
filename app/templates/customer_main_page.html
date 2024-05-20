@@ -176,19 +176,27 @@
         <div class="col-md-9" id="productListings">
           <div class="row">
             {% for customer_product in product_table %}
-            <div class="col-md-4">
+            <div class="col-md-4 m-1">
               <div class="customer_product-container">
                 <div class="customer_product-title m-1">
                   {{ customer_product.title }}
                 </div>
                 {% if customer_product.cover_picture %}
-                  <div class = "product-picture">
-                    <img
+                <div class="product-picture">
+                  <img
                     src="data:image/jpeg;base64,{{ customer_product.cover_picture }}"
                     alt="Product Picture"
                     width="150"
-                  /> 
-                  </div>
+                  />
+                </div>
+                {% endif %} {% if not customer_product.cover_picture %}
+                <div class="product-picture">
+                  <img
+                    src="{{ url_for('static', filename='images/product.png') }}"
+                    alt="Product Picture"
+                    width="150"
+                  />
+                </div>
                 {% endif %}
                 <div class="customer_product-price m-1">
                   {{ customer_product.price }}
@@ -280,7 +288,7 @@
             <div class="customer_product-price">${customer_product.price}</div>
             <div>
                 <a
-                  href="/customer_product/${ customer_product.product_ID }"
+                  href="/customer_product/${customer_product.product_ID}"
                   class="btn btn-primary"
                   >View Product</a
                 >
