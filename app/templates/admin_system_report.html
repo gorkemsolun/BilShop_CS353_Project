@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Report Panel</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
@@ -20,257 +20,265 @@
       href="{{ url_for('static', filename='styles/admin_product.css') }}"
     />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
 
-        nav {
-            background-color: #333;
-            display: flex;
-            justify-content: center;
-        }
+      nav {
+        background-color: #333;
+        display: flex;
+        justify-content: center;
+      }
 
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
+      nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+      }
 
-        h1 {
-          color: white
-        }
+      h1 {
+        color: white;
+      }
 
-        nav ul li {
-            margin: 0;
-        }
+      nav ul li {
+        margin: 0;
+      }
 
-        nav ul li.selected a {
-            background-color: #111;
-        }
+      nav ul li.selected a {
+        background-color: #111;
+      }
 
-        nav ul li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
+      nav ul li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+      }
 
-        nav ul li a:hover {
-            background-color: #111;
-        }
+      nav ul li a:hover {
+        background-color: #111;
+      }
 
-        .content {
-            padding: 20px;
-            display: none;
-        }
+      .content {
+        padding: 20px;
+        display: none;
+      }
 
-        .content.active {
-            display: block;
-        }
+      .content.active {
+        display: block;
+      }
 
-        /* Specific styles for each section */
-        .userreports {
-            background-color: #f9f9f9;
-        }
+      /* Specific styles for each section */
+      .userreports {
+        background-color: #f9f9f9;
+      }
 
-        .systemreports {
-            background-color: #e9e9e9;
-        }
+      .systemreports {
+        background-color: #e9e9e9;
+      }
 
-        .services {
-            background-color: #d9d9d9;
-        }
+      .services {
+        background-color: #d9d9d9;
+      }
 
-        .blacklist {
-            background-color: #c9c9c9;
-        }
+      .blacklist {
+        background-color: #c9c9c9;
+      }
 
-        .table-container {
-            margin-top: 20px;
-        }
+      .table-container {
+        margin-top: 20px;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
 
-        table, th, td {
-            border: 1px solid black;
-        }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
 
-        th, td {
-            color:white;
-            padding: 8px;
-            text-align: left;
-        }
-        .container {
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .report {
-            display: none;
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            color: white; /* Set text color to white */
-            background-color: #333; /* Set background color for better contrast */
-        }
-        .report-button {
-            margin-top: 10px;
-        }
+      th,
+      td {
+        color: white;
+        padding: 8px;
+        text-align: left;
+      }
+      .container {
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .report {
+        display: none;
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        color: white; /* Set text color to white */
+        background-color: #333; /* Set background color for better contrast */
+      }
+      .report-button {
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="/admin_main_page">Main Page</a></li>
-                <li><a href="/admin_system_report">System Reports</a></li>
-                <li><a href="/admin_user_report">User Reports</a></li>
-                <li><a href="/tables">Services</a></li>
-                <li><a href="/admin_blacklist">Blacklist</a></li>
-                <li><a href="/logout" id="logoutLink">Logout</a></li>
-            </ul>
-        </nav>
+      <nav>
+        <ul>
+          <li><a href="/admin_main_page">Main Page</a></li>
+          <li><a href="/admin_system_report">System Reports</a></li>
+          <li><a href="/admin_user_report">User Reports</a></li>
+          <li><a href="/tables">Services</a></li>
+          <li><a href="/admin_blacklist">Blacklist</a></li>
+          <li><a href="/logout" id="logoutLink">Logout</a></li>
+        </ul>
+      </nav>
     </header>
     <div class="container mt-4">
-        <div class="row">
-            <h1>System Reports</h1>
-            <div class="container mt-4">
-                <div class="row">
-                </div>
-                <div class="row">
-                    <button class="report-button" onclick="toggleReport('report1')">Views</button>
-                    <div class="report" id="report1" textcolor="white">
-                        <h2>Popular Products by Category</h2>
-                        <table id="popular-products-category">
-                            <tr>
-                                <th>Category</th>
-                                <th>Product ID</th>
-                                <th>Product Name</th>
-                                <th>Purchase Count</th>
-                            </tr>
-                            {% for product in popular_products_category %}
-                            <tr>
-                                <td>{{ product.category }}</td>
-                                <td>{{ product.most_sold_product_ID }}</td>
-                                <td>{{ product.most_sold_product_title }}</td>
-                                <td>{{ product.total_sold }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
+      <div class="row">
+        <h1>System Reports</h1>
+        <div class="container mt-4">
+          <div class="row"></div>
+          <div class="row">
+            <button class="report-button" onclick="toggleReport('report1')">
+              Views
+            </button>
+            <div class="report" id="report1" textcolor="white">
+              <h2>Popular Products by Category</h2>
+              <table id="popular-products-category">
+                <tr>
+                  <th>Category</th>
+                  <th>Product ID</th>
+                  <th>Product Name</th>
+                  <th>Purchase Count</th>
+                </tr>
+                {% for product in popular_products_category %}
+                <tr>
+                  <td>{{ product.category }}</td>
+                  <td>{{ product.most_sold_product_ID }}</td>
+                  <td>{{ product.most_sold_product_title }}</td>
+                  <td>{{ product.total_sold }}</td>
+                </tr>
+                {% endfor %}
+              </table>
 
-                        <h2>Active Customers</h2>
-                        <table id="active-customers">
-                            <tr>
-                                <th>User ID</th>
-                                <th>Customer Name</th>
-                                <th>Total Spent</th>
-                            </tr>
-                            {% for customer in active_customers %}
-                            <tr>
-                                <td>{{ customer.user_ID }}</td>
-                                <td>{{ customer.customer_name }}</td>
-                                <td>{{ customer.total_spent }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
+              <h2>Active Customers</h2>
+              <table id="active-customers">
+                <tr>
+                  <th>User ID</th>
+                  <th>Customer Name</th>
+                  <th>Total Spent</th>
+                </tr>
+                {% for customer in active_customers %}
+                <tr>
+                  <td>{{ customer.user_ID }}</td>
+                  <td>{{ customer.customer_name }}</td>
+                  <td>{{ customer.total_spent }}</td>
+                </tr>
+                {% endfor %}
+              </table>
 
-                        <h2>Total Sales Products</h2>
-                        <table id="popular-products">
-                            <tr>
-                                <th>Product ID</th>
-                                <th>Product Name</th>
-                                <th>Total Purchases</th>
-                            </tr>
-                            {% for product in popular_products %}
-                            <tr>
-                                <td>{{ product.product_ID }}</td>
-                                <td>{{ product.product_name }}</td>
-                                <td>{{ product.total_purchased_amount }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
+              <h2>Total Sales Products</h2>
+              <table id="popular-products">
+                <tr>
+                  <th>Product ID</th>
+                  <th>Product Name</th>
+                  <th>Total Purchases</th>
+                </tr>
+                {% for product in popular_products %}
+                <tr>
+                  <td>{{ product.product_ID }}</td>
+                  <td>{{ product.product_name }}</td>
+                  <td>{{ product.total_purchased_amount }}</td>
+                </tr>
+                {% endfor %}
+              </table>
 
-                        <h2>Unresolved Return Requests</h2>
-                        <table id="unresolved-return-requests">
-                            <tr>
-                                <th>Return ID</th>
-                                <th>Reason</th>
-                                <th>Return Request Status</th>
-                                <th>Purchase ID</th>
-                            </tr>
-                            {% for request in unresolved_return_requests %}
-                            <tr>
-                                <td>{{ request.return_ID }}</td>
-                                <td>{{ request.reason }}</td>
-                                <td>{{ request.return_request_status }}</td>
-                                <td>{{ request.purchase_ID }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
+              <h2>Unresolved Return Requests</h2>
+              <table id="unresolved-return-requests">
+                <tr>
+                  <th>Return ID</th>
+                  <th>Reason</th>
+                  <th>Return Request Status</th>
+                  <th>Purchase ID</th>
+                </tr>
+                {% for request in unresolved_return_requests %}
+                <tr>
+                  <td>{{ request.return_ID }}</td>
+                  <td>{{ request.reason }}</td>
+                  <td>{{ request.return_request_status }}</td>
+                  <td>{{ request.purchase_ID }}</td>
+                </tr>
+                {% endfor %}
+              </table>
 
-                        <h2>Total Sales by Business</h2>
-                        <table id="total-sales-business">
-                            <tr>
-                                <th>Company Name</th>
-                                <th>Total Sales</th>
-                            </tr>
-                            {% for sales in total_sales_business %}
-                            <tr>
-                                <td>{{ sales.company_name }}</td>
-                                <td>{{ sales.total_sale_count }}</td>
-                                <td>{{ sales.total_sales }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                </div>
-                <div class="row">
-                    <button class="report-button" onclick="toggleReport('report2')">Complex Query 1</button>
-                    <div class="report" id="report2">
-                        <h2>Min-Max Price per Category</h2>
-                        <table id="total-sales-business">
-                            <tr>
-                                <th>Category</th>
-                                <th>Minimum Price</th>
-                                <th>Maximum Price</th>
-                            </tr>
-                            {% for sales in complex_query_1 %}
-                            <tr>
-                                <td>{{ sales.category }}</td>
-                                <td>{{ sales.min_price }}</td>
-                                <td>{{ sales.max_price }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                </div>
-                <div class="row">
-                    <button class="report-button" onclick="toggleReport('report3')">Complex Query 2</button>
-                    <div class="report" id="report3">
-                        <h2>User(s) With Maximum Number of Purchases</h2>
-                        <table id="total-sales-business">
-                            <tr>
-                                <th>User ID</th>
-                                <th>Name</th>
-                                <th>MAX Purchases</th>
-                            </tr>
-                            {% for sales in complex_query_2 %}
-                            <tr>
-                                <td>{{ sales.user_ID }}</td>
-                                <td>{{ sales.name }}</td>
-                                <td>{{ sales.max_purchases }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                </div>
-                <!--
+              <h2>Total Sales by Business</h2>
+              <table id="total-sales-business">
+                <tr>
+                  <th>Company Name</th>
+                  <th>Total Sales</th>
+                </tr>
+                {% for sales in total_sales_business %}
+                <tr>
+                  <td>{{ sales.company_name }}</td>
+                  <td>{{ sales.total_sale_count }}</td>
+                  <td>{{ sales.total_sales }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <button class="report-button" onclick="toggleReport('report2')">
+              Complex Query 1
+            </button>
+            <div class="report" id="report2">
+              <h2>Min-Max Price per Category</h2>
+              <table id="total-sales-business">
+                <tr>
+                  <th>Category</th>
+                  <th>Minimum Price</th>
+                  <th>Maximum Price</th>
+                </tr>
+                {% for sales in complex_query_1 %}
+                <tr>
+                  <td>{{ sales.category }}</td>
+                  <td>{{ sales.min_price }}</td>
+                  <td>{{ sales.max_price }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <button class="report-button" onclick="toggleReport('report3')">
+              Complex Query 2
+            </button>
+            <div class="report" id="report3">
+              <h2>User(s) With Maximum Number of Purchases</h2>
+              <table id="total-sales-business">
+                <tr>
+                  <th>User ID</th>
+                  <th>Name</th>
+                  <th>MAX Purchases</th>
+                </tr>
+                {% for sales in complex_query_2 %}
+                <tr>
+                  <td>{{ sales.user_ID }}</td>
+                  <td>{{ sales.name }}</td>
+                  <td>{{ sales.max_purchases }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+          <!--
                 <div class="row">
                     <button class="report-button" onclick="toggleReport('report4')">Toggle Report 4</button>
                     <div class="report" id="report4">
@@ -284,31 +292,31 @@
                     </div>
                 </div>
                 -->
-            </div>
         </div>
+      </div>
     </div>
 
     <script>
-        function toggleReport(reportId) {
-            var report = document.getElementById(reportId);
-            if (report.style.display === 'none') {
-                report.style.display = 'block';
-            } else {
-                report.style.display = 'none';
-            }
+      function toggleReport(reportId) {
+        var report = document.getElementById(reportId);
+        if (report.style.display === "none") {
+          report.style.display = "block";
+        } else {
+          report.style.display = "none";
         }
+      }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var reports = document.querySelectorAll('.report');
-            reports.forEach(function(report) {
-                report.style.display = 'none';
-            });
+      document.addEventListener("DOMContentLoaded", function () {
+        var reports = document.querySelectorAll(".report");
+        reports.forEach(function (report) {
+          report.style.display = "none";
         });
+      });
     </script>
 
     <script>
-        // Function to show confirmation message
-        function confirmLogout(event) {
+      // Function to show confirmation message
+      function confirmLogout(event) {
         event.preventDefault(); // Prevent the default action (following the link)
 
         // Display the confirmation message
@@ -316,13 +324,14 @@
 
         // If user confirms, redirect to the logout URL
         if (confirmation) {
-            window.location.href = event.target.href; // Redirect to the logout URL
+          window.location.href = event.target.href; // Redirect to the logout URL
         }
-        }
+      }
 
-        // Attach click event listener to the logout link
-        document.getElementById("logoutLink").addEventListener("click", confirmLogout);
+      // Attach click event listener to the logout link
+      document
+        .getElementById("logoutLink")
+        .addEventListener("click", confirmLogout);
     </script>
-
-</body>
+  </body>
 </html>

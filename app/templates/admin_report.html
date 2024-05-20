@@ -1,151 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Report Panel</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
 
-        nav {
-            background-color: #333;
-            display: flex;
-            justify-content: center;
-        }
+      nav {
+        background-color: #333;
+        display: flex;
+        justify-content: center;
+      }
 
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
+      nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+      }
 
-        nav ul li {
-            margin: 0;
-        }
+      nav ul li {
+        margin: 0;
+      }
 
-        nav ul li.selected a {
-            background-color: #111;
-        }
+      nav ul li.selected a {
+        background-color: #111;
+      }
 
-        nav ul li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
+      nav ul li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+      }
 
-        nav ul li a:hover {
-            background-color: #111;
-        }
+      nav ul li a:hover {
+        background-color: #111;
+      }
 
-        .content {
-            padding: 20px;
-            display: none;
-        }
+      .content {
+        padding: 20px;
+        display: none;
+      }
 
-        .content.active {
-            display: block;
-        }
+      .content.active {
+        display: block;
+      }
 
-        /* Specific styles for each section */
-        .userreports {
-            background-color: #f9f9f9;
-        }
+      /* Specific styles for each section */
+      .userreports {
+        background-color: #f9f9f9;
+      }
 
-        .systemreports {
-            background-color: #e9e9e9;
-        }
+      .systemreports {
+        background-color: #e9e9e9;
+      }
 
-        .services {
-            background-color: #d9d9d9;
-        }
+      .services {
+        background-color: #d9d9d9;
+      }
 
-        .blacklist {
-            background-color: #c9c9c9;
-        }
+      .blacklist {
+        background-color: #c9c9c9;
+      }
 
-        .table-container {
-            margin-top: 20px;
-        }
+      .table-container {
+        margin-top: 20px;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
 
-        table, th, td {
-            border: 1px solid black;
-        }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+      }
 
-        th {
-            background-color: #f2f2f2;
-        }
+      th {
+        background-color: #f2f2f2;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <nav>
-        <ul>
-            <li class="selected"><a href="#" onclick="showDiv('userreports')">User Reports</a></li>
-            <li><a href="#" onclick="showDiv('systemreports')">System Reports</a></li>
-            <li><a href="#" onclick="showDiv('services')">Services</a></li>
-            <li><a href="#" onclick="showDiv('blacklist')">Blacklist</a></li>
-        </ul>
+      <ul>
+        <li class="selected">
+          <a href="#" onclick="showDiv('userreports')">User Reports</a>
+        </li>
+        <li>
+          <a href="#" onclick="showDiv('systemreports')">System Reports</a>
+        </li>
+        <li><a href="#" onclick="showDiv('services')">Services</a></li>
+        <li><a href="#" onclick="showDiv('blacklist')">Blacklist</a></li>
+      </ul>
     </nav>
 
     <div id="content-container"></div>
 
     <script>
-        window.onload = function() {
-            loadContent('/admin_report_panel_home', 'content-container');
+      window.onload = function () {
+        loadContent("/admin_report_panel_home", "content-container");
+      };
+
+      function showDiv(divId) {
+        var url;
+        switch (divId) {
+          case "userreports":
+            url = "/admin_report_panel_home";
+            break;
+          case "systemreports":
+            url = "/admin_report_panel_about";
+            break;
+          case "services":
+            url = "/admin_report_panel_services";
+            break;
+          case "blacklist":
+            url = "/admin_report_panel_blacklist";
+            break;
+        }
+        var navItems = document.querySelectorAll("nav ul li");
+        navItems.forEach((item) => {
+          item.classList.remove("selected");
+        });
+
+        event.target.parentNode.classList.add("selected");
+
+        loadContent(url, "content-container");
+      }
+
+      function loadContent(url, containerId) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState == 4 && xhr.status == 200) {
+            document.getElementById(containerId).innerHTML = xhr.responseText;
+          }
         };
-
-        function showDiv(divId) {
-            var url;
-            switch(divId) {
-                case 'userreports':
-                    url = '/admin_report_panel_home';
-                    break;
-                case 'systemreports':
-                    url = '/admin_report_panel_about';
-                    break;
-                case 'services':
-                    url = '/admin_report_panel_services';
-                    break;
-                case 'blacklist':
-                    url = '/admin_report_panel_blacklist';
-                    break;
-            }
-            var navItems = document.querySelectorAll('nav ul li');
-            navItems.forEach(item => {
-                item.classList.remove('selected');
-            });
-
-            event.target.parentNode.classList.add('selected');
-
-            loadContent(url, 'content-container');
-        }
-
-        function loadContent(url, containerId) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    document.getElementById(containerId).innerHTML = xhr.responseText;
-                }
-            };
-            xhr.send();
-        }
+        xhr.send();
+      }
     </script>
-</body>
+  </body>
 </html>

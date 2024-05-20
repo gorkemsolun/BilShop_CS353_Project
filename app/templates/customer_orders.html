@@ -1,154 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Active Orders</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-      integrity="sha512-sv6pgpFvAlzoBv2wJYbHkGY34A4fQsGYapb8O9mJ+9avshYyxHhCHGW3BDWnRlJMg1D+Dq0yAzV8BrVXU3HN0w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles/customer_active_orders.css') }}"
-    />
-  </head>
-
-  <body>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-sv6pgpFvAlzoBv2wJYbHkGY34A4fQsGYapb8O9mJ+9avshYyxHhCHGW3BDWnRlJMg1D+Dq0yAzV8BrVXU3HN0w==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/customer_active_orders.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
-        <div class="d-flex">
-          <form action="{{ url_for('shopping_cart') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Cart"
-            >
-              <i class="bi bi-cart3"></i>
-            </button>
-          </form>
-          <form action="{{ url_for('notifications') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Notification"
-            >
-              <i class="bi bi-bell"></i>
-            </button>
-          </form>
-          <form action="{{ url_for('customer_profile') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Customer Profile"
-            >
-              <i class="bi bi-person"></i>
-            </button>
-          </form>
-          <form action="{{ url_for('balance') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Customer Profile"
-            >
-              <i class="bi bi-wallet2"></i>
-            </button>
-          </form>
-          <form action="{{ url_for('logout') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Logout"
-            >
-              <i class="bi bi-box-arrow-left"></i>
-            </button>
-          </form>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/customer_main_page"><b>BilShop</b></a>
+            <div class="d-flex">
+                <form action="{{ url_for('shopping_cart') }}" method="get">
+                    <button class="btn btn-outline-light me-2" type="submit" title="Cart">
+                        <i class="bi bi-cart3"></i>
+                    </button>
+                </form>
+                <form action="{{ url_for('notifications') }}" method="get">
+                    <button class="btn btn-outline-light me-2" type="submit" title="Notification">
+                        <i class="bi bi-bell"></i>
+                    </button>
+                </form>
+                <form action="{{ url_for('customer_profile') }}" method="get">
+                    <button class="btn btn-outline-light me-2" type="submit" title="Customer Profile">
+                        <i class="bi bi-person"></i>
+                    </button>
+                </form>
+                <form action="{{ url_for('balance') }}" method="get">
+                    <button class="btn btn-outline-light me-2" type="submit" title="Customer Profile">
+                        <i class="bi bi-wallet2"></i>
+                    </button>
+                </form>
+                <form action="{{ url_for('logout') }}" method="get">
+                    <button class="btn btn-outline-light me-2" type="submit" title="Logout">
+                        <i class="bi bi-box-arrow-left"></i>
+                    </button>
+                </form>
+            </div>
         </div>
-      </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container mt-3">
-      <div class="row">
-        <div class="col-md-12">
-          {% if past %}
-          <a href="/customer_active_orders" class="btn btn-primary"
-            >Active Orders</a
-          >
-          <h1 class="past-orders-title m-3">Past Orders</h1>
-          {% else %}
-          <a href="/customer_past_orders" class="btn btn-primary"
-            >Past Orders</a
-          >
-          <h1 class="active-orders-title m-3">Active Orders</h1>
-          {% endif %}
-        </div>
-        <div class="col-md-12" id="activeOrders">
-          <div class="row">
-            {% if purchaseinfo %} {% for order in purchaseinfo %}
-            <div class="col-md-4">
-              <div class="order-container m-2">
-                <div class="order-id m-1">
-                  <b>Order ID:</b> {{ order.purchase_ID }}
-                </div>
-                <div class="order-title m-1">
-                  <b>Product Title:</b> {{ order.title }}
-                </div>
-                <div class="order-status m-1">
-                  <b>Status:</b> {{ order.purchase_status }}
-                </div>
-                <div class="order-total-price m-1">
-                  <b>Total Price:</b> ${{ order.total_price }}
-                </div>
-                <div class="order-date m-1">
-                  <b>Purchase Date:</b> {{ order.purchase_date }}
-                </div>
-                <div class="order-amount m-1">
-                  <b>Amount:</b> {{ order.amount }}
-                </div>
-                <a
-                  href="/customer_product/{{ order.product_ID }}"
-                  class="btn btn-primary m-1"
-                  >View Product</a
-                >
-                <a
-                  href="/customer_order_return/{{ order.purchase_ID }}"
-                  class="btn btn-danger m-1"
-                  >Return Order</a
-                >
-              </div>
-            </div>
-            {% endfor %} {% else %} {% if past %}
+        <div class="row">
             <div class="col-md-12">
-              <p>You have no past orders.</p>
+                <!-- Conditional button and title based on 'past' variable -->
+                {% if past %}
+                <a href="/customer_active_orders" class="btn btn-primary">Active Orders</a>
+                <h1 class="past-orders-title m-3">Past Orders</h1>
+                {% else %}
+                <a href="/customer_past_orders" class="btn btn-primary">Past Orders</a>
+                <h1 class="active-orders-title m-3">Active Orders</h1>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="col-md-12">
-              <p>You have no active orders.</p>
+            <div class="col-md-12" id="activeOrders">
+                <div class="row">
+                    <!-- Conditional rendering of orders -->
+                    {% if not past %}
+                    {% if purchaseinfo %}
+                    {% for order in purchaseinfo %}
+                    <!-- Order item -->
+                    <div class="col-md-4">
+                        <div class="order-container m-2">
+                            <div class="order-id m-1">
+                                <b>Order ID:</b> {{ order.purchase_ID }}
+                            </div>
+                            <div class="order-title m-1">
+                                <b>Product Title:</b> {{ order.title }}
+                            </div>
+                            <div class="order-status m-1">
+                                <b>Status:</b> {{ order.purchase_status }}
+                            </div>
+                            <div class="order-total-price m-1">
+                                <b>Total Price:</b> ${{ order.total_price }}
+                            </div>
+                            <div class="order-date m-1">
+                                <b>Purchase Date:</b> {{ order.purchase_date }}
+                            </div>
+                            <div class="order-amount m-1">
+                                <b>Amount:</b> {{ order.amount }}
+                            </div>
+                            <a href="/customer_product/{{ order.product_ID }}" class="btn btn-primary m-1">View Product</a>
+                            <a href="/customer_order_return/{{ order.purchase_ID }}" class="btn btn-danger m-1">Return Order</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% else %}
+                    {% if purchaseinfo %}
+                    {% for order in purchaseinfo %}
+                    <!-- Order item -->
+                    <div class="col-md-4">
+                        <div class="order-container m-2">
+                            <div class="order-id m-1">
+                                <b>Order ID:</b> {{ order.purchase_ID }}
+                            </div>
+                            <div class="order-title m-1">
+                                <b>Product Title:</b> {{ order.title }}
+                            </div>
+                            <div class="order-status m-1">
+                                <b>Status:</b> {{ order.purchase_status }}
+                            </div>
+                            <div class="order-total-price m-1">
+                                <b>Total Price:</b> ${{ order.total_price }}
+                            </div>
+                            <div class="order-date m-1">
+                                <b>Purchase Date:</b> {{ order.purchase_date }}
+                            </div>
+                            <div class="order-amount m-1">
+                                <b>Amount:</b> {{ order.amount }}
+                            </div>
+                            <a href="/customer_product/{{ order.product_ID }}" class="btn btn-primary m-1">View Product</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endif %}
+                </div>
             </div>
-            {% endif %} {% endif %}
-          </div>
         </div>
-      </div>
     </div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-      integrity="sha384-oBqDVmMz4fnFO9gybBogGzOxB5QdQ4l3gX5dY69OnpXt6wOcA+6gxCfEivDa/uGs"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+            integrity="sha384-oBqDVmMz4fnFO9gybBogGzOxB5QdQ4l3gX5dY69OnpXt6wOcA+6gxCfEivDa/uGs"
+            crossorigin="anonymous"></script>
+</body>
 </html>

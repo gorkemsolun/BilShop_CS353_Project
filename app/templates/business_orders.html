@@ -32,7 +32,6 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="/business_main_page"><b>BilShop</b></a>
         <div class="d-flex">
-          </form>
           <form action="{{ url_for('notifications') }}" method="get">
             <button
               class="btn btn-outline-light me-2"
@@ -49,6 +48,26 @@
               title="Business Profile"
             >
               <i class="bi bi-person"></i>
+            </button>
+          </form>
+          <!-- Balance Button -->
+          <form action="{{ url_for('balance_business') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="balance_business"
+            >
+              <i class="bi bi-wallet2"></i>
+            </button>
+          </form>
+          <!-- Active Orders Button -->
+          <form action="{{ url_for('business_active_orders') }}" method="get">
+            <button
+              class="btn btn-outline-light me-2"
+              type="submit"
+              title="Orders"
+            >
+              <i class="bi bi-receipt"></i>
             </button>
           </form>
           <form action="{{ url_for('logout') }}" method="get">
@@ -107,17 +126,18 @@
                   class="btn btn-primary m-1"
                   >View Product</a
                 >
-               {% if not past %}
-               <form 
-               action="/update_purchase_status/{{ order.product_ID }}/{{ order.user_ID }}/{{ order.title }}" 
-               method="POST" 
-               class="d-inline"
-           >
-              
-               <button type="submit" class="btn btn-primary m-1">Mark As Shipped</button>
-           </form>
-                
-               {% endif %}
+                {% if not past %}
+                <form
+                  action="/update_purchase_status/{{ order.product_ID }}/{{ order.user_ID }}/{{ order.title }}"
+                  method="POST"
+                  class="d-inline"
+                >
+                  <button type="submit" class="btn btn-primary m-1">
+                    Mark As Shipped
+                  </button>
+                </form>
+
+                {% endif %}
               </div>
             </div>
             {% endfor %} {% else %} {% if past %}

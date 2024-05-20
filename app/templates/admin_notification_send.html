@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Send Notification</title>
+    <title>Send Notification - Admin</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -24,7 +24,7 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='styles/admin_main_page.css') }}"
+      href="{{ url_for('static', filename='styles/admin_notification_send.css') }}"
     />
   </head>
   <body>
@@ -32,32 +32,6 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="/admin_main_page"><b>BilShop</b></a>
         <div class="d-flex">
-          <!-- Search bar -->
-          <input
-            name="search"
-            class="form-control me-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          />
-          <button
-            id="searchButton"
-            class="btn btn-outline-light me-2"
-            type="submit"
-            title="Search"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-          <!-- Shopping Cart -->
-          <form action="{{ url_for('shopping_cart') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Cart"
-            >
-              <i class="bi bi-cart3"></i>
-            </button>
-          </form>
           <!-- Notifications button -->
           <form action="{{ url_for('notifications') }}" method="get">
             <button
@@ -66,16 +40,6 @@
               title="Notification"
             >
               <i class="bi bi-bell"></i>
-            </button>
-          </form>
-          <!-- Admin Profile button -->
-          <form action="{{ url_for('admin_profile') }}" method="get">
-            <button
-              class="btn btn-outline-light me-2"
-              type="submit"
-              title="Admin Profile"
-            >
-              <i class="bi bi-person"></i>
             </button>
           </form>
           <!-- Logout button -->
@@ -128,6 +92,13 @@
           />
         </div>
         <button type="submit" class="btn btn-primary">Send</button>
+        <button
+          class="btn btn-outline-light me-2 back-button"
+          type="button"
+          onclick="window.location.href='/admin_main_page'"
+        >
+          <b>Back</b>
+        </button>
       </form>
       {% if message %}
       <div class="alert alert-success mt-3" role="alert">{{ message }}</div>
