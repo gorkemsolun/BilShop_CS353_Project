@@ -138,9 +138,9 @@
             {% for admin_product in product_table %}
             <div class="col-md-4">
               <div class="admin_product-container">
-                <div class="admin_product-title">{{ admin_product.title }}</div>
+                <div class="admin_product-title m-2">{{ admin_product.title }}</div>
                   {% if admin_product.cover_picture %}
-                  <div class = "product-picture">
+                  <div class = "product-picture m-2">
                     <img
                     src="data:image/jpeg;base64,{{ admin_product.cover_picture }}"
                     alt="Product Picture"
@@ -148,11 +148,11 @@
                   />
                   </div>
                 {% endif %}
-                <div class="admin_product-price">{{ admin_product.price }}</div>
+                <div class="admin_product-price m-2">{{ admin_product.price }}</div>
                 <!-- Add other admin product details as needed -->
                 <a
                   href="/admin_product/{{ admin_product.product_ID }}"
-                  class="btn btn-primary"
+                  class="btn btn-primary m-2"
                   >View Product</a
                 >
                   <!-- Delete product button -->
