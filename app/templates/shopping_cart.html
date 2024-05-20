@@ -113,11 +113,11 @@
                   {{ customer_product.title }}
                 </div>
                 {% if customer_product.cover_picture %}
-                <div class = "customer_product-coverpic m-1">
+                <div class = "product-picture">
                   <img
                   src="data:image/jpeg;base64,{{ customer_product.cover_picture }}"
                   alt="Product Picture"
-                  class="product-image"
+                  width="150"
                 /> 
                 </div>
                 {% endif %}
