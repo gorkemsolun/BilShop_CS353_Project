@@ -72,6 +72,15 @@
             <img
               src="data:image/jpeg;base64,{{ product_picture }}"
               alt="Product Picture"
+              height="200"
+            />
+          </div>
+          {% endif %} {% if not product_picture %}
+          <div class="image-container">
+            <img
+              src="{{ url_for('static', filename='images/product.png') }}"
+              alt="Product Picture"
+              height="200"
             />
           </div>
           {% endif %}

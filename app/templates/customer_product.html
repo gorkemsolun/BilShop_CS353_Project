@@ -99,6 +99,13 @@
                 alt="Product Picture"
                 class="product-image"
               />
+              {% endif %} {% if product_picture is none %}
+              <img
+                src="{{ url_for('static', filename='images/product.png') }}"
+                alt="Product Picture"
+                class="product-image"
+                height="200"
+              />
               {% endif %}
             </div>
           </div>

@@ -70,13 +70,48 @@
     </nav>
 
     <div class="container">
-      <div class="row">
-        <div class="col-md-6">TODO: Add admin_product image here</div>
-        <div class="col-md-6">
-          <h1>{{ admin_product.title }}</h1>
-          <p>{{ admin_product.description }}</p>
-          <p>Price: ${{ admin_product.price }}</p>
-          TODO: Add a form to add the admin_product to the shopping cart
+      <div class="container me-2">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="image-container">
+              {% if product_picture is not none %}
+              <img
+                src="data:image/jpeg;base64,{{ product_picture }}"
+                alt="Product Picture"
+                class="product-image"
+              />
+              {% endif %} {% if product_picture is none %}
+              <img
+                src="{{ url_for('static', filename='images/product.png') }}"
+                alt="Product Picture"
+                class="product-image"
+                height="200"
+              />
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="container-product">
+              <h1>{{ admin_product.title }}</h1>
+              <p>{{ admin_product.description }}</p>
+              <p>Price: ${{ admin_product.price }}</p>
+              <form id="addToCartForm">
+                <label for="amount">Amount:</label>
+                <select id="amount" name="amount">
+                  {% for i in range(1, 31) %}
+                  <option value="{{ i }}">{{ i }}</option>
+                  {% endfor %}
+                </select>
+                <br />
+                <input
+                  class="m-3 p-2 addToCartForm-button"
+                  type="submit"
+                  value="Add to Cart"
+                />
+              </form>
+              <div id="successMessage"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
