@@ -4,7 +4,7 @@ CREATE TABLE
         name varchar(50) not null,
         email varchar(50) not null,
         password varchar(1000) not null,
-        picture BLOB default null,
+        picture LONGBLOB default null,
         phone_number varchar(100) default null,
         country varchar(100) default null,
         city varchar(100) default null,
@@ -55,7 +55,7 @@ CREATE TABLE
         product_status varchar(20),
         proportions varchar(20),
         mass numeric(10, 2),
-        cover_picture varchar(50),
+        cover_picture LONGBLOB,
         product_date timestamp not null,
         color varchar(20),
         category varchar(20),
@@ -65,7 +65,7 @@ CREATE TABLE
 CREATE TABLE
     Product_Picture (
         product_ID varchar(20) not null,
-        picture BLOB,
+        picture LONGBLOB,
         primary key (product_ID),
         foreign key (product_ID) references Product (product_ID) on delete cascade on update cascade
     );

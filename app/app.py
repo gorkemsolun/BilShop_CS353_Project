@@ -653,9 +653,11 @@ def business_product_create():
                 # Add the values to the query
                 query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
 
+                picture_binary_data = None
                 # Insert the picture into Product_Picture
-                picture = request.files["pictures"]
-                picture_binary_data = picture.read()
+                if "pictures" in request.files:
+                    picture = request.files["pictures"]
+                    picture_binary_data = picture.read()
 
                 # Try to insert the product into the database
                 try:
