@@ -587,6 +587,11 @@ def business_main_page():
             (session["user_ID"], items_per_page, offset),
         )
         product_table = cursor.fetchall()
+        for product in product_table:
+            if product['cover_picture']:
+                encoded_image = base64.b64encode(product['cover_picture']).decode("utf-8")
+                product['cover_picture'] = encoded_image
+        
         return render_template(
             "business_main_page.html",
             product_table=product_table,
@@ -645,10 +650,11 @@ def business_product_create():
                             values.append(request.form[field])
 
                         # If the field is cover_picture, add it to the query as binary data
-                        else:
-                            cover_picture = request.files["cover_picture"]
-                            cover_picture_binary_data = cover_picture.read()
-                            values.append(cover_picture_binary_data)
+                    elif field in request.files:
+                        query += f", {field}"
+                        cover_picture = request.files["cover_picture"]
+                        cover_picture_binary_data = cover_picture.read()
+                        values.append(cover_picture_binary_data)
 
                 # Add the values to the query
                 query += ") VALUES (" + ", ".join(["%s"] * len(values)) + ")"
