@@ -114,6 +114,16 @@
           </div>
         </div>
       </div>
+    <div class="comments-section mt-4">
+        <h3><b>Comments</b></h3>
+        <div id="commentsContainer">
+          {% for comment in comments %}
+          <div class="comment">
+            <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+          </div>
+            {% endfor %}
+        </div>
+      </div>
     </div>
   </body>
 </html>

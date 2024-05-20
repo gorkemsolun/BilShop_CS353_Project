@@ -787,6 +787,7 @@ def admin_main_page():
             if product['cover_picture']:
                 encoded_image = base64.b64encode(product['cover_picture']).decode("utf-8")
                 product['cover_picture'] = encoded_image
+
         return render_template(
             "admin_main_page.html",
             product_table=product_table,
@@ -1881,10 +1882,17 @@ def admin_product(product_ID):
     # Get the admin product picture from the database using the product_ID
     cursor.execute("SELECT * FROM Product_Picture WHERE product_ID = %s", (product_ID,))
     product_picture = cursor.fetchone()
+    # Get the comments for the product
+    cursor.execute(
+        "SELECT Comment.*, User.name as username FROM Comment JOIN User ON Comment.user_ID = User.user_ID WHERE product_ID = %s",
+        (product_ID,),
+    )
+    comments = cursor.fetchall()
     return render_template(
         "admin_product.html",
         admin_product=admin_product,
         product_picture=product_picture,
+        comments=comments,
     )
 
 
