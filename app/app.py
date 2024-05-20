@@ -1390,6 +1390,12 @@ def customer_profile_edit():
             street = request.form["street"]
             address_description = request.form["address_description"]
 
+            # Check if the email or username already exists in the database
+            cursor.execute("SELECT * FROM User WHERE email = %s OR name = %s", (email, name))
+            existing_user = cursor.fetchone()
+            if existing_user and existing_user["user_ID"] != session["user_ID"]:
+                return render_template("customer_profile_edit.html", message="Email or username already exists", customer=customer)
+
             # If an image is provided, read the binary data of the image
             if "picture" in request.files:
                 picture = request.files["picture"]
@@ -1520,6 +1526,12 @@ def business_profile_edit():
             building = request.form["building"]
             street = request.form["street"]
             address_description = request.form["address_description"]
+
+            # Check if the email or username already exists in the database
+            cursor.execute("SELECT * FROM User WHERE email = %s OR name = %s", (email, name))
+            existing_user = cursor.fetchone()
+            if existing_user and existing_user["user_ID"] != session["user_ID"]:
+                return render_template("business_profile_edit.html", message="Email or username already exists", business=business)
 
             picture_binary_data = None
             # If an image is provided, read the binary data of the image
