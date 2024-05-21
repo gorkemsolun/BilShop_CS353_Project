@@ -319,6 +319,9 @@
           productDiv.innerHTML = `
       <div class="business_product-container">
         <div class="business_product-title">${business_product.title}</div>
+        <div class="product-picture">
+              <img src="${business_product.cover_picture ? 'data:image/jpeg;base64,' + business_product.cover_picture : '{{ url_for('static', filename='images/product.png') }}'}" alt="Product Picture" width="150" />
+        </div>
         <div class="business_product-price">${business_product.price}</div>
         <!-- Add other business product details as needed -->
         <div>

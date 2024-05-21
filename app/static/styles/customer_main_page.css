@@ -1,100 +1,49 @@
 body {
-    background-color: #222;
-    color: #fff;
-    font-family: sans-serif;
+  background-color: #222; // Dark
+  color: #fff; // White
+  font-family: sans-serif;
 }
 
 .container {
-    margin-top: 20px;
-    color: #fff;
-    padding: 20px;
+  margin-top: 20px;
+  color: #fff; // White
+  padding: 20px;
 }
 
 .customer_product-container {
-    background-color: #333;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Ensure spacing between elements */
-    height: 100%;
+  background-color: #333; // Dark
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
 }
 
 .customer_product-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .customer_product-price {
-    font-size: 18px;
-    margin-bottom: 15px;
+  font-size: 18px;
+  margin-bottom: 10px;
 }
 
 .filter-section {
-    background-color: #333;
-    padding: 20px;
-    border-radius: 10px;
-    margin-right: 20px;
-    margin-left: 20px;
+  background-color: #333; // Dark
+  padding: 20px;
+  border-radius: 10px;
+  margin-right: 20px;
+  margin-left: 20px;
 }
 
 .navbar-brand {
-    font-size: 40px;
+  font-size: 40px;
 }
 
 .navbar-nav .nav-link {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .btn-outline-light {
-    border: 0;
-}
-
-.btn-primary {
-    width: 100%; /* Ensure buttons take full width */
-    margin-top: auto; /* Push buttons to the bottom */
-}
-
-.mb-4 {
-    margin-bottom: 1.5rem !important;
-}
-
-.pagination .page-link {
-    color: #fff;
-    background-color: #333;
-    border-color: #555;
-}
-
-.pagination .page-item.active .page-link {
-    color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-/* Ensuring consistent button sizing and layout */
-button[type="submit"] {
-    min-width: 45px;
-    min-height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 5px;
-}
-
-    button[type="submit"] i {
-        font-size: 1.2rem;
-    }
-
-/* Ensuring the filter form's buttons maintain size */
-#filterForm button {
-    width: 100%;
-    margin-top: 10px;
-}
-
-.product-picture {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  border: 0;
 }

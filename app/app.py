@@ -286,7 +286,6 @@ def filter_products():
             product_table = cursor.fetchall()
     return jsonify(product_table)
 
-
 # # Login page elements and given checks for login
 @app.route("/")
 @app.route("/login", methods=["GET", "POST"])
@@ -1263,8 +1262,8 @@ def business_past_orders():
     purchaseinfo = []
     for item in products:
         cursor.execute(
-            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status = %s",
-            (item["product_ID"], "shipped"),
+            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status <> %s",
+            (item["product_ID"], "purchased"),
         )
         purchases = cursor.fetchall()
         for purchase in purchases:
@@ -1289,8 +1288,8 @@ def business_active_orders():
     purchaseinfo = []
     for item in products:
         cursor.execute(
-            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status <> %s",
-            (item["product_ID"], "shipped"),
+            "SELECT * FROM Purchase_Information WHERE product_ID = %s AND purchase_status = %s",
+            (item["product_ID"], "purchased"),
         )
         purchases = cursor.fetchall()
         for purchase in purchases:
